@@ -3,8 +3,9 @@ import { handleVerifyRazorpayPaymentRoute } from '@/lib/api-handlers';
 
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('authorization');
     const body = await req.json();
-    const result = await handleVerifyRazorpayPaymentRoute(body);
+    const result = await handleVerifyRazorpayPaymentRoute(body, authHeader);
     return NextResponse.json(result.body, { status: result.status });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

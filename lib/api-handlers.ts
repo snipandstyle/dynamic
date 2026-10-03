@@ -286,13 +286,15 @@ export async function handleCreateBooking(data: any, authHeader?: string | null)
       service_type, check_in_date, check_out_date, drop_off_time, pickup_time, number_of_days,
       base_amount_paise, discount_amount_paise, addons_amount_paise, total_amount_paise,
       status, payment_status, payment_method, applied_offer_code, is_highway_early_dropoff,
-      departure_grooming_wash, emergency_contact, special_instructions, services_json
+      departure_grooming_wash, emergency_contact, special_instructions, services_json,
+      razorpay_order_id, razorpay_payment_id, razorpay_signature
     ) VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11, $12, $13,
       $14, $15, $16, $17,
       $18, $19, $20, $21, $22,
-      $23, $24, $25, $26
+      $23, $24, $25, $26,
+      $27, $28, $29
     )`,
     [
       bookingId,
@@ -313,14 +315,17 @@ export async function handleCreateBooking(data: any, authHeader?: string | null)
       addonsPaise,
       totalPaise,
       'confirmed',
-      String(data.paymentStatus || 'pending').slice(0, 80),
-      String(data.paymentMethod || 'razorpay').slice(0, 80),
+      String(data.paymentStatus || 'paid').slice(0, 80),
+      String(data.paymentMethod || 'razorpay_gateway').slice(0, 80),
       data.appliedOfferCode ? String(data.appliedOfferCode).slice(0, 50) : null,
       data.isHighwayEarlyDropoff ?? true,
       data.departureGroomingWash ?? false,
       String(data.emergencyContact || data.phone || '').slice(0, 200),
       String(data.specialInstructions || ''),
       JSON.stringify(data.services_json || []),
+      data.razorpay_order_id || null,
+      data.razorpay_payment_id || null,
+      data.razorpay_signature || null,
     ]
   );
 
@@ -481,17 +486,21 @@ export async function handleCreateRazorpayOrderRoute(data: {
 }
 
 // 9. RAZORPAY: VERIFY PAYMENT
-export async function handleVerifyRazorpayPaymentRoute(data: {
-  order_id?: string;
-  orderId?: string;
-  razorpay_order_id?: string;
-  payment_id?: string;
-  paymentId?: string;
-  razorpay_payment_id?: string;
-  signature?: string;
-  razorpay_signature?: string;
-  bookingId?: string;
-}) {
+export async function handleVerifyRazorpayPaymentRoute(
+  data: {
+    order_id?: string;
+    orderId?: string;
+    razorpay_order_id?: string;
+    payment_id?: string;
+    paymentId?: string;
+    razorpay_payment_id?: string;
+    signature?: string;
+    razorpay_signature?: string;
+    bookingId?: string;
+    bookingPayload?: any;
+  },
+  authHeader?: string | null
+) {
   const orderId = data.order_id || data.orderId || data.razorpay_order_id;
   const paymentId = data.payment_id || data.paymentId || data.razorpay_payment_id;
   const signature = data.signature || data.razorpay_signature;
@@ -522,8 +531,32 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
     };
   }
 
-  // If a bookingId is provided, update Neon DB booking record and dispatch paid alert
-  if (data.bookingId) {
+  let finalBookingId = data.bookingId;
+  let finalBookingRef = '';
+
+  // 1. If bookingPayload is provided, create the booking in Neon DB now that payment is verified!
+  if (data.bookingPayload) {
+    try {
+      const payload = {
+        ...data.bookingPayload,
+        paymentStatus: 'paid',
+        paymentMethod: 'razorpay_gateway',
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: signature,
+      };
+      const created = await handleCreateBooking(payload, authHeader);
+      finalBookingId = created.body.bookingId;
+      finalBookingRef = created.body.bookingRef;
+    } catch (createErr: any) {
+      console.error('[handleVerifyRazorpayPaymentRoute Create Booking Error]', createErr);
+      return {
+        status: 500,
+        body: { success: false, error: 'Payment verified, but failed to record booking: ' + createErr.message },
+      };
+    }
+  } else if (data.bookingId) {
+    // 2. If an existing bookingId was provided, update it to paid and send alert
     try {
       const updateRes = await query(
         `UPDATE bookings 
@@ -539,6 +572,7 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
 
       if (updateRes.rows.length > 0) {
         const b = updateRes.rows[0];
+        finalBookingRef = b.booking_ref;
         const uRes = await query('SELECT full_name, phone_number FROM users WHERE id = $1 LIMIT 1', [b.user_id]);
         const user = uRes.rows[0] || {};
         sendOrderAlertEmail({
@@ -553,7 +587,7 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
           dropOffTime: b.drop_off_time,
           totalAmount: b.total_amount_paise ? b.total_amount_paise / 100 : 0,
           paymentStatus: 'paid',
-          paymentMethod: 'razorpay_online',
+          paymentMethod: 'razorpay_gateway',
           specialInstructions: b.special_instructions,
           appliedOfferCode: b.applied_offer_code,
         }).catch((err) => console.warn('[sendOrderAlertEmail verification warning]', err));
@@ -570,7 +604,8 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
       message: 'Payment verified and confirmed successfully!',
       order_id: orderId,
       payment_id: paymentId,
-      bookingId: data.bookingId,
+      bookingId: finalBookingId,
+      bookingRef: finalBookingRef,
       status: 'paid',
     },
   };

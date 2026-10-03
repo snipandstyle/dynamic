@@ -83,9 +83,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   } | null>(null);
   const [couponError, setCouponError] = useState('');
 
-  // 7. Payment Choice & Razorpay Simulator
-  const [paymentChoice, setPaymentChoice] = useState<'razorpay' | 'studio'>('razorpay');
+  // 7. Payment State
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [paymentNotice, setPaymentNotice] = useState<string>('');
   const [showRazorpaySimModal, setShowRazorpaySimModal] = useState<boolean>(false);
   const [simulatedOrderData, setSimulatedOrderData] = useState<{
     bookingId: string;
@@ -587,6 +587,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const totalSavings = Math.max(0, (grossOriginalTotal - subtotal) + discountAmount);
 
   // Submit Booking
+  // Submit Booking via Razorpay Standard Online Checkout
   const handleConfirmOrder = async () => {
     if (!currentUser) {
       alert('Please sign in or register with your phone number to complete order.');
@@ -597,16 +598,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
+    setPaymentNotice('');
     setIsProcessing(true);
 
     try {
-      const token = localStorage.getItem('snip_auth_token');
-      const authHeaders: any = { 'Content-Type': 'application/json' };
-      if (token) authHeaders.Authorization = `Bearer ${token}`;
-
       const primaryService = selectedServices[0];
       const serviceNamesSummary = selectedServices.map((s) => s.name).join(' + ');
 
+      // Prepare comprehensive booking payload (ONLY committed to database upon verified payment!)
       const bookingPayload = {
         parentName: currentUser.fullName || 'Pet Parent',
         phone: currentUser.phone || authPhone,
@@ -627,157 +626,130 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         isHighwayEarlyDropoff: true,
         appliedOfferCode: appliedCoupon?.code || null,
         specialInstructions: `${petGender.toUpperCase()} • Special notes: ${specialInstructions || 'None'}`,
-        paymentStatus: paymentChoice === 'razorpay' ? 'pending' : 'pending_studio',
-        paymentMethod: paymentChoice === 'razorpay' ? 'razorpay_gateway' : 'pay_at_studio',
       };
 
-      // 1. Create booking in Neon DB
-      const createRes = await fetch('/api/bookings', {
+      // Step 1: Call Backend to Create Razorpay Order (NO booking is recorded in DB yet!)
+      const rzpRes = await fetch('/api/create-order', {
         method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify(bookingPayload),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: finalTotal * 100, // in paise
+          currency: 'INR',
+          receipt: `rcpt_${Date.now()}`,
+          notes: {
+            petName: bookingPayload.petName,
+            customerPhone: bookingPayload.phone,
+            services: serviceNamesSummary.slice(0, 80),
+          },
+        }),
       });
 
-      const createData = await createRes.json();
-      if (!createRes.ok) {
-        throw new Error(createData.error || 'Failed to record booking.');
+      const rzpOrder = await rzpRes.json();
+      if (!rzpRes.ok) {
+        throw new Error(rzpOrder.error || 'Failed to initialize payment gateway.');
       }
 
-      const bookingId = createData.bookingId;
-      const bookingRef = createData.bookingRef;
+      const rzpKeyId = rzpOrder.key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_TjVYMuSit6eIYP';
 
-      if (paymentChoice === 'razorpay') {
-        // Step 1: Call Backend to Create Razorpay Order
-        const rzpRes = await fetch('/api/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: finalTotal * 100, // in paise
-            currency: 'INR',
-            receipt: bookingRef,
-            notes: {
-              bookingId,
-              bookingRef,
-              petName: bookingPayload.petName,
-            },
-          }),
+      // Ensure Razorpay SDK is loaded on page
+      if (typeof (window as any).Razorpay === 'undefined') {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('Failed to load Razorpay payment gateway. Please check your connection.'));
+          document.head.appendChild(script);
         });
+      }
 
-        const rzpOrder = await rzpRes.json();
-        if (!rzpRes.ok) {
-          throw new Error(rzpOrder.error || 'Failed to create Razorpay payment order.');
-        }
+      // Step 2: Open Razorpay Standard Web Checkout Modal
+      const rzpOptions: any = {
+        key: rzpKeyId,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency || 'INR',
+        name: 'Snip & Style',
+        description: `${serviceNamesSummary}`,
+        image: '/images/logo.png',
+        order_id: rzpOrder.order_id || rzpOrder.id,
+        handler: async function (response: any) {
+          try {
+            setIsProcessing(true);
+            setPaymentNotice('Verifying payment signature with Razorpay...');
 
-        const rzpKeyId = rzpOrder.key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_TjVYMuSit6eIYP';
+            const token = localStorage.getItem('snip_auth_token');
+            const authHeaders: any = { 'Content-Type': 'application/json' };
+            if (token) authHeaders.Authorization = `Bearer ${token}`;
 
-        // Ensure Razorpay SDK is loaded on page
-        if (typeof (window as any).Razorpay === 'undefined') {
-          await new Promise<void>((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.async = true;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error('Failed to load Razorpay SDK. Please check your internet connection.'));
-            document.head.appendChild(script);
-          });
-        }
+            // Step 3: Send order_id, payment_id, signature AND bookingPayload to backend
+            // The booking is ONLY created in the database upon successful HMAC verification!
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: authHeaders,
+              body: JSON.stringify({
+                order_id: response.razorpay_order_id,
+                payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                bookingPayload,
+              }),
+            });
 
-        // Step 2: Open Razorpay Standard Web Checkout Modal
-        const rzpOptions: any = {
-          key: rzpKeyId,
-          amount: rzpOrder.amount,
-          currency: rzpOrder.currency || 'INR',
-          name: 'Snip & Style',
-          description: `${serviceNamesSummary} • Ref: ${bookingRef}`,
-          image: '/images/logo.png',
-          order_id: rzpOrder.order_id || rzpOrder.id,
-          handler: async function (response: any) {
-            try {
-              setIsProcessing(true);
-              // Step 3: Send order_id, payment_id, signature to Backend for HMAC verification
-              const verifyRes = await fetch('/api/verify-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  order_id: response.razorpay_order_id,
-                  payment_id: response.razorpay_payment_id,
-                  signature: response.razorpay_signature,
-                  bookingId: bookingId,
-                }),
-              });
-
-              const verifyData = await verifyRes.json();
-              if (!verifyRes.ok || !verifyData.success) {
-                throw new Error(verifyData.error || 'Payment signature verification failed.');
-              }
-
-              // Display confirmed booking success screen
-              setBookingSuccess({
-                bookingRef,
-                bookingId,
-                paymentStatus: 'Paid & Confirmed (Razorpay Verified)',
-                paymentMethod: `Razorpay Online Gateway (${response.razorpay_payment_id})`,
-                servicesCount: selectedServices.length,
-                totalAmount: finalTotal,
-                totalSavings,
-                date: `${checkInDate} (${preferredTimeSlot})`,
-                pet: `${petName.trim()}`,
-              });
-            } catch (verErr: any) {
-              console.error('[Razorpay Verify Error]', verErr);
-              alert('Payment Verification Error: ' + verErr.message);
-            } finally {
-              setIsProcessing(false);
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.error || 'Payment signature verification failed.');
             }
-          },
-          prefill: {
-            name: bookingPayload.parentName,
-            contact: bookingPayload.phone,
-            email: bookingPayload.email,
-          },
-          notes: {
-            bookingId,
-            bookingRef,
-            petName: bookingPayload.petName,
-          },
-          theme: {
-            color: '#0B1A14', // Sanctuary Forest green
-          },
-          modal: {
-            ondismiss: function () {
-              console.log('Razorpay checkout modal closed by user');
-              setIsProcessing(false);
-            },
-          },
-        };
 
-        const rzp = new (window as any).Razorpay(rzpOptions);
+            // Display confirmed booking success screen
+            setBookingSuccess({
+              bookingRef: verifyData.bookingRef || 'SNS-CONFIRMED',
+              bookingId: verifyData.bookingId || '',
+              paymentStatus: 'Paid & Confirmed (Razorpay Verified)',
+              paymentMethod: `Razorpay Online Gateway (${response.razorpay_payment_id})`,
+              servicesCount: selectedServices.length,
+              totalAmount: finalTotal,
+              totalSavings,
+              date: `${checkInDate} (${preferredTimeSlot})`,
+              pet: `${petName.trim()}`,
+            });
+          } catch (verErr: any) {
+            console.error('[Razorpay Verify Error]', verErr);
+            alert('Payment Verification Error: ' + verErr.message);
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: bookingPayload.parentName,
+          contact: bookingPayload.phone,
+          email: bookingPayload.email,
+        },
+        notes: {
+          petName: bookingPayload.petName,
+        },
+        theme: {
+          color: '#0B1A14',
+        },
+        modal: {
+          ondismiss: function () {
+            console.log('Razorpay checkout modal cancelled by user');
+            setIsProcessing(false);
+            setPaymentNotice('Payment was cancelled. No order was booked and your cart is preserved.');
+          },
+        },
+      };
 
-        rzp.on('payment.failed', function (failResp: any) {
-          console.error('[Razorpay Payment Failed]', failResp.error);
-          alert(`Payment Failed: ${failResp.error?.description || 'Your payment was declined by the bank/gateway.'}`);
-          setIsProcessing(false);
-        });
+      const rzp = new (window as any).Razorpay(rzpOptions);
 
-        rzp.open();
-      } else {
-        // Pay at Studio
-        setBookingSuccess({
-          bookingRef,
-          bookingId,
-          paymentStatus: 'Confirmed (Pay at Studio Upon Drop-off)',
-          paymentMethod: 'Pay at Studio (Card / Cash / UPI on Arrival)',
-          servicesCount: selectedServices.length,
-          totalAmount: finalTotal,
-          totalSavings,
-          date: `${checkInDate} (${preferredTimeSlot})`,
-          pet: `${petName.trim()}`,
-        });
-      }
+      rzp.on('payment.failed', function (failResp: any) {
+        console.error('[Razorpay Payment Failed]', failResp.error);
+        setIsProcessing(false);
+        setPaymentNotice(`Payment was declined: ${failResp.error?.description || 'Transaction unsuccessful.'}. No booking was placed.`);
+      });
+
+      rzp.open();
     } catch (err: any) {
       console.error(err);
-      alert('Error placing order: ' + err.message);
-    } finally {
+      alert('Error initiating payment: ' + err.message);
       setIsProcessing(false);
     }
   };
@@ -1377,38 +1349,36 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               )}
             </div>
 
-            {/* 7. PAYMENT METHOD (100% ON-SITE) */}
+            {/* 7. PAYMENT METHOD (100% ONLINE VIA RAZORPAY) */}
             <div className="space-y-1.5 pt-1 border-t border-black/5">
               <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
                 Payment Method
               </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentChoice('razorpay')}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
-                    paymentChoice === 'razorpay'
-                      ? 'border-sanctuary-gold bg-sanctuary-gold/10 text-sanctuary-dark ring-2 ring-sanctuary-gold'
-                      : 'border-black/10 bg-white'
-                  }`}
-                >
-                  <div className="text-xs font-black">Razorpay Online</div>
-                  <div className="text-[9px] text-sanctuary-dark/60">UPI, Cards, NetBanking</div>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentChoice('studio')}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
-                    paymentChoice === 'studio'
-                      ? 'border-sanctuary-forest bg-sanctuary-forest/10 text-sanctuary-dark ring-2 ring-sanctuary-forest'
-                      : 'border-black/10 bg-white'
-                  }`}
-                >
-                  <div className="text-xs font-black">Pay at Studio</div>
-                  <div className="text-[9px] text-sanctuary-dark/60">Pay on Check-in (Card/Cash)</div>
-                </button>
+              <div className="p-3 rounded-2xl border border-sanctuary-gold/40 bg-gradient-to-r from-amber-50/60 to-white flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-8 rounded-xl bg-[#0C2340] text-sanctuary-gold flex items-center justify-center font-black text-sm shrink-0">
+                    ₹
+                  </div>
+                  <div>
+                    <div className="font-black text-sanctuary-dark text-[11px] flex items-center gap-1.5">
+                      <span>Razorpay Secure Online Checkout</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded">Instant Confirmation</span>
+                    </div>
+                    <div className="text-[10px] text-sanctuary-dark/65 font-medium">
+                      UPI (GPay / PhonePe / Paytm / BHIM) • Cards • NetBanking
+                    </div>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-emerald-600 text-base">verified_user</span>
               </div>
+
+              {paymentNotice && (
+                <div className="p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-[11px] font-bold text-amber-900 flex items-center gap-2 shadow-xs">
+                  <span className="material-symbols-outlined text-amber-600 text-sm shrink-0">info</span>
+                  <span>{paymentNotice}</span>
+                </div>
+              )}
             </div>
 
           </div>
@@ -1445,12 +1415,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             >
               <span>
                 {isProcessing
-                  ? 'Booking...'
+                  ? 'Connecting Razorpay...'
                   : !currentUser
                   ? 'Sign In to Book'
-                  : paymentChoice === 'razorpay'
-                  ? 'Pay with Razorpay'
-                  : 'Confirm Booking'}
+                  : 'Pay with Razorpay'}
               </span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
