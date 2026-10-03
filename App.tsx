@@ -273,6 +273,16 @@ const App: React.FC = () => {
         onClose={() => setIsPosterOpen(false)}
         onApplyAndBook={() => {
           setIsPosterOpen(false);
+          setSelectedBooking({
+            type: 'boarding',
+            serviceName: 'Cage-Free Boarding Floor',
+            basePrice: 625,
+            origPrice: 750,
+            petType: 'dog',
+            petSize: 'small',
+            nights: 4,
+            appliedCouponCode: 'FREESPA',
+          });
           setIsCheckoutOpen(true);
         }}
       />

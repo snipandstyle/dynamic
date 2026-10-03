@@ -14,11 +14,11 @@ export const SanctuaryMobileBar: React.FC<SanctuaryMobileBarProps> = ({ onOpenBo
           <div className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-sanctuary-gold animate-ping" />
             <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-gold">
-              LIMITED TIME OFFER
+              EXCLUSIVE SANCTUARY PERK
             </span>
           </div>
           <span className="text-xs font-black text-white">
-            15% OFF • <span className="font-mono text-sanctuary-gold">SNIP15</span>
+            Free Spa Bath • <span className="font-mono text-sanctuary-gold">FREESPA</span>
           </span>
         </div>
 

@@ -116,7 +116,7 @@ export const GroomingSection: React.FC<GroomingSectionProps> = ({ onOpenBooking 
           <div className="space-y-1 max-w-2xl">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sanctuary-gold/15 text-sanctuary-dark text-[11px] font-black uppercase tracking-wider">
               <span className="material-symbols-outlined text-xs text-sanctuary-gold">spa</span>
-              <span>Fear-Free Certified Stylists • Flat 15% OFF Code: SNIP15</span>
+              <span>Fear-Free Certified Stylists • 10% OFF Code: GROOM10</span>
             </div>
             
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-sanctuary-dark tracking-tight leading-tight">

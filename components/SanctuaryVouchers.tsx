@@ -6,40 +6,43 @@ export const SanctuaryVouchers: React.FC = () => {
 
   const vouchers = [
     {
-      code: 'SNIP15',
-      discount: 'FLAT 15% OFF',
-      title: 'First-Timer Welcome Special',
-      desc: 'Valid on any salon grooming package or luxury boarding stay. No minimum spend.',
-      badge: 'HOTTEST OFFER',
-      badgeColor: 'bg-sanctuary-gold text-sanctuary-dark',
-      whatsappMsg: 'Hi Snip & Style! I would like to claim 15% OFF with code SNIP15.',
-    },
-    {
-      code: 'FREESPA4',
-      discount: 'FREE ₹800 SPA',
-      title: '4+ Nights Holiday Reward',
-      desc: 'Includes full warm hydromassage, fluff blow-dry, and ear hygiene before heading home.',
-      badge: 'BOARDING SPECIAL',
+      code: 'FREESPA',
+      discount: 'FREE SPA BATH',
+      title: 'Free Furry Fresh Spa (4+ Nights)',
+      desc: 'Book 4+ nights boarding and receive a full Furry Fresh Spa bath & blow-dry for ₹0 at checkout.',
+      badge: '4+ NIGHTS BOARDING',
       badgeColor: 'bg-emerald-700 text-white',
-      whatsappMsg: 'Hi Snip & Style! I am booking 4+ nights and claiming my Free ₹800 Spa Bath.',
+      category: 'boarding',
+      nights: 4,
     },
     {
-      code: 'PETCAB50',
-      discount: '50% OFF PET TAXI',
-      title: 'Doorstep AC Chauffeur',
-      desc: 'Safe, stress-free pickup and drop-off in our climate-controlled pet cab (5+ nights).',
-      badge: 'TRAVEL CONVENIENCE',
-      badgeColor: 'bg-sanctuary-forest text-white',
-      whatsappMsg: 'Hi Snip & Style! I would like to claim 50% OFF pet cab pickup with code PETCAB50.',
+      code: 'FREESPA8',
+      discount: 'FREE SPECIAL SPA',
+      title: 'Special Spa Package (8+ Nights)',
+      desc: 'Book 8+ nights boarding and unlock our Special Deep Spa & Paw Balm treatment for ₹0 at checkout.',
+      badge: '8+ NIGHTS BOARDING',
+      badgeColor: 'bg-amber-600 text-white',
+      category: 'boarding',
+      nights: 8,
     },
     {
-      code: 'PUPPY20',
-      discount: 'FLAT 20% OFF',
-      title: 'Puppy & Kitten First Glow-Up',
-      desc: 'Gentle, slow-paced introduction groom for fur babies under 6 months old.',
-      badge: 'YOUNG PETS',
+      code: 'FREESPA15',
+      discount: 'FREE FULL GROOM',
+      title: 'Full Luxury Grooming (15+ Nights)',
+      desc: 'Extended stays of 15+ nights receive a complete breed haircut, style, and luxury bath for ₹0.',
+      badge: '15+ NIGHTS BOARDING',
       badgeColor: 'bg-purple-700 text-white',
-      whatsappMsg: 'Hi Snip & Style! I want to claim 20% OFF puppy intro groom with code PUPPY20.',
+      category: 'boarding',
+      nights: 15,
+    },
+    {
+      code: 'GROOM10',
+      discount: 'FLAT 10% OFF',
+      title: '10% OFF Orders Above ₹999',
+      desc: 'Valid on any artisan dog or cat grooming package when the grooming order exceeds ₹999.',
+      badge: 'GROOMING ONLY',
+      badgeColor: 'bg-sanctuary-gold text-sanctuary-dark',
+      category: 'grooming',
     },
   ];
 
@@ -59,16 +62,16 @@ export const SanctuaryVouchers: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sanctuary-gold/20 border border-sanctuary-gold/30 text-sanctuary-gold text-xs font-black uppercase tracking-wider">
             <span className="material-symbols-outlined text-sm">local_activity</span>
-            <span>Bangalore Exclusive Privileges</span>
+            <span>Verified Privileges</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight">
-            Unmissable Offers & <br />
+            Official Coupons & <br />
             <span className="italic font-normal text-sanctuary-gold">Complimentary Guest Rewards.</span>
           </h2>
 
           <p className="text-sm sm:text-base text-white/70 font-medium leading-relaxed">
-            Take advantage of these limited-time promotional vouchers. Tap to copy code or click to apply directly in online checkout!
+            Take advantage of our exclusive boarding rewards and grooming discounts. Tap to copy code or click to apply directly in online checkout!
           </p>
         </div>
 
@@ -109,6 +112,7 @@ export const SanctuaryVouchers: React.FC = () => {
                     </span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => handleCopy(v.code)}
                     className="py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-colors"
                   >
@@ -122,7 +126,17 @@ export const SanctuaryVouchers: React.FC = () => {
                 type="button"
                 onClick={() => {
                   handleCopy(v.code);
-                  window.dispatchEvent(new CustomEvent('snip_open_booking'));
+                  window.dispatchEvent(
+                    new CustomEvent('snip_open_booking', {
+                      detail: {
+                        appliedCouponCode: v.code,
+                        type: v.category === 'boarding' ? 'boarding' : 'grooming',
+                        nights: v.nights || 4,
+                        serviceName: v.category === 'boarding' ? 'Cage-Free Boarding Floor' : 'Artisan Grooming Care',
+                        basePrice: v.category === 'boarding' ? 625 : 1199,
+                      },
+                    })
+                  );
                 }}
                 className="w-full py-3 bg-sanctuary-gold hover:bg-amber-500 text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
               >

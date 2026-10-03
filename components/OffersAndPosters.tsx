@@ -9,36 +9,43 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
 
   const vouchers = [
     {
-      code: 'SNIP15',
-      discount: '15% OFF',
-      title: 'First-Timer Welcome Offer',
-      desc: 'Valid on any grooming package or boarding stay.',
-      badge: 'POPULAR',
-      color: 'bg-sanctuary-gold text-sanctuary-dark',
-    },
-    {
-      code: 'SNIPVIP20',
-      discount: '20% OFF',
-      title: 'VIP Weekend Flash Special',
-      desc: 'Exclusive discount on full breed haircuts and styling.',
-      badge: 'LIMITED SLOTS',
-      color: 'bg-sanctuary-forest text-white',
-    },
-    {
       code: 'FREESPA',
-      discount: 'FREE REFRESH',
-      title: '4+ Days Stay Reward',
-      desc: 'Complimentary Furry Fresh grooming refresh (bath & dry) before checkout.',
-      badge: 'BOARDING SPECIAL',
+      discount: 'FREE SPA BATH',
+      title: 'Free Furry Fresh Spa (4+ Nights)',
+      desc: 'Book 4+ nights boarding and receive a full Furry Fresh Spa bath & blow-dry for ₹0 at checkout.',
+      badge: '4+ NIGHTS BOARDING',
       color: 'bg-emerald-700 text-white',
+      category: 'boarding',
+      nights: 4,
     },
     {
-      code: 'PETCAB50',
-      discount: '50% OFF CAB',
-      title: 'Doorstep AC Pet Taxi',
-      desc: 'Half price pet taxi pickup and drop across South Bangalore.',
-      badge: 'DOORSTEP TAXI',
+      code: 'FREESPA8',
+      discount: 'FREE SPECIAL SPA',
+      title: 'Special Spa Package (8+ Nights)',
+      desc: 'Book 8+ nights boarding and unlock our Special Deep Spa & Paw Balm treatment for ₹0 at checkout.',
+      badge: '8+ NIGHTS BOARDING',
+      color: 'bg-amber-600 text-white',
+      category: 'boarding',
+      nights: 8,
+    },
+    {
+      code: 'FREESPA15',
+      discount: 'FREE FULL GROOM',
+      title: 'Full Luxury Grooming (15+ Nights)',
+      desc: 'Extended stays of 15+ nights receive a complete breed haircut, style, and luxury bath for ₹0.',
+      badge: '15+ NIGHTS BOARDING',
       color: 'bg-purple-700 text-white',
+      category: 'boarding',
+      nights: 15,
+    },
+    {
+      code: 'GROOM10',
+      discount: 'FLAT 10% OFF',
+      title: '10% OFF Orders Above ₹999',
+      desc: 'Valid on any artisan dog or cat grooming package when the grooming order exceeds ₹999.',
+      badge: 'GROOMING ONLY',
+      color: 'bg-sanctuary-gold text-sanctuary-dark',
+      category: 'grooming',
     },
   ];
 
@@ -105,8 +112,22 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
               {/* Action Buttons */}
               <div className="pt-2">
                 <button
-                  onClick={onOpenBooking}
-                  className="w-full py-2.5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  type="button"
+                  onClick={() => {
+                    handleCopy(v.code);
+                    window.dispatchEvent(
+                      new CustomEvent('snip_open_booking', {
+                        detail: {
+                          appliedCouponCode: v.code,
+                          type: v.category === 'boarding' ? 'boarding' : 'grooming',
+                          nights: v.nights || 4,
+                          serviceName: v.category === 'boarding' ? 'Cage-Free Boarding Floor' : 'Artisan Grooming Care',
+                          basePrice: v.category === 'boarding' ? 625 : 1199,
+                        },
+                      })
+                    );
+                  }}
+                  className="w-full py-2.5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
                 >
                   <span>Apply & Book Now</span>
                   <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>

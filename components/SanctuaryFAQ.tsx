@@ -22,8 +22,8 @@ export const SanctuaryFAQ: React.FC = () => {
       a: 'Our staff are certified in fear-free handling techniques. Anxious companions are given private quiet suites and gentle one-on-one attention without any forced social interactions. If your companion requires prescription medications, eye drops, or special senior care, our trained team administers them on precise schedules at no extra charge.'
     },
     {
-      q: 'How do I claim the 15% OFF voucher or Free Spa Bath?',
-      a: 'Simply enter code SNIP15 during online checkout to get 15% OFF on all grooming and boarding packages! For boarding, if your companion stays for 4 or more nights, the ₹800 Furry Fresh Spa Bath is unlocked automatically in checkout — no voucher needed!'
+      q: 'How do I claim the Free Spa Bath or Grooming Discounts?',
+      a: 'Enter code FREESPA during checkout when booking 4 or more nights of boarding to get a complimentary Furry Fresh Spa Bath (₹749 value) at ₹0! For longer stays, code FREESPA8 (8+ nights) unlocks a Free Special Spa Package, and FREESPA15 (15+ nights) unlocks a Free Full Luxury Grooming. For grooming appointments above ₹999, apply coupon GROOM10 for 10% OFF!'
     },
     {
       q: 'Can I visit the Kanakapura Road studio before booking?',

@@ -63,11 +63,11 @@ export const PromoPosterPopup: React.FC<PromoPosterPopupProps> = ({
                 USE VOUCHER CODE:
               </span>
               <span className="font-mono text-xl font-black text-sanctuary-dark tracking-widest">
-                SNIPVIP20
+                FREESPA
               </span>
             </div>
             <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-              Save 20% Instantly
+              Free ₹749 Spa Bath
             </span>
           </div>
 
@@ -78,7 +78,7 @@ export const PromoPosterPopup: React.FC<PromoPosterPopupProps> = ({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-              <span>Twice-daily WhatsApp video updates to parents</span>
+              <span>Free Furry Fresh Bath with 4+ nights stay</span>
             </div>
           </div>
 
@@ -88,7 +88,7 @@ export const PromoPosterPopup: React.FC<PromoPosterPopupProps> = ({
               onClick={onApplyAndBook}
               className="w-full py-3.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
             >
-              <span>Apply 20% OFF & Open Booking</span>
+              <span>Apply Free Spa & Book Boarding</span>
               <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
             </button>
             <button

@@ -317,7 +317,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
           </div>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            All services feature tearless organic shampoos, UV-sterilized clippers, low-stress fear-free handling, and 15% discount using code <strong className="font-mono text-sanctuary-dark">SNIP15</strong>.
+            All services feature tearless organic shampoos, UV-sterilized clippers, low-stress fear-free handling, and 10% discount on grooming above ₹999 using code <strong className="font-mono text-sanctuary-dark">GROOM10</strong>.
           </p>
         </div>
 
@@ -696,7 +696,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
           <div>
             <h3 className="text-lg font-black text-white">Ready for a transformation?</h3>
             <p className="text-xs text-white/75 mt-0.5">
-              Book online instantly. Apply promo code <span className="font-mono text-sanctuary-gold font-bold">SNIP15</span> for 15% OFF your companion's first session.
+              Book online instantly. Apply promo code <span className="font-mono text-sanctuary-gold font-bold">GROOM10</span> for 10% OFF grooming (above ₹999) or <span className="font-mono text-sanctuary-gold font-bold">FREESPA</span> on 4+ nights boarding.
             </p>
           </div>
           <button

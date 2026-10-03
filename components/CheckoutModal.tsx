@@ -6,10 +6,12 @@ export interface BookingDetails {
   serviceName: string;
   basePrice: number;
   origPrice?: number;
-  petType: 'dog' | 'cat';
-  petSize: 'small' | 'medium' | 'large';
+  petType?: 'dog' | 'cat';
+  petSize?: 'small' | 'medium' | 'large';
   catType?: 'neutered' | 'non-neutered';
   nights?: number;
+  appliedCouponCode?: string;
+  couponCode?: string;
 }
 
 export interface CheckoutServiceItem {
@@ -20,6 +22,7 @@ export interface CheckoutServiceItem {
   price: number;
   origPrice: number;
   nights?: number;
+  isFreePerk?: boolean;
 }
 
 interface CheckoutModalProps {
@@ -69,18 +72,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   // 5. Individual Quick-Care Add-ons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
-  // 6. Coupons
+  // 6. Coupons (Exclusively: FREESPA, FREESPA8, FREESPA15, GROOM10)
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discountPercent?: number;
     flatDiscount?: number;
     label: string;
-  } | null>({
-    code: 'SNIP15',
-    discountPercent: 15,
-    label: '15% Welcome Privilege',
-  });
+    isFreePerk?: boolean;
+  } | null>(null);
   const [couponError, setCouponError] = useState('');
 
   // 7. Payment Choice & Razorpay Simulator
@@ -108,15 +108,40 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     pet: string;
   } | null>(null);
 
-  // Quick Coupons List
+  // Verified Exclusive Coupons
   const availableCoupons = [
-    { code: 'SNIP15', label: '15% OFF', desc: 'Flat 15% discount on all bookings', percent: 15 },
-    { code: 'ROYALPET15', label: '15% OFF', desc: 'Flat 15% discount on all bookings', percent: 15 },
-    { code: 'SNIPVIP20', label: '20% VIP', desc: 'VIP rate on premium packages', percent: 20 },
-    { code: 'PUPPY25', label: '25% Intro', desc: '25% puppy & kitten welcome deal', percent: 25 },
-    { code: 'FREESPA', label: 'Free Spa', desc: '₹749 Furry Fresh refresh voucher', flat: 749 },
-    { code: 'PETCAB50', label: '50% Pet Cab', desc: '50% off AC doorstep transport', flat: 150 },
-    { code: 'LONGSTAY10', label: '10% Long Stay', desc: '10% off stays over 7 nights', percent: 10 },
+    {
+      code: 'FREESPA',
+      label: 'Free Spa (4+ Nts)',
+      badge: '₹749 Value • 4+ Nts',
+      desc: 'Free Furry Fresh Spa Bath (₹749 Value) on 4+ nights boarding',
+      category: 'boarding',
+      minNights: 4,
+    },
+    {
+      code: 'FREESPA8',
+      label: 'Free Spa+ (8+ Nts)',
+      badge: '₹999 Value • 8+ Nts',
+      desc: 'Free Special Care Spa Package (₹999 Value) on 8+ nights boarding',
+      category: 'boarding',
+      minNights: 8,
+    },
+    {
+      code: 'FREESPA15',
+      label: 'Full Groom (15+ Nts)',
+      badge: '₹2,199 Value • 15+ Nts',
+      desc: 'Free Full Luxury Grooming (₹2,199 Value) on 15+ nights boarding',
+      category: 'boarding',
+      minNights: 15,
+    },
+    {
+      code: 'GROOM10',
+      label: '10% OFF Grooming',
+      badge: 'Orders > ₹999',
+      desc: '10% OFF all grooming services when spend exceeds ₹999',
+      category: 'grooming',
+      minSpend: 1000,
+    },
   ];
 
   // Individual Add-ons List
@@ -158,8 +183,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (initialBooking) {
-        setPetType(initialBooking.petType);
-        setPetSize(initialBooking.petSize);
+        if (initialBooking.petType) setPetType(initialBooking.petType);
+        if (initialBooking.petSize) setPetSize(initialBooking.petSize);
         if (initialBooking.catType) setCatType(initialBooking.catType);
 
         const nightsCount = initialBooking.nights || (initialBooking.type === 'boarding' ? 4 : 1);
@@ -170,19 +195,75 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           ? (initialBooking.origPrice || (initialBooking.basePrice + 125)) * nightsCount
           : (initialBooking.origPrice || initialBooking.basePrice + 150);
 
-        setSelectedServices([
-          {
-            id: `srv_${Date.now()}`,
-            category: initialBooking.type,
-            name: initialBooking.serviceName,
-            subtitle: initialBooking.type === 'boarding' ? `${nightsCount} Nights Stay` : `${initialBooking.petSize.toUpperCase()} Tier`,
-            price: calculatedPrice,
-            origPrice: calculatedOrig,
-            nights: initialBooking.type === 'boarding' ? nightsCount : undefined,
-          },
-        ]);
+        const primaryItem: CheckoutServiceItem = {
+          id: `srv_${Date.now()}`,
+          category: initialBooking.type,
+          name: initialBooking.serviceName,
+          subtitle: initialBooking.type === 'boarding' ? `${nightsCount} Nights Stay` : `${(initialBooking.petSize || 'small').toUpperCase()} Tier`,
+          price: calculatedPrice,
+          origPrice: calculatedOrig,
+          nights: initialBooking.type === 'boarding' ? nightsCount : undefined,
+        };
+
+        const initialList: CheckoutServiceItem[] = [primaryItem];
+        const requestedCode = (initialBooking.appliedCouponCode || initialBooking.couponCode || '').trim().toUpperCase();
+
+        if (requestedCode === 'FREESPA' && initialBooking.type === 'boarding' && nightsCount >= 4) {
+          initialList.push({
+            id: 'free_perk_spa_4',
+            category: 'grooming',
+            name: 'Furry Fresh Hygiene Bath',
+            subtitle: '🎁 Complimentary Spa (4+ Nights)',
+            price: 0,
+            origPrice: 749,
+            isFreePerk: true,
+          });
+          setAppliedCoupon({
+            code: 'FREESPA',
+            label: 'Free Furry Fresh Spa Bath (₹749 Value)',
+            isFreePerk: true,
+          });
+        } else if (requestedCode === 'FREESPA8' && initialBooking.type === 'boarding' && nightsCount >= 8) {
+          initialList.push({
+            id: 'free_perk_spa_8',
+            category: 'grooming',
+            name: 'Special Package Care & Conditioning',
+            subtitle: '🎁 Complimentary Spa (8+ Nights)',
+            price: 0,
+            origPrice: 999,
+            isFreePerk: true,
+          });
+          setAppliedCoupon({
+            code: 'FREESPA8',
+            label: 'Free Special Care Spa (₹999 Value)',
+            isFreePerk: true,
+          });
+        } else if (requestedCode === 'FREESPA15' && initialBooking.type === 'boarding' && nightsCount >= 15) {
+          initialList.push({
+            id: 'free_perk_spa_15',
+            category: 'grooming',
+            name: 'Full Grooming Ultimate Spa & Breed Trim',
+            subtitle: '🎁 Complimentary Luxury Groom (15+ Nights)',
+            price: 0,
+            origPrice: 2199,
+            isFreePerk: true,
+          });
+          setAppliedCoupon({
+            code: 'FREESPA15',
+            label: 'Free Luxury Grooming Spa (₹2,199 Value)',
+            isFreePerk: true,
+          });
+        } else if (requestedCode === 'GROOM10' && initialBooking.type === 'grooming' && calculatedPrice >= 1000) {
+          setAppliedCoupon({
+            code: 'GROOM10',
+            discountPercent: 10,
+            label: '10% OFF Grooming (Above ₹999)',
+          });
+        }
+
+        setSelectedServices(initialList);
       } else if (selectedServices.length === 0) {
-        // Default initial package
+        // Default initial package: 4 nights cage-free boarding
         setSelectedServices([
           {
             id: `srv_${Date.now()}`,
@@ -297,12 +378,49 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setShowAddServiceDropdown(false);
   };
 
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
+    setCouponError('');
+  };
+
   const handleRemoveService = (id: string) => {
-    if (selectedServices.length <= 1) {
-      alert('You must have at least one service in your checkout.');
+    const itemToRemove = selectedServices.find((s) => s.id === id);
+    if (!itemToRemove) return;
+
+    if (itemToRemove.isFreePerk) {
+      setSelectedServices((prev) => prev.filter((s) => s.id !== id));
+      setAppliedCoupon(null);
       return;
     }
-    setSelectedServices((prev) => prev.filter((s) => s.id !== id));
+
+    if (selectedServices.filter((s) => !s.isFreePerk).length <= 1) {
+      alert('You must have at least one paid service in your checkout.');
+      return;
+    }
+
+    const remaining = selectedServices.filter((s) => s.id !== id);
+    setSelectedServices(remaining);
+
+    // Validate if remaining services still fulfill active coupon
+    if (appliedCoupon) {
+      if (['FREESPA', 'FREESPA8', 'FREESPA15'].includes(appliedCoupon.code)) {
+        const remainingBoarding = remaining.filter((s) => s.category === 'boarding');
+        const totalNights = remainingBoarding.reduce((sum, s) => sum + (s.nights || 1), 0);
+        const reqNights = appliedCoupon.code === 'FREESPA15' ? 15 : appliedCoupon.code === 'FREESPA8' ? 8 : 4;
+        if (remainingBoarding.length === 0 || totalNights < reqNights) {
+          setSelectedServices(remaining.filter((s) => !s.isFreePerk));
+          setAppliedCoupon(null);
+        }
+      } else if (appliedCoupon.code === 'GROOM10') {
+        const groomingSubtotal = remaining
+          .filter((s) => s.category === 'grooming' && !s.isFreePerk)
+          .reduce((sum, s) => sum + s.price, 0);
+        if (groomingSubtotal < 1000) {
+          setAppliedCoupon(null);
+        }
+      }
+    }
   };
 
   // Addon toggle
@@ -312,23 +430,129 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     );
   };
 
-  // Apply Coupon
+  // Apply Coupon (FREESPA, FREESPA8, FREESPA15, GROOM10)
   const applyCouponCode = (codeToApply: string) => {
     setCouponError('');
     const code = codeToApply.trim().toUpperCase();
 
-    const matched = availableCoupons.find((c) => c.code === code);
-    if (matched) {
+    if (!code) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+
+    // 1. Boarding Free Spa Perks
+    if (code === 'FREESPA' || code === 'FREESPA8' || code === 'FREESPA15') {
+      const boardingServices = selectedServices.filter((s) => s.category === 'boarding');
+      if (boardingServices.length === 0) {
+        setCouponError(`Code ${code} requires a cage-free boarding booking in your cart.`);
+        return;
+      }
+
+      const totalNights = boardingServices.reduce((sum, s) => sum + (s.nights || 1), 0);
+
+      if (code === 'FREESPA') {
+        if (totalNights < 4) {
+          setCouponError(`Code FREESPA requires 4 or more boarding nights (Current: ${totalNights} night${totalNights === 1 ? '' : 's'}).`);
+          return;
+        }
+        const filtered = selectedServices.filter((s) => !s.isFreePerk);
+        const freeSpaItem: CheckoutServiceItem = {
+          id: 'free_perk_spa_4',
+          category: 'grooming',
+          name: 'Furry Fresh Hygiene Bath',
+          subtitle: '🎁 Complimentary Spa (4+ Nights)',
+          price: 0,
+          origPrice: 749,
+          isFreePerk: true,
+        };
+        setSelectedServices([...filtered, freeSpaItem]);
+        setAppliedCoupon({
+          code: 'FREESPA',
+          label: 'Free Furry Fresh Spa Bath (₹749 Value)',
+          isFreePerk: true,
+        });
+        setCouponInput('');
+        return;
+      }
+
+      if (code === 'FREESPA8') {
+        if (totalNights < 8) {
+          setCouponError(`Code FREESPA8 requires 8 or more boarding nights (Current: ${totalNights} night${totalNights === 1 ? '' : 's'}).`);
+          return;
+        }
+        const filtered = selectedServices.filter((s) => !s.isFreePerk);
+        const freeSpaItem: CheckoutServiceItem = {
+          id: 'free_perk_spa_8',
+          category: 'grooming',
+          name: 'Special Package Care & Conditioning',
+          subtitle: '🎁 Complimentary Spa (8+ Nights)',
+          price: 0,
+          origPrice: 999,
+          isFreePerk: true,
+        };
+        setSelectedServices([...filtered, freeSpaItem]);
+        setAppliedCoupon({
+          code: 'FREESPA8',
+          label: 'Free Special Care Spa (₹999 Value)',
+          isFreePerk: true,
+        });
+        setCouponInput('');
+        return;
+      }
+
+      if (code === 'FREESPA15') {
+        if (totalNights < 15) {
+          setCouponError(`Code FREESPA15 requires 15 or more boarding nights (Current: ${totalNights} night${totalNights === 1 ? '' : 's'}).`);
+          return;
+        }
+        const filtered = selectedServices.filter((s) => !s.isFreePerk);
+        const freeSpaItem: CheckoutServiceItem = {
+          id: 'free_perk_spa_15',
+          category: 'grooming',
+          name: 'Full Grooming Ultimate Spa & Breed Trim',
+          subtitle: '🎁 Complimentary Luxury Groom (15+ Nights)',
+          price: 0,
+          origPrice: 2199,
+          isFreePerk: true,
+        };
+        setSelectedServices([...filtered, freeSpaItem]);
+        setAppliedCoupon({
+          code: 'FREESPA15',
+          label: 'Free Luxury Grooming Spa (₹2,199 Value)',
+          isFreePerk: true,
+        });
+        setCouponInput('');
+        return;
+      }
+    }
+
+    // 2. Grooming 10% OFF on spend above ₹999
+    if (code === 'GROOM10') {
+      const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
+      const groomingSubtotal = groomingServices.reduce((sum, s) => sum + s.price, 0);
+
+      if (groomingServices.length === 0) {
+        setCouponError('Code GROOM10 requires at least one grooming package in your cart.');
+        return;
+      }
+
+      if (groomingSubtotal < 1000) {
+        setCouponError(`Code GROOM10 requires grooming services total above ₹999 (Current: ₹${groomingSubtotal}). Add another grooming service to qualify!`);
+        return;
+      }
+
+      // If user had a free spa perk, remove it when switching to grooming coupon
+      setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
       setAppliedCoupon({
-        code: matched.code,
-        discountPercent: matched.percent,
-        flatDiscount: matched.flat,
-        label: matched.desc,
+        code: 'GROOM10',
+        discountPercent: 10,
+        label: '10% OFF Grooming (Above ₹999)',
       });
       setCouponInput('');
-    } else {
-      setCouponError('Invalid coupon. Choose one of the verified vouchers below.');
+      return;
     }
+
+    setCouponError('Invalid coupon. Choose from FREESPA, FREESPA8, FREESPA15, or GROOM10.');
   };
 
   // Financial Calculations
@@ -342,10 +566,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const subtotal = servicesBaseTotal + addonsTotal + taxiTotal;
   const grossOriginalTotal = servicesOrigTotal + addonsTotal + taxiTotal;
 
-  // Coupon discount
+  // Coupon discount calculation
   let discountAmount = 0;
   if (appliedCoupon) {
-    if (appliedCoupon.discountPercent) {
+    if (appliedCoupon.code === 'GROOM10') {
+      const groomingSubtotal = selectedServices
+        .filter((s) => s.category === 'grooming' && !s.isFreePerk)
+        .reduce((sum, s) => sum + s.price, 0);
+      if (groomingSubtotal >= 1000) {
+        discountAmount = Math.round(groomingSubtotal * 0.10);
+      }
+    } else if (appliedCoupon.discountPercent) {
       discountAmount = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
     } else if (appliedCoupon.flatDiscount) {
       discountAmount = appliedCoupon.flatDiscount;
@@ -931,23 +1162,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {selectedServices.map((item) => (
                   <div
                     key={item.id}
-                    className="p-2.5 rounded-xl border border-black/10 bg-white flex items-center justify-between text-xs shadow-2xs"
+                    className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                      item.isFreePerk || item.price === 0
+                        ? 'border-emerald-300 bg-emerald-50/80 shadow-xs'
+                        : 'border-black/10 bg-white shadow-2xs'
+                    }`}
                   >
                     <div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-black text-sanctuary-dark">{item.name}</span>
-                        {item.subtitle && (
+                        {item.isFreePerk || item.price === 0 ? (
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                            🎁 FREE PERK (₹0)
+                          </span>
+                        ) : item.subtitle ? (
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-sanctuary-sand text-sanctuary-dark/70">
                             {item.subtitle}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[10px] line-through text-red-500 font-bold decoration-red-400">
                           ₹{item.origPrice}
                         </span>
-                        <span className="text-xs font-black text-sanctuary-forest">
-                          ₹{item.price}
+                        <span className={`text-xs font-black ${item.price === 0 ? 'text-emerald-700 font-black' : 'text-sanctuary-forest'}`}>
+                          {item.price === 0 ? 'FREE (₹0)' : `₹${item.price}`}
                         </span>
                       </div>
                     </div>
@@ -955,8 +1194,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveService(item.id)}
-                      className="size-6 rounded-full hover:bg-red-50 text-sanctuary-dark/40 hover:text-red-600 flex items-center justify-center transition-colors"
-                      title="Remove service"
+                      className="size-6 rounded-full hover:bg-red-50 text-sanctuary-dark/40 hover:text-red-600 flex items-center justify-center transition-colors shrink-0"
+                      title={item.isFreePerk ? 'Remove free perk' : 'Remove service'}
                     >
                       <span className="material-symbols-outlined text-xs">close</span>
                     </button>
@@ -1064,7 +1303,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {appliedCoupon && (
                   <button
                     type="button"
-                    onClick={() => setAppliedCoupon(null)}
+                    onClick={handleRemoveCoupon}
                     className="text-[10px] font-bold text-red-600 hover:underline"
                   >
                     Remove
@@ -1073,24 +1312,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
               {/* Clickable Quick Coupon Pills */}
-              <div className="grid grid-cols-3 gap-1">
-                {availableCoupons.map((c) => (
-                  <button
-                    key={c.code}
-                    type="button"
-                    onClick={() => applyCouponCode(c.code)}
-                    className={`p-1.5 rounded-lg border text-left transition-all ${
-                      appliedCoupon?.code === c.code
-                        ? 'bg-sanctuary-forest text-white border-sanctuary-forest'
-                        : 'bg-white text-sanctuary-dark border-black/10 hover:border-sanctuary-gold'
-                    }`}
-                  >
-                    <div className="text-[10px] font-black truncate">{c.code}</div>
-                    <div className={`text-[8px] font-bold ${appliedCoupon?.code === c.code ? 'text-amber-300' : 'text-emerald-700'}`}>
-                      {c.label}
-                    </div>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-1.5">
+                {availableCoupons.map((c) => {
+                  const isSelected = appliedCoupon?.code === c.code;
+                  return (
+                    <button
+                      key={c.code}
+                      type="button"
+                      onClick={() => applyCouponCode(c.code)}
+                      className={`p-2 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs'
+                          : 'bg-white text-sanctuary-dark border-black/10 hover:border-sanctuary-gold'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[11px] font-black tracking-wider font-mono">{c.code}</span>
+                        <span className={`text-[8px] font-black px-1.5 py-0.2 rounded shrink-0 ${
+                          isSelected ? 'bg-amber-400 text-sanctuary-dark' : 'bg-sanctuary-sand text-sanctuary-dark/70'
+                        }`}>
+                          {c.badge}
+                        </span>
+                      </div>
+                      <div className={`text-[9px] mt-0.5 font-medium truncate ${isSelected ? 'text-amber-200' : 'text-sanctuary-dark/60'}`}>
+                        {c.desc}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Manual Input */}
@@ -1116,9 +1365,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               )}
 
               {appliedCoupon && (
-                <div className="p-1.5 bg-emerald-100/70 border border-emerald-300 rounded-lg text-[11px] font-bold text-emerald-950 flex items-center justify-between">
-                  <span>✓ {appliedCoupon.code} applied: {appliedCoupon.label}</span>
-                  <span className="font-black text-emerald-800">-₹{discountAmount}</span>
+                <div className="p-2 bg-emerald-100/80 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-950 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-emerald-700 text-sm">verified</span>
+                    <span>✓ <strong>{appliedCoupon.code}</strong>: {appliedCoupon.label}</span>
+                  </div>
+                  <span className="font-black text-emerald-800 text-[11px] shrink-0">
+                    {appliedCoupon.isFreePerk || discountAmount === 0 ? '🎁 Free Spa Perk Added' : `-₹${discountAmount}`}
+                  </span>
                 </div>
               )}
             </div>

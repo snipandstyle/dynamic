@@ -196,7 +196,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenBooking, onNavig
               Want a similar transformation for your pet?
             </h4>
             <p className="text-xs text-sanctuary-dark/70 font-medium">
-              Book a breed haircut or cage-free boarding stay with 15% discount using code <span className="font-bold font-mono">SNIP15</span>.
+              Book a breed haircut with code <span className="font-bold font-mono">GROOM10</span> or cage-free boarding with code <span className="font-bold font-mono">FREESPA</span>.
             </p>
           </div>
           <div className="shrink-0">
