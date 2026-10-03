@@ -28,7 +28,7 @@ export const SanctuaryTransformations: React.FC = () => {
       id: 3,
       category: 'cat',
       pet: 'Simba (Persian Cat)',
-      title: 'Stress-Free Royal Lion Cut & Tear Cleanse',
+      title: 'Stress-Free Signature Lion Cut & Tear Cleanse',
       before: 'Tangled underbelly mats causing pain during walking, tear stains',
       after: 'Pain-free velvety lion trim with full majestic mane and clean eyes',
       beforeImg: 'https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=80&w=400',

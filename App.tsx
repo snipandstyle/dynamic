@@ -25,10 +25,11 @@ import SafetyPage from './components/SafetyPage';
 import GalleryPage from './components/GalleryPage';
 import ContactPage from './components/ContactPage';
 import MeetThePackPage from './components/MeetThePackPage';
+import AccountPage from './components/AccountPage';
 
 import { getUTMParams, isAdVisitor } from './utils/analytics';
 
-export type PageId = 'home' | 'boarding' | 'grooming' | 'about' | 'reviews' | 'safety' | 'gallery' | 'contact' | 'pack' | 'admin';
+export type PageId = 'home' | 'boarding' | 'grooming' | 'about' | 'reviews' | 'safety' | 'gallery' | 'contact' | 'pack' | 'admin' | 'account';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<PageId>('home');
@@ -88,7 +89,13 @@ const App: React.FC = () => {
       return;
     }
 
-    const validPages: PageId[] = ['home', 'boarding', 'grooming', 'about', 'reviews', 'safety', 'gallery', 'contact', 'pack', 'admin'];
+    if (pathname.includes('/account') || hash === 'account' || searchParams.get('page') === 'account') {
+      setActivePage('account');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const validPages: PageId[] = ['home' , 'boarding', 'grooming', 'about', 'reviews', 'safety', 'gallery', 'contact', 'pack', 'admin', 'account'];
 
     const target = (searchParams.get('page') || searchParams.get('landing') || (searchParams.has('ad') ? 'boarding' : '') || hash) as PageId;
 
@@ -127,7 +134,7 @@ const App: React.FC = () => {
         onNavigate={navigateTo} 
         activeSection={activePage} 
         onOpenBooking={() => setIsCheckoutOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => navigateTo('account')}
         onOpenAdmin={() => navigateTo('admin')}
       />
 
@@ -221,6 +228,14 @@ const App: React.FC = () => {
               key="pack"
               onOpenBooking={openBookingWithDetails} 
               onNavigate={navigateTo} 
+            />
+          )}
+
+          {activePage === 'account' && (
+            <AccountPage 
+              key="account"
+              onNavigateHome={() => navigateTo('home')}
+              onOpenBooking={() => openBookingWithDetails()}
             />
           )}
 

@@ -154,7 +154,7 @@ export const SanctuaryLocation: React.FC = () => {
 
             {/* Minimal Footer Strip */}
             <div className="pt-3 border-t border-black/5 flex items-center justify-between text-[10px] text-sanctuary-dark/60 font-semibold">
-              <span>© {new Date().getFullYear()} Snip & Style Royal Sanctuary</span>
+              <span>© {new Date().getFullYear()} Snip & Style Pet Resort & Spa</span>
               <span className="text-sanctuary-gold font-bold">100% Cage-Free Certified</span>
             </div>
           </div>

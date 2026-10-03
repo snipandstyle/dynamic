@@ -103,17 +103,15 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
     >
       <div className="max-w-6xl mx-auto w-full space-y-2.5 sm:space-y-3">
         
-        {/* Top Urgency Strip */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-black/5 text-xs text-sanctuary-dark/70">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-sanctuary-dark">
-              Open Daily 09:30 AM – 08:30 PM • Kanakapura Highway (NH 948), Bengaluru
-            </span>
-          </div>
+        {/* Clean Rating & Trust Strip (Uncluttered) */}
+        <div className="flex items-center justify-between gap-2 pb-2 border-b border-black/5 text-xs">
           <div className="flex items-center gap-1.5 font-bold text-sanctuary-dark">
-            <span className="text-amber-500 font-black">4.9 / 5.0</span>
-            <span className="text-sanctuary-dark/60 font-semibold">(380+ Verified Google Reviews)</span>
+            <span className="text-amber-500 font-black">★ 4.9 / 5.0</span>
+            <span className="text-sanctuary-dark/70 font-semibold">(380+ Verified Reviews)</span>
+          </div>
+          <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>100% Cage-Free Boarding</span>
           </div>
         </div>
 
@@ -124,7 +122,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
           <div className="lg:col-span-7 space-y-3">
             
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sanctuary-gold/15 text-sanctuary-dark text-[11px] font-black uppercase tracking-wider">
-              <span>Kanakapura Highway Vacation Drop-Off • Fresh Nature Walks</span>
+              <span>Kanakapura Highway • Nature Walks & Spa</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-[1.08]">
@@ -134,11 +132,11 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-sanctuary-dark/75 font-medium leading-relaxed max-w-xl">
-              Easy, hassle-free drop-off on your way out of Bangalore toward vacations and weekend getaways. Situated away from city pollution and noisy traffic, your pets enjoy calm stress relief, open green nature walks, and climate-controlled cage-free comfort.
+              Easy, hassle-free drop-off on your way out of Bangalore toward vacations and weekend getaways. Situated away from city noise, pets enjoy calm stress relief, open nature walks, and climate-controlled cage-free comfort.
             </p>
 
-            {/* Visual Banner */}
-            <div className="relative rounded-2xl overflow-hidden shadow-md border border-black/10 group">
+            {/* Visual Banner (Desktop / Tablet only to prevent mobile clutter) */}
+            <div className="hidden sm:block relative rounded-2xl overflow-hidden shadow-md border border-black/10 group">
               <img
                 src="/images/hero_banner_pets.jpg"
                 alt="Snip & Style Pets"
@@ -153,31 +151,31 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                     NH 948 Kanakapura Main Road • Direct Exit Route
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-lg text-[10px] text-white font-bold">
+                <div className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-lg text-[10px] text-white font-bold">
                   <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>100% Cage-Free & AC Floor</span>
+                  <span>100% Floor Freedom</span>
                 </div>
               </div>
             </div>
 
-            {/* 4 Proof Points without Emojis */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-              <div className="p-2 bg-white rounded-xl border border-black/5 shadow-xs text-left">
-                <div className="text-xs font-black text-sanctuary-dark">Zero Wire Cages</div>
-                <div className="text-[10px] text-sanctuary-dark/60 font-semibold">Sanitized AC Floor</div>
-              </div>
-              <div className="p-2 bg-white rounded-xl border border-black/5 shadow-xs text-left">
-                <div className="text-xs font-black text-sanctuary-dark">Nature Walks</div>
-                <div className="text-[10px] text-sanctuary-dark/60 font-semibold">City Stress Relief</div>
-              </div>
-              <div className="p-2 bg-white rounded-xl border border-black/5 shadow-xs text-left">
-                <div className="text-xs font-black text-sanctuary-dark">Daily WhatsApp</div>
-                <div className="text-[10px] text-sanctuary-dark/60 font-semibold">Photo & Video Updates</div>
-              </div>
-              <div className="p-2 bg-white rounded-xl border border-black/5 shadow-xs text-left">
-                <div className="text-xs font-black text-sanctuary-dark">Free Grooming</div>
-                <div className="text-[10px] text-sanctuary-dark/60 font-semibold">On 4+ Days Stays</div>
-              </div>
+            {/* Clean Key Inclusions Strip (Spacious on Mobile) */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 py-1 text-xs text-sanctuary-dark/80 font-bold">
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                <span>Zero Wire Cages</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                <span>AC Private Suites</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                <span>Daily Nature Walks</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                <span>Daily 4K WhatsApp Journals</span>
+              </span>
             </div>
 
             {/* Action Buttons */}

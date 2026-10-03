@@ -42,7 +42,7 @@ export const SanctuarySuites: React.FC = () => {
     },
     {
       id: 'presidential',
-      name: 'The Presidential Royal Villa',
+      name: 'The Presidential Suite',
       badge: 'Ultimate Space',
       sizeTarget: 'Large Dogs (>25kg) & Pet Siblings',
       dims: '120 sq. ft. Master Villa',

@@ -4,13 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Ensure pg works seamlessly with Next.js server bundling
-      config.externals.push('pg', 'bcryptjs');
-    }
-    return config;
-  },
+  serverExternalPackages: ['pg', 'bcryptjs', 'razorpay'],
+  turbopack: {},
 };
 
 export default nextConfig;

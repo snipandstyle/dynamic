@@ -1,7 +1,45 @@
 import { query } from './db';
 import { hashPassword, comparePassword, signToken, verifyToken } from './auth';
-import { createRazorpayOrder, verifyRazorpaySignature } from './razorpay';
+import { createRazorpayOrder, verifyRazorpaySignature, verifyRazorpayWebhookSignature } from './razorpay';
 import crypto from 'crypto';
+
+// SEND ORDER ALERT EMAIL VIA GOOGLE APPS SCRIPT WEBHOOK (ZERO COST)
+export async function sendOrderAlertEmail(bookingData: {
+  bookingRef?: string;
+  petName?: string;
+  petBreed?: string;
+  petWeightKg?: number | string;
+  customerName?: string;
+  customerPhone?: string;
+  phone?: string;
+  serviceType?: string;
+  checkInDate?: string;
+  dropOffTime?: string;
+  totalAmount?: number | string;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  specialInstructions?: string;
+  notes?: string;
+  appliedOfferCode?: string;
+}) {
+  const webhookUrl = process.env.GOOGLE_SCRIPT_WEBHOOK_URL;
+  if (!webhookUrl) {
+    console.log('[sendOrderAlertEmail] Notice: GOOGLE_SCRIPT_WEBHOOK_URL not configured. Add it to .env or deployment env to receive Google Apps Script email alerts.');
+    return;
+  }
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingData),
+    });
+    console.log('[sendOrderAlertEmail] Google Script Webhook dispatch status:', res.status);
+  } catch (err: any) {
+    console.warn('[sendOrderAlertEmail] Webhook dispatch error (non-fatal):', err.message || err);
+  }
+}
+
 
 // 1. SIGNUP (PHONE + PASSWORD)
 export async function handleSignup(data: {
@@ -285,6 +323,24 @@ export async function handleCreateBooking(data: any, authHeader?: string | null)
     ]
   );
 
+  // Dispatch zero-cost Google Apps Script Email Notification (asynchronous)
+  sendOrderAlertEmail({
+    bookingRef,
+    petName: data.petName || 'Companion',
+    petBreed: data.petBreed || 'Standard Breed',
+    petWeightKg: data.petWeightKg || 15.0,
+    customerName: data.parentName || 'Pet Parent',
+    customerPhone: data.phone || data.emergencyContact || 'N/A',
+    serviceType: data.serviceType || 'Boarding / Grooming',
+    checkInDate: checkIn,
+    dropOffTime: data.dropOffTime || '09:00 AM',
+    totalAmount: data.totalAmount || (totalPaise / 100),
+    paymentStatus: data.paymentStatus || 'pending',
+    paymentMethod: data.paymentMethod || 'razorpay',
+    specialInstructions: data.specialInstructions,
+    appliedOfferCode: data.appliedOfferCode,
+  }).catch((err) => console.warn('[sendOrderAlertEmail trigger warning]', err));
+
   return {
     status: 201,
     body: {
@@ -409,6 +465,11 @@ export async function handleCreateRazorpayOrderRoute(data: {
         currency: order.currency,
         receipt: order.receipt,
         status: order.status,
+        key_id:
+          process.env.RAZORPAY_KEY_ID ||
+          process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+          process.env.VITE_RAZORPAY_KEY_ID ||
+          'rzp_live_TjVYMuSit6eIYP',
       },
     };
   } catch (err: any) {
@@ -460,19 +521,42 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
     };
   }
 
-  // If a bookingId is provided, update Neon DB booking record
+  // If a bookingId is provided, update Neon DB booking record and dispatch paid alert
   if (data.bookingId) {
     try {
-      await query(
+      const updateRes = await query(
         `UPDATE bookings 
-     SET payment_status = 'paid', 
-         razorpay_order_id = $1, 
-         razorpay_payment_id = $2, 
-         razorpay_signature = $3,
-         updated_at = NOW()
-     WHERE id = $4`,
+         SET payment_status = 'paid', 
+             razorpay_order_id = $1, 
+             razorpay_payment_id = $2, 
+             razorpay_signature = $3,
+             updated_at = NOW()
+         WHERE id = $4
+         RETURNING *`,
         [orderId, paymentId, signature, data.bookingId]
       );
+
+      if (updateRes.rows.length > 0) {
+        const b = updateRes.rows[0];
+        const uRes = await query('SELECT full_name, phone_number FROM users WHERE id = $1 LIMIT 1', [b.user_id]);
+        const user = uRes.rows[0] || {};
+        sendOrderAlertEmail({
+          bookingRef: b.booking_ref,
+          petName: b.pet_name,
+          petBreed: b.pet_breed,
+          petWeightKg: b.pet_weight_kg,
+          customerName: user.full_name || 'Pet Parent',
+          customerPhone: user.phone_number || b.emergency_contact,
+          serviceType: b.service_type,
+          checkInDate: b.check_in_date,
+          dropOffTime: b.drop_off_time,
+          totalAmount: b.total_amount_paise ? b.total_amount_paise / 100 : 0,
+          paymentStatus: 'paid',
+          paymentMethod: 'razorpay_online',
+          specialInstructions: b.special_instructions,
+          appliedOfferCode: b.applied_offer_code,
+        }).catch((err) => console.warn('[sendOrderAlertEmail verification warning]', err));
+      }
     } catch (dbErr) {
       console.warn('[handleVerifyRazorpayPaymentRoute DB Update Warning]', dbErr);
     }
@@ -489,6 +573,85 @@ export async function handleVerifyRazorpayPaymentRoute(data: {
       status: 'paid',
     },
   };
+}
+
+// 10. RAZORPAY WEBHOOK HANDLER
+export async function handleRazorpayWebhookRoute(
+  body: any,
+  rawBody: string,
+  signatureHeader?: string | null
+) {
+  // 1. Verify webhook signature
+  const isValid = verifyRazorpayWebhookSignature(rawBody, signatureHeader);
+  if (!isValid) {
+    console.warn('[handleRazorpayWebhookRoute] Webhook HMAC SHA256 signature verification failed.');
+    return { status: 400, body: { error: 'Invalid webhook signature.' } };
+  }
+
+  const event = body?.event;
+  console.log(`[handleRazorpayWebhookRoute] Verified webhook event received: ${event}`);
+
+  // 2. Handle payment/order success events
+  if (event === 'payment.captured' || event === 'order.paid') {
+    const payment = body?.payload?.payment?.entity;
+    const order = body?.payload?.order?.entity;
+    const orderId = payment?.order_id || order?.id;
+    const paymentId = payment?.id;
+
+    if (orderId) {
+      try {
+        const updateRes = await query(
+          `UPDATE bookings 
+           SET payment_status = 'paid', 
+               razorpay_payment_id = COALESCE($1, razorpay_payment_id), 
+               updated_at = NOW() 
+           WHERE razorpay_order_id = $2
+           RETURNING *`,
+          [paymentId, orderId]
+        );
+
+        if (updateRes.rows.length > 0) {
+          const b = updateRes.rows[0];
+          const uRes = await query('SELECT full_name, phone_number FROM users WHERE id = $1 LIMIT 1', [b.user_id]);
+          const user = uRes.rows[0] || {};
+
+          sendOrderAlertEmail({
+            bookingRef: b.booking_ref,
+            petName: b.pet_name,
+            petBreed: b.pet_breed,
+            petWeightKg: b.pet_weight_kg,
+            customerName: user.full_name || 'Pet Parent',
+            customerPhone: user.phone_number || b.emergency_contact,
+            serviceType: b.service_type,
+            checkInDate: b.check_in_date,
+            dropOffTime: b.drop_off_time,
+            totalAmount: b.total_amount_paise ? b.total_amount_paise / 100 : 0,
+            paymentStatus: 'paid',
+            paymentMethod: 'razorpay_webhook',
+            specialInstructions: b.special_instructions,
+            appliedOfferCode: b.applied_offer_code,
+          }).catch((err) => console.warn('[sendOrderAlertEmail webhook warning]', err));
+        }
+      } catch (err) {
+        console.error('[handleRazorpayWebhookRoute DB error]', err);
+      }
+    }
+  } else if (event === 'payment.failed') {
+    const payment = body?.payload?.payment?.entity;
+    const orderId = payment?.order_id;
+    if (orderId) {
+      try {
+        await query(
+          `UPDATE bookings SET payment_status = 'failed', updated_at = NOW() WHERE razorpay_order_id = $1`,
+          [orderId]
+        );
+      } catch (err) {
+        console.error('[handleRazorpayWebhookRoute payment.failed DB error]', err);
+      }
+    }
+  }
+
+  return { status: 200, body: { status: 'ok', received: true, event } };
 }
 
 // 10. OFFERS

@@ -200,7 +200,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onOpenBooking, onNavig
           <div>
             <h3 className="text-lg font-black text-white">Experience the Snip & Style Care</h3>
             <p className="text-xs text-white/75 mt-0.5">
-              Book online with coupon code <span className="text-sanctuary-gold font-mono font-bold">ROYALPET15</span> for 15% OFF today.
+              Book online with coupon code <span className="text-sanctuary-gold font-mono font-bold">SNIP15</span> for 15% OFF today.
             </p>
           </div>
           <div className="flex items-center gap-3">

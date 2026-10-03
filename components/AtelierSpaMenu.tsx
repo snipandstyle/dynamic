@@ -117,7 +117,7 @@ export const AtelierSpaMenu: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sanctuary-moss/10 text-sanctuary-moss text-[10px] font-black uppercase tracking-wider mb-1">
               <span className="material-symbols-outlined text-xs">content_cut</span>
-              <span>Styling Atelier & Spa • 15% OFF Code: ROYALPET15</span>
+              <span>Styling Atelier & Spa • 15% OFF Code: SNIP15</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-sanctuary-dark">
               Artisan Grooming & Botanical Spa Menu

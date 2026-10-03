@@ -18,7 +18,7 @@ export const SanctuaryMobileBar: React.FC<SanctuaryMobileBarProps> = ({ onOpenBo
             </span>
           </div>
           <span className="text-xs font-black text-white">
-            15% OFF • <span className="font-mono text-sanctuary-gold">ROYALPET15</span>
+            15% OFF • <span className="font-mono text-sanctuary-gold">SNIP15</span>
           </span>
         </div>
 

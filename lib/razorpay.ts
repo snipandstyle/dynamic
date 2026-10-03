@@ -110,3 +110,34 @@ export function verifyRazorpaySignature({
     return false;
   }
 }
+
+/**
+ * Verifies Razorpay Webhook Signature
+ * Algorithm: HMAC-SHA256(rawBody, WEBHOOK_SECRET)
+ */
+export function verifyRazorpayWebhookSignature(
+  rawBody: string,
+  signatureHeader?: string | null,
+  webhookSecret?: string
+): boolean {
+  const secret = webhookSecret || process.env.RAZORPAY_WEBHOOK_SECRET || 'snipnstyle_rzp_webhook_secret_2026';
+  if (!rawBody || !signatureHeader || !secret) {
+    return false;
+  }
+
+  try {
+    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+    const expectedBuf = Buffer.from(expected, 'utf8');
+    const signatureBuf = Buffer.from(signatureHeader, 'utf8');
+
+    if (expectedBuf.length !== signatureBuf.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(expectedBuf, signatureBuf);
+  } catch (err) {
+    console.error('[Razorpay Webhook Verification Error]', err);
+    return false;
+  }
+}
+

@@ -23,7 +23,7 @@ export const SanctuaryFAQ: React.FC = () => {
     },
     {
       q: 'How do I claim the 15% OFF voucher or Free Spa Bath?',
-      a: 'Simply enter code ROYALPET15 during online checkout to get 15% OFF on all grooming and boarding packages! For boarding, if your companion stays for 4 or more nights, the ₹800 Furry Fresh Spa Bath is unlocked automatically in checkout — no voucher needed!'
+      a: 'Simply enter code SNIP15 during online checkout to get 15% OFF on all grooming and boarding packages! For boarding, if your companion stays for 4 or more nights, the ₹800 Furry Fresh Spa Bath is unlocked automatically in checkout — no voucher needed!'
     },
     {
       q: 'Can I visit the Kanakapura Road studio before booking?',

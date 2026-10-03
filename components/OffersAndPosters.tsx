@@ -9,7 +9,7 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
 
   const vouchers = [
     {
-      code: 'ROYALPET15',
+      code: 'SNIP15',
       discount: '15% OFF',
       title: 'First-Timer Welcome Offer',
       desc: 'Valid on any grooming package or boarding stay.',

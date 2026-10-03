@@ -57,6 +57,10 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
+        {/* Razorpay Standard Web Checkout */}
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        {/* Umami Privacy-Friendly Analytics */}
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="f3ab6622-e4f8-42d4-ba39-a1bff5dc63ef"></script>
       </head>
       <body className="bg-[#FAF8F5] text-[#0C1117] font-sans selection:bg-[#D99B43]/30 selection:text-[#0C1117] antialiased">
         {children}

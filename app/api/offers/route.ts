@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { handleGetOffersRoute } from '../../../../lib/api-handlers';
+import { handleGetOffersRoute } from '@/lib/api-handlers';
 
 export async function GET() {
   const result = await handleGetOffersRoute();

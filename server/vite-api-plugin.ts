@@ -9,6 +9,7 @@ import {
   handleUpdateAdminBooking,
   handleCreateRazorpayOrderRoute,
   handleVerifyRazorpayPaymentRoute,
+  handleRazorpayWebhookRoute,
   handleGetOffersRoute,
   handleHealthCheckRoute,
 } from '../lib/api-handlers';
@@ -24,6 +25,22 @@ function readJsonBody(req: any): Promise<any> {
         resolve(body ? JSON.parse(body) : {});
       } catch {
         resolve({});
+      }
+    });
+  });
+}
+
+function readRawAndJsonBody(req: any): Promise<{ raw: string; json: any }> {
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk: any) => {
+      raw += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve({ raw, json: raw ? JSON.parse(raw) : {} });
+      } catch {
+        resolve({ raw, json: {} });
       }
     });
   });
@@ -86,6 +103,10 @@ export function viteApiPlugin(): Plugin {
           } else if ((pathname === '/api/verify-payment' || pathname === '/api/razorpay/verify-payment') && req.method === 'POST') {
             const body = await readJsonBody(req);
             result = await handleVerifyRazorpayPaymentRoute(body);
+          } else if ((pathname === '/api/webhook' || pathname === '/api/razorpay/webhook') && req.method === 'POST') {
+            const { raw, json } = await readRawAndJsonBody(req);
+            const signature = (req.headers['x-razorpay-signature'] || '') as string;
+            result = await handleRazorpayWebhookRoute(json, raw, signature);
           } else if (pathname === '/api/offers' && req.method === 'GET') {
             result = await handleGetOffersRoute();
           }

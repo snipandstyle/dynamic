@@ -6,13 +6,13 @@ export const SanctuaryVouchers: React.FC = () => {
 
   const vouchers = [
     {
-      code: 'ROYALPET15',
+      code: 'SNIP15',
       discount: 'FLAT 15% OFF',
-      title: 'First-Timer Royal Welcome',
+      title: 'First-Timer Welcome Special',
       desc: 'Valid on any salon grooming package or luxury boarding stay. No minimum spend.',
       badge: 'HOTTEST OFFER',
       badgeColor: 'bg-sanctuary-gold text-sanctuary-dark',
-      whatsappMsg: 'Hi Snip & Style! I would like to claim 15% OFF with code ROYALPET15.',
+      whatsappMsg: 'Hi Snip & Style! I would like to claim 15% OFF with code SNIP15.',
     },
     {
       code: 'FREESPA4',

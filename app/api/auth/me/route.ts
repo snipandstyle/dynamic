@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleGetMe } from '../../../../lib/api-handlers';
+import { handleGetMe } from '@/lib/api-handlers';
 
 export async function GET(req: NextRequest) {
   try {

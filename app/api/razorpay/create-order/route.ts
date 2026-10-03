@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleCreateRazorpayOrderRoute } from '../../../../../lib/api-handlers';
+import { handleCreateRazorpayOrderRoute } from '@/lib/api-handlers';
 
 export async function POST(req: NextRequest) {
   try {

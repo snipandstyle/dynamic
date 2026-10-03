@@ -77,9 +77,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     flatDiscount?: number;
     label: string;
   } | null>({
-    code: 'ROYALPET15',
+    code: 'SNIP15',
     discountPercent: 15,
-    label: '15% Ad Privilege Special',
+    label: '15% Welcome Privilege',
   });
   const [couponError, setCouponError] = useState('');
 
@@ -110,6 +110,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   // Quick Coupons List
   const availableCoupons = [
+    { code: 'SNIP15', label: '15% OFF', desc: 'Flat 15% discount on all bookings', percent: 15 },
     { code: 'ROYALPET15', label: '15% OFF', desc: 'Flat 15% discount on all bookings', percent: 15 },
     { code: 'SNIPVIP20', label: '20% VIP', desc: 'VIP rate on premium packages', percent: 20 },
     { code: 'PUPPY25', label: '25% Intro', desc: '25% puppy & kitten welcome deal', percent: 25 },
@@ -436,7 +437,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           throw new Error(rzpOrder.error || 'Failed to create Razorpay payment order.');
         }
 
-        const rzpKeyId = (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_test_TjTsEvN7cqM3Ep';
+        const rzpKeyId = rzpOrder.key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_TjVYMuSit6eIYP';
 
         // Ensure Razorpay SDK is loaded on page
         if (typeof (window as any).Razorpay === 'undefined') {
@@ -455,9 +456,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           key: rzpKeyId,
           amount: rzpOrder.amount,
           currency: rzpOrder.currency || 'INR',
-          name: 'Snip & Style Royal Sanctuary',
+          name: 'Snip & Style',
           description: `${serviceNamesSummary} • Ref: ${bookingRef}`,
-          image: '/images/snipnstyle-logo.png',
+          image: '/images/logo.png',
           order_id: rzpOrder.order_id || rzpOrder.id,
           handler: async function (response: any) {
             try {
