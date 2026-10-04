@@ -22,10 +22,10 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
       orig: 750,
       save: 125,
       inclusions: [
-        'Private individual AC suite with soundproof walls',
+        'Private individual suite with soundproof walls',
         'Anti-bacterial memory foam orthopaedic bedding',
         '2 daily green lawn walks & interactive play',
-        'Twice-daily WhatsApp 4K video reels & updates',
+        'Twice-daily WhatsApp video updates',
         'Freshly prepared home meals to your schedule',
       ],
     },
@@ -65,7 +65,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
         'King-size orthopaedic bed with high-density foam',
         'High-energy agility runs & muscle stretch walks',
         '24/7 dedicated senior caretaker companionship',
-        'Doorstep AC Pet Cab pickup available (+₹299)',
+        'Doorstep Pet Pickup available (+₹299)',
       ],
     },
   ];
@@ -88,7 +88,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
         'Multi-tiered vertical climbing towers & sisal scratching posts',
         'Private sanitized litter box refreshed 3x daily',
         'Daily laser chasing, catnip games & gentle brushing',
-        'Twice-daily WhatsApp 4K video reels to pet parents',
+        'Twice-daily WhatsApp video updates to pet parents',
       ],
     },
     {
@@ -134,7 +134,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
             </h2>
 
             <p className="text-xs text-sanctuary-dark/75 font-medium leading-normal hidden sm:block">
-              Zero wire cages, climate-controlled AC suites, orthopaedic memory foam bedding, 2 daily nature walks, and real-time WhatsApp 4K journals.
+              Zero wire cages, comfortable private suites, orthopaedic memory foam bedding, 2 daily nature walks, and real-time WhatsApp journals.
             </p>
           </div>
 
@@ -509,14 +509,14 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
           <div className="p-2.5 bg-white rounded-xl border border-black/5 flex items-center gap-2 shadow-xs">
             <span className="material-symbols-outlined text-sanctuary-forest text-lg">videocam</span>
             <div>
-              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Daily 4K WhatsApp</div>
+              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Daily WhatsApp Updates</div>
               <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Photo & Video Journal</div>
             </div>
           </div>
           <div className="p-2.5 bg-white rounded-xl border border-black/5 flex items-center gap-2 shadow-xs">
             <span className="material-symbols-outlined text-sanctuary-forest text-lg">local_taxi</span>
             <div>
-              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Doorstep AC Cab</div>
+              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Doorstep Pickup</div>
               <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Kanakapura Rd & South BLR</div>
             </div>
           </div>

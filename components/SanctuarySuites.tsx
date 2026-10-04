@@ -15,10 +15,10 @@ export const SanctuarySuites: React.FC = () => {
       camName: 'Meadow Suite 01 (Puppy Lounge)',
       image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=900',
       highlights: [
-        'Individual climate-controlled quiet AC room (22°C)',
+        'Individual quiet private room with soundproof walls',
         'Plush orthopaedic memory foam anti-bacterial bedding',
         '3 daily outdoor lawn romps on green turf',
-        'Daily 4K WhatsApp photo & video updates',
+        'Daily WhatsApp photo & video updates',
         'Hand-fed meals according to parent instructions',
       ],
     },
@@ -30,7 +30,7 @@ export const SanctuarySuites: React.FC = () => {
       dims: '75 sq. ft. Walk-in Villa',
       origPrice: 750,
       price: 675,
-      camName: 'Garden Villa 04 (Executive AC)',
+      camName: 'Garden Villa 04 (Executive Suite)',
       image: 'https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=900',
       highlights: [
         'Spacious walk-in private suite with glass view door',
@@ -54,7 +54,7 @@ export const SanctuarySuites: React.FC = () => {
         'Double-size master suite for Goldens, Labs & Huskies',
         'King-size orthopaedic bed with bolster pillows',
         'Dedicated senior handler & private cuddle time',
-        'Free doorstep AC Pet Taxi pickup on 5+ nights',
+        'Free doorstep Pet Pickup on 5+ nights',
         'Complimentary ultrasonic dental care & paw spa',
       ],
     },
@@ -95,11 +95,11 @@ export const SanctuarySuites: React.FC = () => {
               <span>The Suite Collection • 100% Cage-Free</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-sanctuary-dark">
-              Private, Climate-Controlled Luxury Suites
+              Private, Comfortable Luxury Suites
             </h2>
           </div>
           <p className="text-xs text-sanctuary-dark/70 font-medium max-w-sm">
-            Zero wire cages. Each companion enjoys individual AC regulation, sanitized bedding, and daily green lawn romps.
+            Zero wire cages. Each companion enjoys individual private suites, sanitized bedding, and daily green lawn romps.
           </p>
         </div>
 
@@ -171,13 +171,13 @@ export const SanctuarySuites: React.FC = () => {
 
           </div>
 
-          {/* Right: Suite Photography & 4K Live Camera Mockup */}
+          {/* Right: Suite Photography & Live Camera Mockup */}
           <div className="lg:col-span-7">
             <div className="bg-black rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl relative">
               {/* Live stream badge */}
               <div className="absolute top-3 left-3 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-white">
                 <span className="size-2 rounded-full bg-red-500 animate-ping" />
-                <span className="font-mono text-red-400">LIVE 4K CCTV</span>
+                <span className="font-mono text-red-400">LIVE CCTV</span>
                 <span className="text-white/40">|</span>
                 <span>{current.camName}</span>
               </div>
@@ -196,12 +196,12 @@ export const SanctuarySuites: React.FC = () => {
               <div className="bg-sanctuary-charcoal p-3 px-5 flex items-center justify-between text-xs text-white/80">
                 <div className="flex items-center gap-2 text-[11px]">
                   <span className="material-symbols-outlined text-sm text-emerald-400">thermostat</span>
-                  <span>22.5°C Ambient AC</span>
+                  <span>Clean Ambient Suite</span>
                   <span className="text-white/30">•</span>
                   <span className="text-sanctuary-gold font-bold">Orthopaedic Memory Foam</span>
                 </div>
                 <div className="text-[10px] font-mono text-white/50">
-                  <span>FPS: 60 • 4K ULTRA HD</span>
+                  <span>FPS: 60 • HD LIVE STREAM</span>
                 </div>
               </div>
             </div>

@@ -26,7 +26,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onOpenBooking, onNavig
       service: 'boarding',
       rating: 5,
       date: '7 Days Boarding Stay',
-      text: 'Left Simba for 7 days during our family vacation. Received morning and evening 4K WhatsApp videos of him playing on the clean AC floor. Returned home smelling amazing with his complimentary free spa bath!',
+      text: 'Left Simba for 7 days during our family vacation. Received morning and evening WhatsApp videos of him playing on the clean boarding floor. Returned home smelling amazing with his complimentary free spa bath!',
     },
     {
       id: 3,

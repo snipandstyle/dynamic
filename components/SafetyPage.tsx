@@ -9,40 +9,40 @@ interface SafetyPageProps {
 export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigate }) => {
   const protocols = [
     {
-      icon: 'sanitizer',
-      title: 'Medical-Grade UV Sterilization',
-      desc: 'All clipper blades, trimming shears, dematting combs, and grooming tables are UV-sterilized and wiped down with veterinary-grade disinfectant between every single pet to eliminate any risk of cross-contamination.',
-      badge: 'Zero Germs',
-    },
-    {
       icon: 'eco',
       title: '100% pH-Balanced Organic Shampoos',
       desc: 'We strictly avoid harsh detergents, parabens, sulfates, and chemical colorants. Only tearless, hypoallergenic botanical formulations tailored to your pet’s specific skin and coat condition.',
       badge: 'Gentle Botanicals',
     },
     {
-      icon: 'air',
-      title: '100% Cage-Free Climate Control',
-      desc: 'Our boarding facility is physically a clean, spacious, air-conditioned floor at our Kanakapura Road studio. Zero wire cages or claustrophobic crates. Clean sanitized orthopaedic bedding for every guest.',
+      icon: 'pets',
+      title: '100% Cage-Free Setup',
+      desc: 'Our boarding facility is physically a clean, spacious floor at our Kanakapura Road studio. Zero wire cages or cramped crates. Clean sanitized orthopaedic bedding for every guest.',
       badge: 'Zero Wire Cages',
     },
     {
       icon: 'favorite',
       title: 'Fear-Free Low-Stress Handling',
-      desc: 'No forceful restraints, muzzles, or rough pulling. Our handlers take time to read body language, take calming breaks, and use gentle praise. Nervous pets are given all the time they need.',
+      desc: 'No forceful restraints, muzzles, or rough handling. Our groomers take time to read body language, take calming breaks, and use gentle praise. Nervous pets are given all the time they need.',
       badge: 'Trained Handlers',
     },
     {
-      icon: 'verified_user',
-      title: 'Strict Vaccination Screening',
-      desc: 'To protect the health of all pets under our care, we mandate verified Anti-Rabies and DHPPi (dogs) or FVRCP (cats) vaccination cards before any boarding admission.',
-      badge: '100% Vaccinated',
+      icon: 'nature_people',
+      title: 'Daily Meadow Play & Lawn Walks',
+      desc: 'Active outdoor play sessions and nature walks to keep energy balanced, joints healthy, and tails wagging happily during every boarding stay.',
+      badge: 'Daily Romps',
     },
     {
-      icon: 'local_hospital',
-      title: '24/7 Caretaker & Vet On-Call',
-      desc: 'Dedicated caretakers are physically present on the boarding floor 24 hours a day, with a licensed veterinary clinic partner located right on Kanakapura Main Road for immediate attention if required.',
-      badge: 'Round-The-Clock',
+      icon: 'water_drop',
+      title: 'Fresh Filtered Water & Custom Diets',
+      desc: 'Continuous access to clean filtered water and feeding strictly according to each pet parent’s schedule and home dietary instructions.',
+      badge: 'Healthy Nutrition',
+    },
+    {
+      icon: 'clean_hands',
+      title: 'Sanitized Tools & Fresh Towels',
+      desc: 'Warm hydrobaths with freshly washed microfibre towels and sanitized grooming tools between pets to ensure clean, fresh, and soothing sessions.',
+      badge: 'Clean & Fresh',
     },
   ];
 
@@ -64,7 +64,7 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black uppercase tracking-wider">
-            <span>Hospital-Grade Sanitization Standards</span>
+            <span>Sanitization & Comfort Standards</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-tight">
@@ -72,7 +72,7 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
           </h1>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            Your pet’s health, hygiene, and emotional comfort are non-negotiable. Learn how our hospital-grade sterilization, cage-free setup, and veterinary protocols keep your best friend safe.
+            Your pet’s health, hygiene, and emotional comfort are non-negotiable. Learn how our daily sanitization, cage-free setup, and caring protocols keep your best friend safe.
           </p>
         </div>
 
@@ -81,14 +81,14 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
           <div className="rounded-3xl overflow-hidden border border-black/10 shadow-md relative group h-64 sm:h-72">
             <img
               src="/images/clean_dog_boarding.jpg"
-              alt="Clean AC Boarding Floor"
+              alt="Clean Boarding Floor"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 text-white">
               <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase w-fit mb-1">
                 Boarding Hygiene
               </span>
-              <h3 className="text-base font-black text-white">100% Sanitized Bedding & AC Floor</h3>
+              <h3 className="text-base font-black text-white">100% Sanitized Bedding & Floor</h3>
               <p className="text-xs text-white/80">Cleaned twice daily with non-toxic pet-safe disinfectants.</p>
             </div>
           </div>
@@ -103,8 +103,8 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
               <span className="bg-sanctuary-gold text-sanctuary-dark text-[9px] font-black px-2 py-0.5 rounded uppercase w-fit mb-1">
                 Grooming Sanitization
               </span>
-              <h3 className="text-base font-black text-white">UV-Sterilized Tools & Hydrobath</h3>
-              <p className="text-xs text-white/80">Every tool is sterilized after every session to prevent skin issues.</p>
+              <h3 className="text-base font-black text-white">Sanitized Tools & Hydrobath</h3>
+              <p className="text-xs text-white/80">Every tool is sanitized after every session for optimal skin health.</p>
             </div>
           </div>
         </div>
@@ -143,17 +143,20 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
               Want to inspect our boarding floor before traveling?
             </h3>
             <p className="text-xs text-sanctuary-dark/70 font-medium leading-relaxed">
-              We welcome pet parents for a complimentary 30-minute studio walkthrough. Meet our caretakers, see the air-conditioned rooms, and see firsthand how clean our facility is.
+              We welcome pet parents for a complimentary 30-minute studio walkthrough. Meet our caretakers, see the spacious suites, and see firsthand how clean our facility is.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <button
-              onClick={onOpenBooking}
-              className="py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all text-center"
+            <a
+              href="https://wa.me/919739887770?text=Hi%2C%20I%20would%20like%20to%20schedule%20a%20studio%20visit%20at%20Snip%20%26%20Style!"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all text-center flex items-center justify-center gap-1.5"
             >
-              Schedule Studio Visit
-            </button>
+              <span>Schedule Studio Visit</span>
+              <span className="material-symbols-outlined text-sm">chat</span>
+            </a>
             <button
               onClick={onOpenBooking}
               className="py-3 px-6 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider transition-all text-center"

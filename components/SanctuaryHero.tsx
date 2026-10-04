@@ -132,7 +132,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-sanctuary-dark/75 font-medium leading-relaxed max-w-xl">
-              Easy, hassle-free drop-off on your way out of Bangalore toward vacations and weekend getaways. Situated away from city noise, pets enjoy calm stress relief, open nature walks, and climate-controlled cage-free comfort.
+              Easy, hassle-free drop-off on your way out of Bangalore toward vacations and weekend getaways. Situated away from city noise, pets enjoy calm stress relief, open nature walks, and clean cage-free comfort.
             </p>
 
             {/* Visual Banner (Desktop / Tablet only to prevent mobile clutter) */}
@@ -166,7 +166,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
               </span>
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                <span>AC Private Suites</span>
+                <span>Private Suites</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
@@ -174,7 +174,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
               </span>
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                <span>Daily 4K WhatsApp Journals</span>
+                <span>Daily WhatsApp Journals</span>
               </span>
             </div>
 

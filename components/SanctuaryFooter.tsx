@@ -40,7 +40,7 @@ export const SanctuaryFooter: React.FC<SanctuaryFooterProps> = ({
 
             <div className="flex items-center gap-2 pt-1">
               <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/10">
-                100% Cage-Free & AC
+                100% Cage-Free
               </span>
               <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 Kanakapura Highway
@@ -90,7 +90,7 @@ export const SanctuaryFooter: React.FC<SanctuaryFooterProps> = ({
             <ul className="space-y-1.5 text-xs text-white/75 font-medium">
               <li>
                 <button onClick={() => onNavigate('safety')} className="hover:text-sanctuary-gold transition-colors">
-                  Sterilization & Health Protocols
+                  Hygiene & Safety Protocols
                 </button>
               </li>
               <li>

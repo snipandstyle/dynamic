@@ -49,7 +49,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
     {
       id: 'neutered',
       title: 'Neutered / Spayed Cats',
-      sub: 'Quiet climate-controlled private cabin with peaceful individual haven',
+      sub: 'Quiet private cabin with peaceful individual haven',
       price: 625,
       orig: 750,
       save: 125,
@@ -58,7 +58,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
     {
       id: 'non-neutered',
       title: 'Non-Neutered Cats',
-      sub: 'Dedicated peaceful climate-controlled private space with individual care',
+      sub: 'Dedicated peaceful private space with individual care',
       price: 750,
       orig: 899,
       save: 149,
@@ -151,8 +151,8 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
   const timeline = [
     { time: '07:30 AM', title: 'Morning Nature Walk & Stretch', desc: 'Gentle outdoor nature walk and bathroom break in green, open grounds.' },
     { time: '08:30 AM', title: 'Nutritious Breakfast & Fresh Water', desc: 'Individual feeding according to your pet’s exact diet and schedule.' },
-    { time: '11:00 AM', title: 'Supervised Social Play & Agility', desc: 'Interactive games, ball fetch, and mental stimulation in clean AC zones.' },
-    { time: '01:30 PM', title: 'Quiet Afternoon Nap on AC Floor', desc: 'Rest on clean orthopaedic bedding with calm acoustic ambiance.' },
+    { time: '11:00 AM', title: 'Supervised Social Play & Agility', desc: 'Interactive games, ball fetch, and mental stimulation in clean play zones.' },
+    { time: '01:30 PM', title: 'Quiet Afternoon Nap on Boarding Floor', desc: 'Rest on clean orthopaedic bedding with calm acoustic ambiance.' },
     { time: '04:30 PM', title: 'Daily WhatsApp Photo & Video Updates', desc: 'Photos and updates sent directly to parents so you see them happy and relaxed.' },
     { time: '06:00 PM', title: 'Evening Nature Walk & Play', desc: 'Second outdoor walk in fresh air before evening winds down.' },
     { time: '07:30 PM', title: 'Wholesome Dinner & Medication', desc: 'Evening meal served, with medical routines administered if requested.' },
@@ -192,7 +192,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
           </h1>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            Zero wire cages, zero loneliness. A clean, climate-controlled boarding floor with private orthopaedic bedding, nature walks, city stress relief, and daily WhatsApp updates while you travel.
+            Zero wire cages, zero loneliness. A clean, cage-free boarding floor with private orthopaedic bedding, nature walks, city stress relief, and daily WhatsApp updates while you travel.
           </p>
         </div>
 
@@ -204,12 +204,12 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
             <div className="rounded-3xl overflow-hidden shadow-xl border border-black/10 relative group">
               <img
                 src="/images/clean_dog_boarding.jpg"
-                alt="Clean AC Boarding Floor"
+                alt="Clean Boarding Floor"
                 className="w-full h-72 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
                 <span className="bg-emerald-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider w-fit mb-2">
-                  100% Cage-Free & AC
+                  100% Cage-Free
                 </span>
                 <h3 className="text-lg font-black text-white">Nature Walks & City Stress Relief</h3>
                 <p className="text-xs text-white/80 font-medium">

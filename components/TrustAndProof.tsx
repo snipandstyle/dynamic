@@ -65,8 +65,8 @@ export const TrustAndProof: React.FC = () => {
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">100% Cage-Free AC Floor</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70">No metal crates or wire cages. Clean, climate-controlled boarding space.</p>
+                    <h4 className="text-xs font-black text-sanctuary-dark">100% Cage-Free Floor</h4>
+                    <p className="text-[11px] text-sanctuary-dark/70">No metal crates or wire cages. Clean, hygienic, open boarding space.</p>
                   </div>
                 </div>
 
@@ -75,8 +75,8 @@ export const TrustAndProof: React.FC = () => {
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">Daily 4K WhatsApp Videos</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70">Morning and evening video updates sent directly to your phone.</p>
+                    <h4 className="text-xs font-black text-sanctuary-dark">Daily WhatsApp Updates</h4>
+                    <p className="text-[11px] text-sanctuary-dark/70">Morning and evening photo & video updates sent directly to your phone.</p>
                   </div>
                 </div>
 
@@ -85,8 +85,8 @@ export const TrustAndProof: React.FC = () => {
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">Strict Vaccine Protocol</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70">Anti-Rabies & DHPPi verified before entry for 100% pet safety.</p>
+                    <h4 className="text-xs font-black text-sanctuary-dark">Daily Nature Walks & Playtime</h4>
+                    <p className="text-[11px] text-sanctuary-dark/70">Open green lawn walks and interactive playtime sessions twice a day.</p>
                   </div>
                 </div>
 
@@ -95,8 +95,8 @@ export const TrustAndProof: React.FC = () => {
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">24/7 Caretaker & Vet On-Call</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70">Dedicated staff continuously present on site plus nearby veterinary partner.</p>
+                    <h4 className="text-xs font-black text-sanctuary-dark">Fresh Home-Style Meals</h4>
+                    <p className="text-[11px] text-sanctuary-dark/70">Nutritious meals served on schedule according to your pet's dietary routine.</p>
                   </div>
                 </div>
               </div>
@@ -107,16 +107,15 @@ export const TrustAndProof: React.FC = () => {
               <div className="text-[11px] text-sanctuary-dark font-bold leading-tight">
                 Want to check the facility before travel?
               </div>
-              <button
-                onClick={() => {
-                  const el = document.getElementById('contact-section');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  else window.location.hash = 'contact';
-                }}
-                className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-lg font-bold text-[10px] uppercase tracking-wider shrink-0 transition-colors"
+              <a
+                href="https://wa.me/919739887770?text=Hi%2C%20I%20would%20like%20to%20schedule%20a%20studio%20visit%20at%20Snip%20%26%20Style!"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-lg font-bold text-[10px] uppercase tracking-wider shrink-0 transition-colors flex items-center gap-1"
               >
-                Schedule Visit
-              </button>
+                <span>Schedule Visit</span>
+                <span className="material-symbols-outlined text-xs">chat</span>
+              </a>
             </div>
           </div>
 

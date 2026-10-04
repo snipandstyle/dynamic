@@ -317,7 +317,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
           </div>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            All services feature tearless organic shampoos, UV-sterilized clippers, low-stress fear-free handling, and 10% discount on grooming above ₹999 using code <strong className="font-mono text-sanctuary-dark">GROOM10</strong>.
+            All services feature tearless organic shampoos, sanitized clippers, low-stress fear-free handling, and 10% discount on grooming above ₹999 using code <strong className="font-mono text-sanctuary-dark">GROOM10</strong>.
           </p>
         </div>
 

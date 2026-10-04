@@ -11,11 +11,11 @@ export const SanctuaryLocation: React.FC = () => {
     },
     {
       q: 'How often will I get photo/video updates?',
-      a: 'Twice daily on WhatsApp! 4K video clips and candid photos after morning lawn play/breakfast and in the evening. You can also text the caretaker anytime.'
+      a: 'Twice daily on WhatsApp! Video clips and candid photos after morning lawn play/breakfast and in the evening. You can also text the caretaker anytime.'
     },
     {
       q: 'Are pets kept in cages at any point?',
-      a: 'NEVER. Snip & Style is 100% cage-free. Companions stay in private AC suites with thick orthopaedic mattresses and solid acoustic partition walls.'
+      a: 'NEVER. Snip & Style is 100% cage-free. Companions stay in private suites with thick orthopaedic mattresses and solid acoustic partition walls.'
     },
     {
       q: 'What if my pet is nervous or needs medicine?',
@@ -42,14 +42,14 @@ export const SanctuaryLocation: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs text-sanctuary-dark/70 font-medium max-w-sm">
-            Open 7 days a week (09:30 AM – 08:30 PM) with doorstep AC pet taxi transit.
+            Open 7 days a week (09:30 AM – 08:30 PM) with doorstep pet pickup transit.
           </p>
         </div>
 
         {/* 2-Column Split that fits on 1 Screen */}
         <div className="grid lg:grid-cols-12 gap-6 items-stretch">
           
-          {/* Left: Studio Location & Pet Taxi */}
+          {/* Left: Studio Location & Pet Pickup */}
           <div className="lg:col-span-6 bg-white rounded-3xl p-5 sm:p-6 border border-black/10 shadow-lg flex flex-col justify-between space-y-4">
             <div className="space-y-4">
               {/* Address */}
@@ -85,11 +85,11 @@ export const SanctuaryLocation: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pet Taxi Coverage */}
+              {/* Pet Pickup Coverage */}
               <div className="p-3 bg-sanctuary-sand rounded-2xl space-y-1">
                 <div className="text-xs font-black text-sanctuary-dark flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-sm text-amber-600">local_taxi</span>
-                  <span>Doorstep AC Pet Chauffeur Coverage</span>
+                  <span>Doorstep Pet Pickup Coverage</span>
                 </div>
                 <p className="text-[11px] text-sanctuary-dark/70 font-medium">
                   JP Nagar, Jayanagar, Banashankari, Kanakapura Rd, Bannerghatta Rd, RR Nagar.

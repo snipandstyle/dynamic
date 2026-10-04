@@ -150,7 +150,7 @@ const App: React.FC = () => {
                 onOpenBooking={openBookingWithDetails}
               />
 
-              {/* SCREEN 2: 100% CAGE-FREE AC BOARDING FLOOR */}
+              {/* SCREEN 2: 100% CAGE-FREE BOARDING FLOOR */}
               <BoardingSection onOpenBooking={openBookingWithDetails} />
 
               {/* SCREEN 3: PET GROOMING & SPA PACKAGES */}
@@ -162,7 +162,7 @@ const App: React.FC = () => {
               {/* SCREEN 4: TRUST, STANDARDS & 4.9-STAR GOOGLE REVIEWS */}
               <TrustAndProof />
 
-              {/* SCREEN 5: KANAKAPURA ROAD LOCATION, PET TAXI & FAQ */}
+              {/* SCREEN 5: KANAKAPURA ROAD LOCATION, PET PICKUP & FAQ */}
               <LocationAndContact />
             </div>
           )}

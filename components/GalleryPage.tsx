@@ -21,11 +21,11 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenBooking, onNavig
     },
     {
       id: 2,
-      title: '100% Cage-Free Air-Conditioned Boarding Floor',
+      title: '100% Cage-Free Clean Boarding Floor',
       category: 'boarding',
       tag: 'Sanctuary Boarding',
       src: '/images/clean_dog_boarding.jpg',
-      desc: 'Climate-controlled suite with orthopaedic bedding, clean flooring, and zero wire cages.',
+      desc: 'Clean private suite with orthopaedic bedding, clean flooring, and zero wire cages.',
     },
     {
       id: 3,

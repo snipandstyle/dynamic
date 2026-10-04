@@ -10,11 +10,11 @@ export const LocationAndContact: React.FC = () => {
     },
     {
       q: 'How often will I get photo and video updates?',
-      a: 'Twice daily on WhatsApp! 4K video clips and photos after morning play/breakfast and in the evening. You can also text the caretaker anytime for updates.'
+      a: 'Twice daily on WhatsApp! Video clips and photos after morning play/breakfast and in the evening. You can also text the caretaker anytime for updates.'
     },
     {
       q: 'Are pets ever kept in cages?',
-      a: 'Never. Snip & Style is 100% cage-free. Companions stay in our clean, air-conditioned boarding floor with soft bedding and freedom to move and rest.'
+      a: 'Never. Snip & Style is 100% cage-free. Companions stay in our clean boarding floor with soft bedding and freedom to move and rest.'
     },
     {
       q: 'What if my companion needs medicine or special care?',
@@ -47,7 +47,7 @@ export const LocationAndContact: React.FC = () => {
         {/* 2-Column Split that fits on 1 Screen */}
         <div className="grid lg:grid-cols-12 gap-6 items-stretch">
           
-          {/* Left: Studio Location & Pet Taxi */}
+          {/* Left: Studio Location & Pet Pickup */}
           <div className="lg:col-span-6 bg-sanctuary-sand/40 rounded-3xl p-5 border border-black/10 flex flex-col justify-between space-y-4">
             <div className="space-y-3.5">
               {/* Address */}
@@ -85,7 +85,7 @@ export const LocationAndContact: React.FC = () => {
               <div className="p-2.5 bg-white rounded-xl border border-black/5 space-y-0.5">
                 <div className="text-xs font-black text-sanctuary-dark flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-sm text-amber-600">local_taxi</span>
-                  <span>Doorstep AC Pet Cab Service</span>
+                  <span>Doorstep Pet Pickup Service</span>
                 </div>
                 <p className="text-[11px] text-sanctuary-dark/70 font-medium">
                   Covering JP Nagar, Jayanagar, Banashankari, Kanakapura Rd, Bannerghatta Rd, RR Nagar.

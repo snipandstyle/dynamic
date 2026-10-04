@@ -30,8 +30,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking, onNavigate 
 
   const highlights = [
     { num: '380+', label: 'Verified 5-Star Google Reviews' },
-    { num: '100%', label: 'Cage-Free & Fully Air-Conditioned' },
-    { num: '4K', label: 'Daily WhatsApp Video Updates' },
+    { num: '100%', label: 'Cage-Free Pet Sanctuary' },
+    { num: 'Daily', label: 'WhatsApp Video Updates' },
     { num: '7 Days', label: 'Open 09:30 AM – 08:30 PM' },
   ];
 
@@ -61,7 +61,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking, onNavigate 
           </h1>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            We started Snip & Style with a simple, uncompromising belief: every pet deserves to feel safe, clean, and genuinely cherished. Not in a crowded cage or noisy warehouse, but in a hygienic, climate-controlled sanctuary.
+            We started Snip & Style with a simple, uncompromising belief: every pet deserves to feel safe, clean, and genuinely cherished. Not in a crowded cage or noisy warehouse, but in a hygienic, cage-free sanctuary.
           </p>
         </div>
 

@@ -126,7 +126,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
         {/* 2-Column Split: Map & Directions Left + WhatsApp Inquiry Form Right */}
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left: Studio Location & Taxi Info */}
+          {/* Left: Studio Location & Pickup Info */}
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-black/10 shadow-md space-y-4">
               <div className="flex items-center gap-3">
@@ -155,26 +155,28 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
                   <span className="material-symbols-outlined text-sm">directions</span>
                   <span>Google Maps Directions</span>
                 </a>
-                <button
-                  onClick={onOpenBooking}
+                <a
+                  href="https://wa.me/919739887770?text=Hi%2C%20I%20would%20like%20to%20schedule%20a%20studio%20visit%20at%20Snip%20%26%20Style!"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="py-2.5 px-4 bg-sanctuary-sand hover:bg-black/10 text-sanctuary-dark rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors border border-black/10"
                 >
                   <span className="material-symbols-outlined text-sm">event</span>
-                  <span>Book Studio Visit</span>
-                </button>
+                  <span>Schedule Studio Visit</span>
+                </a>
               </div>
             </div>
 
-            {/* Doorstep AC Pet Taxi Section */}
+            {/* Doorstep Pet Pickup Section */}
             <div className="bg-sanctuary-forest text-white rounded-3xl p-6 sm:p-8 shadow-md space-y-3">
               <div className="flex items-center gap-2.5">
                 <span className="size-8 rounded-lg bg-sanctuary-gold text-sanctuary-dark flex items-center justify-center font-black">
                   <span className="material-symbols-outlined text-lg">local_taxi</span>
                 </span>
-                <h3 className="text-base font-black text-white">Doorstep AC Pet Taxi Service</h3>
+                <h3 className="text-base font-black text-white">Doorstep Pet Pickup Service</h3>
               </div>
               <p className="text-xs text-white/80 font-medium leading-relaxed">
-                Can't drive down? Our sanitized, air-conditioned pet cab picks up and drops your companion safely with certified pet handlers.
+                Can't drive down? Our sanitized pet pickup service collects and drops your companion safely with certified pet handlers.
               </p>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {taxiZones.map((zone, i) => (

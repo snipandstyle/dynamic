@@ -8,7 +8,7 @@ export const SanctuaryReviews: React.FC = () => {
       pet: 'Simba (Golden Retriever, 3 yrs)',
       service: '7 Days Boarding',
       comment:
-        'I had to travel to Mumbai for a week and was terrified about leaving Simba because he gets anxiety. The team at Snip & Style sent morning and evening 4K videos on WhatsApp of Simba playing on the turf lawn and eating happily. Plus, he got a free spa bath before returning home!',
+        'I had to travel to Mumbai for a week and was terrified about leaving Simba because he gets anxiety. The team at Snip & Style sent morning and evening videos on WhatsApp of Simba playing on the turf lawn and eating happily. Plus, he got a free spa bath before returning home!',
       highlight: 'Daily WhatsApp videos put my mind completely at ease!',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150',
     },

@@ -11,11 +11,11 @@ export const SanctuaryFAQ: React.FC = () => {
     },
     {
       q: 'How often will I receive photo and video updates of my companion?',
-      a: 'You will receive at least two high-definition 4K video reels and candid playtime photos every day directly on your WhatsApp! One after their morning meadow play and breakfast, and one in the evening. You can also message our dedicated caretaker anytime between 9:30 AM and 8:30 PM for instant real-time checks.'
+      a: 'You will receive at least two video updates and candid playtime photos every day directly on your WhatsApp! One after their morning meadow play and breakfast, and one in the evening. You can also message our dedicated caretaker anytime between 9:30 AM and 8:30 PM for instant real-time checks.'
     },
     {
       q: 'Are the pets kept in wire cages or metal crates at any point?',
-      a: 'NEVER. Snip & Style Sanctuary is strictly 100% cage-free. We believe wire cages cause immense psychological trauma and confinement panic. Every guest stays in a private, individual climate-controlled AC suite with thick orthopaedic mattresses and solid acoustic walls. They are free to move, stretch, and relax.'
+      a: 'NEVER. Snip & Style Sanctuary is strictly 100% cage-free. We believe wire cages cause immense psychological trauma and confinement panic. Every guest stays in a private, individual suite with thick orthopaedic mattresses and solid acoustic walls. They are free to move, stretch, and relax.'
     },
     {
       q: 'What if my companion is nervous, shy, or has special medical needs?',

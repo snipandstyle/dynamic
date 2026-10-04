@@ -4,7 +4,7 @@ export const SanctuaryVsTraditional: React.FC = () => {
   const comparison = [
     {
       feature: 'Living Accommodation',
-      sanctuary: '100% Cage-Free Private AC Suites with memory foam beds',
+      sanctuary: '100% Cage-Free Private Suites with memory foam beds',
       traditional: 'Narrow wire cages, metal crates, or concrete pens',
     },
     {
@@ -14,7 +14,7 @@ export const SanctuaryVsTraditional: React.FC = () => {
     },
     {
       feature: 'Parent Communication',
-      sanctuary: 'Daily 4K WhatsApp video reels & playtime photos',
+      sanctuary: 'Daily WhatsApp video reels & playtime photos',
       traditional: 'Rare or no updates unless chased',
     },
     {
@@ -23,22 +23,22 @@ export const SanctuaryVsTraditional: React.FC = () => {
       traditional: 'Forced restraints and rush-grooming',
     },
     {
-      feature: 'Veterinary Oversight',
-      sanctuary: 'Mandatory vaccination check + 24/7 on-call doctor',
-      traditional: 'Unverified records, no doctor on call',
+      feature: 'Care & Comfort',
+      sanctuary: 'Clean sanitized bedding, fresh filtered water & loving handlers',
+      traditional: 'Impersonal cages and unmonitored spaces',
     },
   ];
 
   const safetyGuarantees = [
     {
-      icon: 'verified_user',
-      title: 'Mandatory Vaccines',
-      desc: 'Anti-Rabies & DHPPi verified before entry. No exceptions.',
+      icon: 'nature_people',
+      title: 'Daily Nature Walks',
+      desc: 'Scheduled open turf romps & outdoor exercise sessions.',
     },
     {
       icon: 'sanitizer',
-      title: 'Hospital Sterilization',
-      desc: 'Ozonated disinfection twice daily with pet-safe antiseptics.',
+      title: 'Daily Sanitization',
+      desc: 'Freshly cleaned bedding, sanitized bowls, and fresh filtered water.',
     },
     {
       icon: 'shield_with_heart',
@@ -46,9 +46,9 @@ export const SanctuaryVsTraditional: React.FC = () => {
       desc: 'Handlers trained to understand pet stress body language.',
     },
     {
-      icon: 'medical_services',
-      title: '24/7 Vet Partner',
-      desc: 'Emergency clinic on Kanakapura Road on standby.',
+      icon: 'restaurant',
+      title: 'Custom Fresh Diets',
+      desc: 'Home-style meals prepared strictly to parent instructions.',
     },
   ];
 
@@ -133,13 +133,14 @@ export const SanctuaryVsTraditional: React.FC = () => {
                 <div className="text-xs font-black text-sanctuary-gold">Free 30-Min Trial Visit</div>
                 <div className="text-[10px] text-white/70">Bring your companion to tour our suites & sniff our lawn for free!</div>
               </div>
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('snip_open_booking'))}
-                className="py-2 px-3.5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark rounded-xl font-black text-[10px] uppercase tracking-wider shrink-0 shadow-sm transition-all"
+              <a
+                href="https://wa.me/919739887770?text=Hi%2C%20I%20would%20like%20to%20schedule%20a%20free%20trial%20visit%20at%20Snip%20%26%20Style!"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 px-3.5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark rounded-xl font-black text-[10px] uppercase tracking-wider shrink-0 shadow-sm transition-all flex items-center justify-center text-center"
               >
                 Schedule Visit
-              </button>
+              </a>
             </div>
           </div>
 

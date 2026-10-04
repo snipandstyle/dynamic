@@ -1279,7 +1279,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </select>
               </div>
 
-              {/* Doorstep AC Pet Taxi Checkbox */}
+              {/* Doorstep Pet Pickup Checkbox */}
               <div
                 onClick={() => setIncludePetTaxi(!includePetTaxi)}
                 className={`p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all ${
@@ -1288,7 +1288,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               >
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-amber-600 text-sm">local_taxi</span>
-                  <span className="text-[11px] font-bold">Doorstep AC Pet Cab Pickup & Drop (+₹299)</span>
+                  <span className="text-[11px] font-bold">Doorstep Pet Pickup & Drop (+₹299)</span>
                 </div>
                 <input
                   type="checkbox"

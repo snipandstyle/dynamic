@@ -18,13 +18,13 @@ export const DailyLifeTimeline: React.FC = () => {
       time: '11:30 AM',
       icon: 'psychology',
       title: 'Cognitive Puzzles & Cuddles',
-      desc: 'Mental enrichment games, snuffle mats, interactive treat toys, and 1-on-1 affection in our climate-controlled lounge.',
+      desc: 'Mental enrichment games, snuffle mats, interactive treat toys, and 1-on-1 affection in our comfortable private lounge.',
     },
     {
       time: '01:00 PM',
       icon: 'bedtime',
-      title: 'Deep AC Rest & Calm',
-      desc: 'Quiet siesta time on our clean climate-controlled boarding floor. Dimmed ambient lights, 22°C AC, and peaceful atmosphere.',
+      title: 'Deep Rest & Calm',
+      desc: 'Quiet siesta time on our clean boarding floor. Dimmed ambient lights, soft bedding, and peaceful atmosphere.',
     },
     {
       time: '04:30 PM',
@@ -59,7 +59,7 @@ export const DailyLifeTimeline: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs text-sanctuary-dark/70 font-medium max-w-sm">
-            Balancing outdoor exercise, wholesome nutrition, cognitive agility, and restorative private AC rest.
+            Balancing outdoor exercise, wholesome nutrition, cognitive agility, and restorative private rest.
           </p>
         </div>
 

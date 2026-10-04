@@ -91,7 +91,7 @@ export const PromoPosterPopup: React.FC<PromoPosterPopupProps> = ({
             </div>
             <div className="flex items-start gap-2">
               <span className="material-symbols-outlined text-emerald-600 text-sm shrink-0 mt-0.5">check_circle</span>
-              <span><strong>100% Floor Freedom:</strong> Zero wire cages, AC private suites & 2 daily lawn walks</span>
+              <span><strong>100% Floor Freedom:</strong> Zero wire cages, private suites & 2 daily lawn walks</span>
             </div>
           </div>
 
