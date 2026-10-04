@@ -747,9 +747,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
       // Prepare comprehensive booking payload (ONLY committed to database upon verified payment!)
       const bookingPayload = {
-        parentName: currentUser.fullName || 'Pet Parent',
-        phone: currentUser.phone || authPhone,
-        email: currentUser.email || `${currentUser.phone}@snipandstyle.pet`,
+        parentName: currentUser?.fullName || authName || 'Pet Parent',
+        phone: currentUser?.phone || authPhone || '',
+        email: currentUser?.email || (currentUser?.phone || authPhone ? `${(currentUser?.phone || authPhone).replace(/\D/g, '')}@snipandstyle.pet` : ''),
         petName: petName.trim(),
         petBreed: petBreed.trim() || (petType === 'cat' ? 'Feline' : `${petSize.toUpperCase()} Dog`),
         petWeightKg: petType === 'cat' ? 4.5 : petSize === 'small' ? 7.5 : petSize === 'medium' ? 18.0 : 32.0,

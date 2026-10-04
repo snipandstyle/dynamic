@@ -8,8 +8,8 @@ interface AdminDashboardModalProps {
 
 export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen, onClose }) => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [adminIdentifier, setAdminIdentifier] = useState('9739887770');
-  const [adminPassword, setAdminPassword] = useState('Admin@123');
+  const [adminIdentifier, setAdminIdentifier] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [activeAdminTab, setActiveAdminTab] = useState<'bookings' | 'coupons'>('bookings');
 
   // Bookings State
@@ -495,10 +495,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                   <input
                     type="text"
                     required
-                    placeholder="9739887770"
+                    placeholder="Admin mobile number or email"
                     value={adminIdentifier}
                     onChange={(e) => setAdminIdentifier(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold font-mono font-bold"
+                    className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
                   />
                 </div>
 
@@ -509,7 +509,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                   <input
                     type="password"
                     required
-                    placeholder="••••••••"
+                    placeholder="Enter password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
@@ -523,10 +523,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                 >
                   {loading ? 'Authenticating with Neon DB...' : 'Access Management Console'}
                 </button>
-
-                <div className="text-center text-[11px] text-sanctuary-dark/60 font-medium pt-1">
-                  Default Staff Credentials: <code className="font-bold text-sanctuary-dark">9739887770 / Admin@123</code>
-                </div>
               </form>
             </div>
           ) : activeAdminTab === 'bookings' ? (

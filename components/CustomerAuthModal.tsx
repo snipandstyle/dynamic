@@ -229,11 +229,6 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
               >
                 {loading ? 'Authenticating...' : 'Sign In'}
               </button>
-
-              <div className="text-center pt-2">
-                <span className="text-xs text-sanctuary-dark/60 font-medium">Demo Admin Login: </span>
-                <span className="text-xs font-mono font-bold text-sanctuary-dark">9739887770 / Admin@123</span>
-              </div>
             </form>
           )}
 
