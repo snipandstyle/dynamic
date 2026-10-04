@@ -133,7 +133,7 @@ const App: React.FC = () => {
       <SanctuaryHeader 
         onNavigate={navigateTo} 
         activeSection={activePage} 
-        onOpenBooking={() => setIsCheckoutOpen(true)}
+        onOpenBooking={() => openBookingWithDetails()}
         onOpenAuth={() => navigateTo('account')}
         onOpenAdmin={() => navigateTo('admin')}
       />
@@ -147,7 +147,7 @@ const App: React.FC = () => {
               <SanctuaryHero 
                 onExploreBoarding={() => navigateTo('boarding')} 
                 onExploreGrooming={() => navigateTo('grooming')} 
-                onOpenBooking={() => setIsCheckoutOpen(true)}
+                onOpenBooking={openBookingWithDetails}
               />
 
               {/* SCREEN 2: 100% CAGE-FREE AC BOARDING FLOOR */}

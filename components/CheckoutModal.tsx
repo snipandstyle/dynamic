@@ -394,12 +394,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
-    if (selectedServices.filter((s) => !s.isFreePerk).length <= 1) {
-      alert('You must have at least one paid service in your checkout.');
+    const remaining = selectedServices.filter((s) => s.id !== id);
+    const remainingPaid = remaining.filter((s) => !s.isFreePerk);
+
+    // If no paid services remain, reset cart and coupons completely
+    if (remainingPaid.length === 0) {
+      setSelectedServices([]);
+      setAppliedCoupon(null);
+      setCouponError('');
       return;
     }
 
-    const remaining = selectedServices.filter((s) => s.id !== id);
     setSelectedServices(remaining);
 
     // Validate if remaining services still fulfill active coupon
@@ -598,11 +603,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
+    const paidServices = selectedServices.filter((s) => !s.isFreePerk);
+    if (paidServices.length === 0) {
+      alert('Please add at least one service to your checkout before proceeding to payment.');
+      return;
+    }
+
+    if (finalTotal < 1) {
+      alert('The total amount must be at least ₹1 to initiate payment.');
+      return;
+    }
+
     setPaymentNotice('');
     setIsProcessing(true);
 
     try {
-      const primaryService = selectedServices[0];
+      const primaryService = paidServices[0] || selectedServices[0];
       const serviceNamesSummary = selectedServices.map((s) => s.name).join(' + ');
 
       // Prepare comprehensive booking payload (ONLY committed to database upon verified payment!)
@@ -1129,6 +1145,53 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
 
+              {/* Empty Cart State */}
+              {selectedServices.length === 0 && (
+                <div className="p-3.5 rounded-xl border border-dashed border-sanctuary-gold/60 bg-amber-50/40 text-center space-y-2">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-950">
+                    <span className="material-symbols-outlined text-sm text-amber-700">shopping_bag</span>
+                    <span>Your checkout cart is empty</span>
+                  </div>
+                  <p className="text-[11px] text-amber-900/80">
+                    Select a boarding stay or grooming service below to proceed:
+                  </p>
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleAddService('boarding', 'Cage-Free Boarding Floor', 625, 750, '4 Nights Stay', 4)}
+                      className="p-2 rounded-xl border border-sanctuary-gold bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
+                    >
+                      <div className="text-[11px] font-black text-sanctuary-dark">🐕 Boarding (4 Nights)</div>
+                      <div className="text-[10px] text-emerald-700 font-bold">₹2,500 (Save ₹500)</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddService('grooming', 'Special Grooming Package', 899, 1124, 'Hygiene + Oral & Paws')}
+                      className="p-2 rounded-xl border border-sanctuary-gold bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
+                    >
+                      <div className="text-[11px] font-black text-sanctuary-dark">✨ Special Grooming</div>
+                      <div className="text-[10px] text-emerald-700 font-bold">₹899 (Save ₹225)</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddService('grooming', 'Furry Fresh Hygiene Bath', 499, 649, 'Hygiene Refresh')}
+                      className="p-2 rounded-xl border border-black/10 bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
+                    >
+                      <div className="text-[11px] font-black text-sanctuary-dark">🛁 Furry Fresh Bath</div>
+                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">₹499 (was ₹649)</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddService('grooming', 'Style Your Pet Breed Trim', 1799, 2249, 'Full Breed Styling')}
+                      className="p-2 rounded-xl border border-black/10 bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
+                    >
+                      <div className="text-[11px] font-black text-sanctuary-dark">✂️ Breed Styling</div>
+                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">₹1,799 (was ₹2,249)</div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Service Cards List */}
               <div className="space-y-1.5">
                 {selectedServices.map((item) => (
@@ -1410,7 +1473,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <button
               onClick={handleConfirmOrder}
-              disabled={isProcessing || !currentUser}
+              disabled={isProcessing || !currentUser || selectedServices.filter((s) => !s.isFreePerk).length === 0}
               className="py-2.5 px-5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <span>
@@ -1418,6 +1481,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   ? 'Connecting Razorpay...'
                   : !currentUser
                   ? 'Sign In to Book'
+                  : selectedServices.filter((s) => !s.isFreePerk).length === 0
+                  ? 'Add a Service'
                   : 'Pay with Razorpay'}
               </span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>

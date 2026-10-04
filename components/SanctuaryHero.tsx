@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface SanctuaryHeroProps {
   onExploreBoarding: () => void;
   onExploreGrooming: () => void;
-  onOpenBooking?: () => void;
+  onOpenBooking?: (details?: any) => void;
 }
 
 export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
@@ -376,8 +376,21 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                   {/* Native Booking CTA */}
                   <button
                     onClick={() => {
-                      if (onOpenBooking) onOpenBooking();
-                      else handleViewBoardingRates();
+                      if (onOpenBooking) {
+                        onOpenBooking({
+                          type: 'boarding',
+                          serviceName: `${bRate.label} Boarding`,
+                          basePrice: bRate.discounted,
+                          origPrice: bRate.original,
+                          petType: pet,
+                          petSize: pet === 'dog' ? dogSize : undefined,
+                          catType: pet === 'cat' ? catType : undefined,
+                          nights: nights,
+                          appliedCouponCode: nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 4 ? 'FREESPA' : undefined,
+                        });
+                      } else {
+                        handleViewBoardingRates();
+                      }
                     }}
                     className="w-full py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                   >
@@ -471,8 +484,19 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
 
                   <button
                     onClick={() => {
-                      if (onOpenBooking) onOpenBooking();
-                      else handleViewGroomingMenu();
+                      if (onOpenBooking) {
+                        onOpenBooking({
+                          type: 'grooming',
+                          serviceName: `${selectedGroom.name} (${groomPet === 'cat' ? 'Cat' : `${groomSize.toUpperCase()} Dog`})`,
+                          basePrice: selectedGroom.price,
+                          origPrice: selectedGroom.orig,
+                          petType: groomPet,
+                          petSize: groomPet === 'dog' ? groomSize : undefined,
+                          appliedCouponCode: selectedGroom.price >= 1000 ? 'GROOM10' : undefined,
+                        });
+                      } else {
+                        handleViewGroomingMenu();
+                      }
                     }}
                     className="w-full py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                   >

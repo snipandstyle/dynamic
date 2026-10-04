@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface BoardingPageProps {
-  onOpenBooking: () => void;
+  onOpenBooking: (details?: any) => void;
   onNavigate: (page: string) => void;
 }
 
@@ -87,6 +87,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
   // Milestone Rewards
   const milestones = [
     {
+      nights: 4,
       days: '4+ Days Stay',
       reward: 'FREE Furry Fresh Grooming Refresh',
       value: '₹499–₹749 Value',
@@ -94,6 +95,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
       badgeBg: 'bg-emerald-100 text-emerald-800',
     },
     {
+      nights: 8,
       days: '8+ Days Stay',
       reward: 'FREE Special Package Treatment',
       value: '₹899–₹999 Value',
@@ -101,6 +103,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
       badgeBg: 'bg-amber-100 text-amber-900',
     },
     {
+      nights: 15,
       days: '15+ Days Stay',
       reward: 'FREE Full Package Grooming Treatment',
       value: '₹2,199 Value',
@@ -298,7 +301,17 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
 
                   <div className="pt-2 border-t border-black/5">
                     <button
-                      onClick={onOpenBooking}
+                      onClick={() =>
+                        onOpenBooking({
+                          type: 'boarding',
+                          serviceName: `${r.title} Boarding`,
+                          basePrice: r.price,
+                          origPrice: r.orig,
+                          petType: 'dog',
+                          petSize: r.id as any,
+                          nights: 4,
+                        })
+                      }
                       className="w-full py-2 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <span>Book This Rate</span>
@@ -367,7 +380,15 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
                   <p className="text-[11px] text-sanctuary-dark/70 font-medium leading-relaxed">{m.desc}</p>
                 </div>
                 <button
-                  onClick={onOpenBooking}
+                  onClick={() =>
+                    onOpenBooking({
+                      type: 'boarding',
+                      serviceName: 'Cage-Free Boarding Floor',
+                      basePrice: 625,
+                      nights: m.nights,
+                      appliedCouponCode: m.nights >= 15 ? 'FREESPA15' : m.nights >= 8 ? 'FREESPA8' : 'FREESPA',
+                    })
+                  }
                   className="w-full py-1.5 bg-sanctuary-sand hover:bg-sanctuary-forest hover:text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors text-center"
                 >
                   Book Stay & Claim
@@ -550,7 +571,19 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
             </div>
 
             <button
-              onClick={onOpenBooking}
+              onClick={() =>
+                onOpenBooking({
+                  type: 'boarding',
+                  serviceName: `${pet === 'cat' ? (catType === 'neutered' ? 'Neutered Cat' : 'Non-Neutered Cat') : `${dogSize.toUpperCase()} Dog`} Boarding`,
+                  basePrice: dailyRate,
+                  origPrice: dailyOrig,
+                  petType: pet,
+                  petSize: pet === 'dog' ? dogSize : undefined,
+                  catType: pet === 'cat' ? catType : undefined,
+                  nights: nights,
+                  appliedCouponCode: nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 4 ? 'FREESPA' : undefined,
+                })
+              }
               className="w-full sm:w-auto py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shrink-0"
             >
               Book with Milestone Rewards

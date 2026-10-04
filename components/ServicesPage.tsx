@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface ServicesPageProps {
-  onOpenBooking: () => void;
+  onOpenBooking: (details?: any) => void;
   onNavigate: (page: string) => void;
 }
 
@@ -441,7 +441,17 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
 
                       <div className="pt-3 border-t border-black/5">
                         <button
-                          onClick={onOpenBooking}
+                          onClick={() =>
+                            onOpenBooking({
+                              type: 'grooming',
+                              serviceName: `${pkg.title} (${size.toUpperCase()} Dog)`,
+                              basePrice: price,
+                              origPrice: orig,
+                              petType: 'dog',
+                              petSize: size,
+                              appliedCouponCode: price >= 1000 ? 'GROOM10' : undefined,
+                            })
+                          }
                           className="w-full py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 shadow-xs"
                         >
                           <span>Book with 15% OFF</span>
@@ -502,7 +512,16 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
 
                       <div className="pt-3 border-t border-black/5">
                         <button
-                          onClick={onOpenBooking}
+                          onClick={() =>
+                            onOpenBooking({
+                              type: 'grooming',
+                              serviceName: `${pkg.title} (Cat)`,
+                              basePrice: pkg.price,
+                              origPrice: pkg.orig,
+                              petType: 'cat',
+                              appliedCouponCode: pkg.price >= 1000 ? 'GROOM10' : undefined,
+                            })
+                          }
                           className="w-full py-2 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 shadow-xs"
                         >
                           <span>Book with 15% OFF</span>
@@ -625,7 +644,13 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
                         <td className="py-3.5 px-3 text-sanctuary-dark/70 font-bold">{b.validity}</td>
                         <td className="py-3.5 px-3 text-right">
                           <button
-                            onClick={onOpenBooking}
+                            onClick={() =>
+                              onOpenBooking({
+                                type: 'grooming',
+                                serviceName: `${b.name} Grooming Pass`,
+                                basePrice: parseInt(b.small.replace(/\D/g, '')) || 2499,
+                              })
+                            }
                             className="py-1.5 px-3.5 bg-sanctuary-forest hover:bg-black text-white rounded-lg font-bold text-[10px] uppercase tracking-wider inline-block transition-colors"
                           >
                             Buy Pass
@@ -675,7 +700,13 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
                         <td className="py-3.5 px-3 text-sanctuary-dark/70 font-bold">{b.validity}</td>
                         <td className="py-3.5 px-3 text-right">
                           <button
-                            onClick={onOpenBooking}
+                            onClick={() =>
+                              onOpenBooking({
+                                type: 'grooming',
+                                serviceName: `${b.name} Cat Pass`,
+                                basePrice: parseInt(b.short.replace(/\D/g, '')) || 2499,
+                              })
+                            }
                             className="py-1.5 px-3.5 bg-sanctuary-forest hover:bg-black text-white rounded-lg font-bold text-[10px] uppercase tracking-wider inline-block transition-colors"
                           >
                             Buy Pass
@@ -700,7 +731,14 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
             </p>
           </div>
           <button
-            onClick={onOpenBooking}
+            onClick={() =>
+              onOpenBooking({
+                type: 'grooming',
+                serviceName: 'Signature Pet Grooming & Spa',
+                basePrice: 899,
+                origPrice: 1124,
+              })
+            }
             className="py-3 px-8 bg-sanctuary-gold hover:bg-white text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shrink-0 transition-colors shadow-md"
           >
             <span>Book Grooming Now</span>
