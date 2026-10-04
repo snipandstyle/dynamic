@@ -19,7 +19,17 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'>('all');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'pending'>('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'boarding' | 'grooming'>('all');
+  const [copiedPaymentId, setCopiedPaymentId] = useState<string | null>(null);
+
+  const handleCopyPaymentId = (text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+    setCopiedPaymentId(text);
+    setTimeout(() => setCopiedPaymentId(null), 2000);
+  };
 
   // Coupons State
   const [coupons, setCoupons] = useState<any[]>([]);
@@ -350,6 +360,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
       const bStatus = (b.status || 'confirmed').toLowerCase();
       if (bStatus !== statusFilter) return false;
     }
+    if (paymentFilter !== 'all') {
+      if (paymentFilter === 'paid' && b.payment_status !== 'paid') return false;
+      if (paymentFilter === 'pending' && b.payment_status === 'paid') return false;
+    }
     if (serviceFilter === 'boarding' && !b.service_type.toLowerCase().includes('board')) return false;
     if (serviceFilter === 'grooming' && b.service_type.toLowerCase().includes('board')) return false;
 
@@ -359,7 +373,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
       const matchPet = b.pet_name?.toLowerCase().includes(q);
       const matchParent = b.customer_name?.toLowerCase().includes(q);
       const matchPhone = b.customer_phone?.includes(q) || b.emergency_contact?.includes(q);
-      if (!matchRef && !matchPet && !matchParent && !matchPhone) return false;
+      const matchPaymentId = b.razorpay_payment_id?.toLowerCase().includes(q);
+      const matchOrderId = b.razorpay_order_id?.toLowerCase().includes(q);
+      if (!matchRef && !matchPet && !matchParent && !matchPhone && !matchPaymentId && !matchOrderId) return false;
     }
     return true;
   });
@@ -381,6 +397,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
     .filter((b) => b.payment_status === 'paid')
     .reduce((acc, curr) => acc + (curr.total_amount_paise || 0), 0);
 
+  const verifiedPaidCount = bookings.filter((b) => b.payment_status === 'paid').length;
+  const pendingPaymentCount = bookings.filter((b) => b.payment_status !== 'paid').length;
   const completedCount = bookings.filter((b) => (b.status || '').toLowerCase() === 'completed').length;
   const activeCount = bookings.filter((b) => ['confirmed', 'in_progress'].includes((b.status || '').toLowerCase())).length;
 
@@ -537,24 +555,29 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                   <span className="text-2xl font-black text-sanctuary-dark">{bookings.length}</span>
                 </div>
                 <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200/50">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">
-                    Paid Revenue
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">
+                      Paid & Verified
+                    </span>
+                    <span className="text-[9px] font-black bg-emerald-200/80 text-emerald-900 px-1.5 py-0.2 rounded-full">
+                      {verifiedPaidCount} Orders
+                    </span>
+                  </div>
                   <span className="text-2xl font-black text-emerald-800">
                     ₹{(totalRevenue / 100).toLocaleString('en-IN')}
                   </span>
+                </div>
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/50">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 block">
+                    Pending Payment
+                  </span>
+                  <span className="text-2xl font-black text-amber-900">{pendingPaymentCount}</span>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-2xl border border-blue-200/50">
                   <span className="text-[10px] font-black uppercase tracking-wider text-blue-800 block">
                     Active / In Studio
                   </span>
                   <span className="text-2xl font-black text-blue-900">{activeCount}</span>
-                </div>
-                <div className="p-3 bg-purple-50 rounded-2xl border border-purple-200/50">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-purple-800 block">
-                    Completed
-                  </span>
-                  <span className="text-2xl font-black text-purple-900">{completedCount}</span>
                 </div>
               </div>
 
@@ -567,26 +590,45 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                   </span>
                   <input
                     type="text"
-                    placeholder="Search ref, pet, parent, phone..."
+                    placeholder="Search ref, pet, parent, phone, payment ID (pay_)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
                   />
                 </div>
 
-                {/* Status Tabs */}
-                <div className="flex flex-wrap items-center gap-1 bg-sanctuary-sand p-1 rounded-xl text-xs font-bold">
-                  {(['all', 'confirmed', 'in_progress', 'completed', 'cancelled'] as const).map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => setStatusFilter(st)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-black capitalize transition-all ${
-                        statusFilter === st ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70 hover:text-black'
-                      }`}
-                    >
-                      {st.replace('_', ' ')}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Payment Filter */}
+                  <div className="flex items-center gap-1 bg-sanctuary-sand p-1 rounded-xl text-xs font-bold">
+                    {(['all', 'paid', 'pending'] as const).map((pf) => (
+                      <button
+                        key={pf}
+                        onClick={() => setPaymentFilter(pf)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all ${
+                          paymentFilter === pf
+                            ? 'bg-sanctuary-forest text-white shadow-xs'
+                            : 'text-sanctuary-dark/70 hover:text-black'
+                        }`}
+                      >
+                        {pf === 'all' ? 'All' : pf === 'paid' ? '✓ Verified Paid' : '⏳ Pending'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Status Tabs */}
+                  <div className="flex flex-wrap items-center gap-1 bg-sanctuary-sand p-1 rounded-xl text-xs font-bold">
+                    {(['all', 'confirmed', 'in_progress', 'completed', 'cancelled'] as const).map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setStatusFilter(st)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-black capitalize transition-all ${
+                          statusFilter === st ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70 hover:text-black'
+                        }`}
+                      >
+                        {st.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Refresh */}
@@ -661,13 +703,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
                             {/* Payment badge */}
                             <span
-                              className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                              className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                                 b.payment_status === 'paid'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-amber-100 text-amber-800'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : 'bg-amber-100 text-amber-900 border border-amber-300'
                               }`}
                             >
-                              {b.payment_status === 'paid' ? 'Paid' : 'Pay at Studio'}
+                              <span className="material-symbols-outlined text-[12px]">
+                                {b.payment_status === 'paid' ? 'verified' : 'hourglass_empty'}
+                              </span>
+                              <span>
+                                {b.payment_status === 'paid'
+                                  ? (b.razorpay_payment_id ? 'Razorpay Verified' : 'Paid')
+                                  : 'Payment Pending'}
+                              </span>
                             </span>
 
                             {b.applied_offer_code && (
@@ -758,6 +807,153 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                               <strong>Note:</strong> {b.special_instructions}
                             </div>
                           )}
+                        </div>
+
+                        {/* Dedicated Razorpay Payment & Verification Panel */}
+                        <div
+                          className={`p-3 rounded-2xl border text-xs space-y-2.5 transition-all ${
+                            b.payment_status === 'paid'
+                              ? 'bg-emerald-50/70 border-emerald-200/80 shadow-xs'
+                              : 'bg-amber-50/70 border-amber-200/80'
+                          }`}
+                        >
+                          {/* Panel Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/5 pb-2">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`material-symbols-outlined text-base ${
+                                  b.payment_status === 'paid' ? 'text-emerald-700' : 'text-amber-700'
+                                }`}
+                              >
+                                {b.payment_status === 'paid' ? 'verified_user' : 'warning'}
+                              </span>
+                              <div>
+                                <h5 className="font-black text-xs text-sanctuary-dark leading-tight flex items-center gap-1.5">
+                                  <span>
+                                    {b.payment_status === 'paid'
+                                      ? 'Payment Verified & Settled'
+                                      : 'Payment Status: Pending / Unverified'}
+                                  </span>
+                                  {b.razorpay_signature && (
+                                    <span className="text-[9px] font-black bg-emerald-200/80 text-emerald-900 px-1.5 py-0.2 rounded-full">
+                                      HMAC Verified
+                                    </span>
+                                  )}
+                                </h5>
+                                <p className="text-[10px] text-sanctuary-dark/60 font-medium">
+                                  {b.payment_status === 'paid'
+                                    ? (b.razorpay_signature
+                                        ? 'Cryptographically authenticated with Razorpay Live HMAC-SHA256 signature'
+                                        : 'Confirmed in Neon PostgreSQL')
+                                    : 'Customer has not yet completed online payment via Razorpay'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <span
+                              className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                                b.payment_status === 'paid'
+                                  ? 'bg-emerald-200/90 text-emerald-950 border border-emerald-300'
+                                  : 'bg-amber-200/90 text-amber-950 border border-amber-300'
+                              }`}
+                            >
+                              {b.payment_status === 'paid' ? '✓ VERIFIED PAID' : '⏳ UNPAID'}
+                            </span>
+                          </div>
+
+                          {/* Transaction Identifiers Grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
+                            {/* Razorpay Payment ID */}
+                            <div className="bg-white/80 p-2.5 rounded-xl border border-black/5 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-sanctuary-dark/60 uppercase tracking-wider flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-xs text-sanctuary-forest">fingerprint</span>
+                                  <span>Razorpay Payment ID</span>
+                                </span>
+                                {b.razorpay_payment_id && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyPaymentId(b.razorpay_payment_id)}
+                                    className="text-[9px] font-black text-emerald-800 hover:text-emerald-950 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded-md transition-all flex items-center gap-0.5"
+                                  >
+                                    <span className="material-symbols-outlined text-[10px]">
+                                      {copiedPaymentId === b.razorpay_payment_id ? 'check' : 'content_copy'}
+                                    </span>
+                                    <span>{copiedPaymentId === b.razorpay_payment_id ? 'Copied' : 'Copy ID'}</span>
+                                  </button>
+                                )}
+                              </div>
+                              {b.razorpay_payment_id ? (
+                                <code className="font-mono text-xs font-black text-sanctuary-dark bg-emerald-50/50 px-2 py-0.5 rounded border border-emerald-200/60 block break-all select-all">
+                                  {b.razorpay_payment_id}
+                                </code>
+                              ) : (
+                                <span className="text-[11px] text-sanctuary-dark/40 italic font-medium block">
+                                  No Payment ID recorded (Pending checkout)
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Razorpay Order ID */}
+                            <div className="bg-white/80 p-2.5 rounded-xl border border-black/5 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-sanctuary-dark/60 uppercase tracking-wider flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-xs text-sanctuary-forest">receipt_long</span>
+                                  <span>Razorpay Order ID</span>
+                                </span>
+                                {b.razorpay_order_id && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyPaymentId(b.razorpay_order_id)}
+                                    className="text-[9px] font-black text-sanctuary-dark hover:text-black bg-black/5 hover:bg-black/10 px-2 py-0.5 rounded-md transition-all flex items-center gap-0.5"
+                                  >
+                                    <span className="material-symbols-outlined text-[10px]">
+                                      {copiedPaymentId === b.razorpay_order_id ? 'check' : 'content_copy'}
+                                    </span>
+                                    <span>{copiedPaymentId === b.razorpay_order_id ? 'Copied' : 'Copy Order'}</span>
+                                  </button>
+                                )}
+                              </div>
+                              {b.razorpay_order_id ? (
+                                <code className="font-mono text-xs font-black text-sanctuary-dark bg-sanctuary-sand/40 px-2 py-0.5 rounded border border-black/10 block break-all select-all">
+                                  {b.razorpay_order_id}
+                                </code>
+                              ) : (
+                                <span className="text-[11px] text-sanctuary-dark/40 italic font-medium block">
+                                  None
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Gateway Method & Amount Breakdown Footer */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-black/5 text-[10px]">
+                            <div className="flex items-center gap-2 text-sanctuary-dark/75 flex-wrap">
+                              <div className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-xs text-sanctuary-forest">
+                                  {b.payment_status === 'paid' ? 'shield_with_heart' : 'info'}
+                                </span>
+                                <span>
+                                  Method: <strong>{b.payment_method || 'Razorpay Gateway'}</strong>
+                                </span>
+                              </div>
+                              {b.razorpay_signature && (
+                                <span className="text-[9px] font-bold bg-white px-2 py-0.5 rounded border border-black/10 text-emerald-800">
+                                  ✓ Live HMAC Verified
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 font-medium text-sanctuary-dark">
+                              {b.discount_amount_paise > 0 && (
+                                <span className="text-emerald-700 font-bold">
+                                  Discount: -₹{(b.discount_amount_paise / 100).toLocaleString('en-IN')}
+                                </span>
+                              )}
+                              <span className="font-mono font-black text-xs">
+                                Settled: ₹{(b.total_amount_paise / 100).toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
                         {/* Management Action Buttons */}
