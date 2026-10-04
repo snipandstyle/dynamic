@@ -111,6 +111,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   } | null>(null);
   const [isSimulatingPayment, setIsSimulatingPayment] = useState<boolean>(false);
 
+  // 7b. In-App Browser Detection (WhatsApp / Instagram / WebViews)
+  const [isInAppBrowser, setIsInAppBrowser] = useState(false);
+  const [copiedSiteLink, setCopiedSiteLink] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ua = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+      const isIAB =
+        /FBAN|FBAV|Instagram|WhatsApp|Line|Twitter|MicroMessenger|Snapchat|LinkedIn|Pinterest|GSA/i.test(ua) ||
+        /wv|WebView/i.test(ua);
+      setIsInAppBrowser(isIAB);
+    }
+  }, []);
+
   // 8. Confirmation State
   const [bookingSuccess, setBookingSuccess] = useState<{
     bookingRef: string;
@@ -791,19 +805,46 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
       const rzpKeyId = rzpOrder.key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_TjVYMuSit6eIYP';
 
-      // Ensure Razorpay SDK is loaded on page
+      // Ensure Razorpay SDK is loaded on page with retry and clean script handling
       if (typeof (window as any).Razorpay === 'undefined') {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error('Failed to load Razorpay payment gateway. Please check your connection.'));
-          document.head.appendChild(script);
+        const loaded = await new Promise<boolean>((resolve) => {
+          let attempts = 0;
+          const interval = setInterval(() => {
+            attempts++;
+            if (typeof (window as any).Razorpay !== 'undefined') {
+              clearInterval(interval);
+              resolve(true);
+            } else if (attempts >= 25) {
+              clearInterval(interval);
+              resolve(false);
+            }
+          }, 100);
         });
+
+        if (!loaded && typeof (window as any).Razorpay === 'undefined') {
+          await new Promise<void>((resolve, reject) => {
+            const existingScript = document.querySelector('script[src*="checkout.razorpay.com"]');
+            if (existingScript) existingScript.remove();
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () =>
+              reject(new Error('Failed to load Razorpay payment gateway. Please check your internet connection or ad-blocker.'));
+            document.head.appendChild(script);
+          });
+        }
+      }
+
+      // Close previous instance if open
+      if ((window as any)._activeRzpCheckout) {
+        try {
+          (window as any)._activeRzpCheckout.close();
+        } catch {}
       }
 
       // Step 2: Open Razorpay Standard Web Checkout Modal
+      const cleanContact = (bookingPayload.phone || '').replace(/\D/g, '').slice(-10);
       const rzpOptions: any = {
         key: rzpKeyId,
         amount: rzpOrder.amount,
@@ -860,14 +901,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         },
         prefill: {
           name: bookingPayload.parentName,
-          contact: bookingPayload.phone,
-          email: bookingPayload.email,
+          contact: cleanContact || undefined,
+          email: bookingPayload.email || undefined,
         },
         notes: {
           petName: bookingPayload.petName,
         },
         theme: {
           color: '#0B1A14',
+        },
+        retry: {
+          enabled: true,
+          max_count: 3,
         },
         modal: {
           ondismiss: function () {
@@ -879,6 +924,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       };
 
       const rzp = new (window as any).Razorpay(rzpOptions);
+      (window as any)._activeRzpCheckout = rzp;
 
       rzp.on('payment.failed', function (failResp: any) {
         console.error('[Razorpay Payment Failed]', failResp.error);
@@ -1564,6 +1610,56 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div className="p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-[11px] font-bold text-amber-900 flex items-center gap-2 shadow-xs">
                   <span className="material-symbols-outlined text-amber-600 text-sm shrink-0">info</span>
                   <span>{paymentNotice}</span>
+                </div>
+              )}
+
+              {/* In-App Browser Warning & Open in Chrome/Safari Helper */}
+              {isInAppBrowser && (
+                <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-300 text-xs space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-amber-700 text-base shrink-0 mt-0.5">
+                      open_in_browser
+                    </span>
+                    <div>
+                      <h5 className="font-black text-amber-950 text-xs">
+                        In-App Browser Detected (WhatsApp / Instagram)
+                      </h5>
+                      <p className="text-[11px] text-amber-900/80 mt-0.5 font-medium leading-relaxed">
+                        Banking and UPI apps (GPay, PhonePe, Paytm) block payments inside in-app webviews for security.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-2.5 bg-white/90 rounded-xl border border-amber-200 text-[11px] space-y-1 text-sanctuary-dark font-semibold">
+                    <div>1. Tap the <strong>⋮ (3 dots)</strong> or share menu at the top-right</div>
+                    <div>2. Select <strong>&quot;Open in Chrome&quot;</strong> or <strong>&quot;Open in Safari&quot;</strong> to pay with 1-tap UPI</div>
+                  </div>
+                  <div className="flex gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined') {
+                          navigator.clipboard.writeText(window.location.href);
+                          setCopiedSiteLink(true);
+                          setTimeout(() => setCopiedSiteLink(false), 2000);
+                        }
+                      }}
+                      className="flex-1 py-2 px-3 bg-amber-200/90 hover:bg-amber-300 text-amber-950 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-xs"
+                    >
+                      <span className="material-symbols-outlined text-xs">
+                        {copiedSiteLink ? 'check' : 'content_copy'}
+                      </span>
+                      <span>{copiedSiteLink ? 'Link Copied!' : 'Copy Site Link'}</span>
+                    </button>
+                    {typeof window !== 'undefined' && /android/i.test(navigator.userAgent) && (
+                      <a
+                        href={`intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`}
+                        className="flex-1 py-2 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-xs"
+                      >
+                        <span className="material-symbols-outlined text-xs text-sanctuary-gold">open_in_new</span>
+                        <span>Open in Chrome</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
