@@ -692,8 +692,199 @@ export async function handleRazorpayWebhookRoute(
 
 // 10. OFFERS
 export async function handleGetOffersRoute() {
-  const res = await query('SELECT * FROM offers WHERE is_active = true ORDER BY discount_percent DESC');
+  const res = await query('SELECT * FROM offers WHERE is_active = true ORDER BY created_at DESC');
   return { status: 200, body: { offers: res.rows } };
+}
+
+// 10b. ADMIN COUPONS MANAGEMENT
+export async function handleGetAdminCoupons(authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Admin authentication required.' } };
+  }
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || payload.role !== 'admin') {
+    return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
+  }
+
+  const res = await query('SELECT * FROM offers ORDER BY created_at DESC');
+  return { status: 200, body: { coupons: res.rows } };
+}
+
+export async function handleCreateAdminCoupon(data: any, authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Admin authentication required.' } };
+  }
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || payload.role !== 'admin') {
+    return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
+  }
+
+  const code = (data.code || '').trim().toUpperCase();
+  if (!code) {
+    return { status: 400, body: { error: 'Coupon code is required.' } };
+  }
+
+  // Check if coupon already exists
+  const existing = await query('SELECT id FROM offers WHERE UPPER(code) = $1 LIMIT 1', [code]);
+  if (existing.rows.length > 0) {
+    return { status: 400, body: { error: `Coupon code '${code}' already exists.` } };
+  }
+
+  const orgRes = await query('SELECT id FROM organizations LIMIT 1');
+  const orgId = orgRes.rows[0]?.id || null;
+  const couponId = crypto.randomUUID();
+
+  const discountType = data.discount_type || 'percentage'; // 'percentage' | 'flat' | 'free_package'
+  const discountPercent = Number(data.discount_percent || 0);
+  const discountAmount = Number(data.discount_amount || 0);
+  const maxDiscountAmount = data.max_discount_amount ? Number(data.max_discount_amount) : null;
+  const minOrderAmount = Number(data.min_order_amount || 0);
+  const minNights = Number(data.min_nights || 0);
+  const applicableCategory = data.applicable_category || 'all';
+  const freePackageName = data.free_package_name ? String(data.free_package_name).trim() : null;
+  const freePackageValue = Number(data.free_package_value || 0);
+  const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
+  const validUntil = data.valid_until ? data.valid_until : null;
+
+  const insertRes = await query(
+    `INSERT INTO offers (
+      id, organization_id, code, title, description,
+      discount_type, discount_percent, discount_amount, max_discount_amount,
+      min_order_amount, min_nights, applicable_category,
+      free_package_name, free_package_value, is_active, valid_until, created_at
+    ) VALUES (
+      $1, $2, $3, $4, $5,
+      $6, $7, $8, $9,
+      $10, $11, $12,
+      $13, $14, $15, $16, NOW()
+    ) RETURNING *`,
+    [
+      couponId,
+      orgId,
+      code,
+      data.title || code,
+      data.description || '',
+      discountType,
+      discountPercent,
+      discountAmount,
+      maxDiscountAmount,
+      minOrderAmount,
+      minNights,
+      applicableCategory,
+      freePackageName,
+      freePackageValue,
+      isActive,
+      validUntil,
+    ]
+  );
+
+  return { status: 201, body: { success: true, coupon: insertRes.rows[0] } };
+}
+
+export async function handleUpdateAdminCoupon(couponId: string, data: any, authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Admin authentication required.' } };
+  }
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || payload.role !== 'admin') {
+    return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
+  }
+
+  if (!couponId) {
+    return { status: 400, body: { error: 'Coupon ID is required.' } };
+  }
+
+  const updates: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (data.is_active !== undefined) {
+    updates.push(`is_active = $${paramIndex++}`);
+    params.push(Boolean(data.is_active));
+  }
+  if (data.title !== undefined) {
+    updates.push(`title = $${paramIndex++}`);
+    params.push(String(data.title));
+  }
+  if (data.description !== undefined) {
+    updates.push(`description = $${paramIndex++}`);
+    params.push(String(data.description));
+  }
+  if (data.discount_type !== undefined) {
+    updates.push(`discount_type = $${paramIndex++}`);
+    params.push(String(data.discount_type));
+  }
+  if (data.discount_percent !== undefined) {
+    updates.push(`discount_percent = $${paramIndex++}`);
+    params.push(Number(data.discount_percent));
+  }
+  if (data.discount_amount !== undefined) {
+    updates.push(`discount_amount = $${paramIndex++}`);
+    params.push(Number(data.discount_amount));
+  }
+  if (data.max_discount_amount !== undefined) {
+    updates.push(`max_discount_amount = $${paramIndex++}`);
+    params.push(data.max_discount_amount ? Number(data.max_discount_amount) : null);
+  }
+  if (data.min_order_amount !== undefined) {
+    updates.push(`min_order_amount = $${paramIndex++}`);
+    params.push(Number(data.min_order_amount));
+  }
+  if (data.min_nights !== undefined) {
+    updates.push(`min_nights = $${paramIndex++}`);
+    params.push(Number(data.min_nights));
+  }
+  if (data.applicable_category !== undefined) {
+    updates.push(`applicable_category = $${paramIndex++}`);
+    params.push(String(data.applicable_category));
+  }
+  if (data.free_package_name !== undefined) {
+    updates.push(`free_package_name = $${paramIndex++}`);
+    params.push(data.free_package_name ? String(data.free_package_name).trim() : null);
+  }
+  if (data.free_package_value !== undefined) {
+    updates.push(`free_package_value = $${paramIndex++}`);
+    params.push(Number(data.free_package_value));
+  }
+  if (data.valid_until !== undefined) {
+    updates.push(`valid_until = $${paramIndex++}`);
+    params.push(data.valid_until || null);
+  }
+
+  if (updates.length === 0) {
+    return { status: 400, body: { error: 'No fields provided to update.' } };
+  }
+
+  params.push(couponId);
+  const sql = `UPDATE offers SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+  const res = await query(sql, params);
+
+  if (res.rows.length === 0) {
+    return { status: 404, body: { error: 'Coupon not found.' } };
+  }
+
+  return { status: 200, body: { success: true, coupon: res.rows[0] } };
+}
+
+export async function handleDeleteAdminCoupon(couponId: string, authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Admin authentication required.' } };
+  }
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || payload.role !== 'admin') {
+    return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
+  }
+
+  if (!couponId) {
+    return { status: 400, body: { error: 'Coupon ID is required.' } };
+  }
+
+  const res = await query('DELETE FROM offers WHERE id = $1 RETURNING id, code', [couponId]);
+  if (res.rows.length === 0) {
+    return { status: 404, body: { error: 'Coupon not found.' } };
+  }
+
+  return { status: 200, body: { success: true, message: `Coupon '${res.rows[0].code}' deleted successfully.` } };
 }
 
 // 11. HEALTH CHECK

@@ -72,16 +72,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   // 5. Individual Quick-Care Add-ons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
-  // 6. Coupons (Exclusively: FREESPA, FREESPA8, FREESPA15, GROOM10)
+  // 6. Dynamic Coupons Engine
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discountPercent?: number;
     flatDiscount?: number;
+    maxDiscount?: number;
     label: string;
     isFreePerk?: boolean;
   } | null>(null);
   const [couponError, setCouponError] = useState('');
+  const [serverOffers, setServerOffers] = useState<any[]>([]);
+
+  // Fetch dynamic active offers from Neon DB
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/offers')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.offers && Array.isArray(data.offers)) {
+            setServerOffers(data.offers);
+          }
+        })
+        .catch((err) => console.warn('Could not load dynamic offers', err));
+    }
+  }, [isOpen]);
 
   // 7. Payment State
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -108,8 +124,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     pet: string;
   } | null>(null);
 
-  // Verified Exclusive Coupons
-  const availableCoupons = [
+  // Built-in presets for offline / instant availability
+  const presetCoupons = [
     {
       code: 'FREESPA',
       label: 'Free Spa (4+ Nts)',
@@ -142,6 +158,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       category: 'grooming',
       minSpend: 1000,
     },
+  ];
+
+  // Merge preset coupons with any custom coupons created in admin console
+  const availableCoupons = [
+    ...presetCoupons,
+    ...serverOffers
+      .filter((o) => !presetCoupons.some((p) => p.code.toUpperCase() === o.code.toUpperCase()))
+      .map((o) => ({
+        code: o.code.toUpperCase(),
+        label: o.title || o.code,
+        badge:
+          o.discount_type === 'free_package'
+            ? `🎁 Free ${o.free_package_name ? o.free_package_name.split(' ')[0] : 'Gift'}`
+            : o.discount_type === 'flat'
+            ? `₹${o.discount_amount} OFF`
+            : `${o.discount_percent}% OFF${o.max_discount_amount ? ` (Max ₹${o.max_discount_amount})` : ''}`,
+        desc: o.description || o.title || `Special discount on ${o.applicable_category} services`,
+        category: o.applicable_category || 'all',
+        minNights: o.min_nights || 0,
+        minSpend: o.min_order_amount || 0,
+      })),
   ];
 
   // Individual Add-ons List
@@ -435,7 +472,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     );
   };
 
-  // Apply Coupon (FREESPA, FREESPA8, FREESPA15, GROOM10)
+  // Apply Coupon (Dynamic + Presets)
   const applyCouponCode = (codeToApply: string) => {
     setCouponError('');
     const code = codeToApply.trim().toUpperCase();
@@ -445,7 +482,92 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
-    // 1. Boarding Free Spa Perks
+    // 1. Check server offers first
+    const dynamicOffer = serverOffers.find((o) => (o.code || '').toUpperCase() === code);
+    if (dynamicOffer) {
+      // Check category requirements
+      const category = dynamicOffer.applicable_category || 'all';
+      const boardingServices = selectedServices.filter((s) => s.category === 'boarding');
+      const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
+
+      if (category === 'boarding' && boardingServices.length === 0) {
+        setCouponError(`Code ${code} requires cage-free boarding in your cart.`);
+        return;
+      }
+      if (category === 'grooming' && groomingServices.length === 0) {
+        setCouponError(`Code ${code} requires at least one grooming package in your cart.`);
+        return;
+      }
+
+      // Check min nights
+      const minNights = dynamicOffer.min_nights || 0;
+      const totalNights = boardingServices.reduce((sum, s) => sum + (s.nights || 1), 0);
+      if (minNights > 0 && totalNights < minNights) {
+        setCouponError(`Code ${code} requires ${minNights} or more boarding nights (Current: ${totalNights} night${totalNights === 1 ? '' : 's'}).`);
+        return;
+      }
+
+      // Check min spend
+      const minOrder = Number(dynamicOffer.min_order_amount || 0);
+      if (minOrder > 0) {
+        const qualifyingAmount = category === 'grooming'
+          ? groomingServices.reduce((sum, s) => sum + s.price, 0)
+          : selectedServices.filter((s) => !s.isFreePerk).reduce((sum, s) => sum + s.price, 0);
+
+        if (qualifyingAmount < minOrder) {
+          setCouponError(`Code ${code} requires minimum spend of ₹${minOrder} on ${category === 'grooming' ? 'grooming' : 'services'} (Current: ₹${qualifyingAmount}).`);
+          return;
+        }
+      }
+
+      // Apply based on discount_type
+      const dType = dynamicOffer.discount_type || 'percentage';
+      if (dType === 'free_package') {
+        const filtered = selectedServices.filter((s) => !s.isFreePerk);
+        const freePkgItem: CheckoutServiceItem = {
+          id: `free_perk_${dynamicOffer.id || Date.now()}`,
+          category: 'grooming',
+          name: dynamicOffer.free_package_name || 'Complimentary Special Gift',
+          subtitle: `🎁 Free Package (${code})`,
+          price: 0,
+          origPrice: Number(dynamicOffer.free_package_value || 749),
+          isFreePerk: true,
+        };
+        setSelectedServices([...filtered, freePkgItem]);
+        setAppliedCoupon({
+          code: code,
+          label: dynamicOffer.title || `Free ${dynamicOffer.free_package_name || 'Gift Package'}`,
+          isFreePerk: true,
+        });
+        setCouponInput('');
+        return;
+      }
+
+      if (dType === 'flat') {
+        setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
+        setAppliedCoupon({
+          code: code,
+          flatDiscount: Number(dynamicOffer.discount_amount || 0),
+          label: dynamicOffer.title || `₹${dynamicOffer.discount_amount} Flat OFF`,
+        });
+        setCouponInput('');
+        return;
+      }
+
+      if (dType === 'percentage') {
+        setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
+        setAppliedCoupon({
+          code: code,
+          discountPercent: Number(dynamicOffer.discount_percent || 0),
+          maxDiscount: dynamicOffer.max_discount_amount ? Number(dynamicOffer.max_discount_amount) : undefined,
+          label: dynamicOffer.title || `${dynamicOffer.discount_percent}% OFF${dynamicOffer.max_discount_amount ? ` (Max ₹${dynamicOffer.max_discount_amount})` : ''}`,
+        });
+        setCouponInput('');
+        return;
+      }
+    }
+
+    // 2. Presets Fallback (FREESPA, FREESPA8, FREESPA15, GROOM10)
     if (code === 'FREESPA' || code === 'FREESPA8' || code === 'FREESPA15') {
       const boardingServices = selectedServices.filter((s) => s.category === 'boarding');
       if (boardingServices.length === 0) {
@@ -531,7 +653,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }
     }
 
-    // 2. Grooming 10% OFF on spend above ₹999
     if (code === 'GROOM10') {
       const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
       const groomingSubtotal = groomingServices.reduce((sum, s) => sum + s.price, 0);
@@ -546,7 +667,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         return;
       }
 
-      // If user had a free spa perk, remove it when switching to grooming coupon
       setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
       setAppliedCoupon({
         code: 'GROOM10',
@@ -557,7 +677,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       return;
     }
 
-    setCouponError('Invalid coupon. Choose from FREESPA, FREESPA8, FREESPA15, or GROOM10.');
+    setCouponError('Invalid coupon code. Please verify the code and try again.');
   };
 
   // Financial Calculations
@@ -582,9 +702,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         discountAmount = Math.round(groomingSubtotal * 0.10);
       }
     } else if (appliedCoupon.discountPercent) {
-      discountAmount = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
+      let raw = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
+      if (appliedCoupon.maxDiscount && appliedCoupon.maxDiscount > 0) {
+        raw = Math.min(raw, appliedCoupon.maxDiscount);
+      }
+      discountAmount = raw;
     } else if (appliedCoupon.flatDiscount) {
-      discountAmount = appliedCoupon.flatDiscount;
+      discountAmount = Math.min(subtotal, appliedCoupon.flatDiscount);
     }
   }
 
