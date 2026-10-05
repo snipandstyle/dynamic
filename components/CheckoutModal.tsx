@@ -154,10 +154,30 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     totalSavings: number;
     date: string;
     pet: string;
+    claimedPerk?: string;
   } | null>(null);
+
+  // Free In-Store Grooming Perk choice for orders > ₹500
+  const [selectedFreeGroomingPerk, setSelectedFreeGroomingPerk] = useState<'free_bath' | 'free_nail_clip'>('free_bath');
 
   // Built-in presets for offline / instant availability
   const presetCoupons = [
+    {
+      code: 'STAY6FREE1',
+      label: '6 Days = 1 Day FREE',
+      badge: '1 Night FREE • 6+ Nts',
+      desc: 'Book 6 days cage-free boarding & get 1 full day complimentary stay',
+      category: 'boarding',
+      minNights: 6,
+    },
+    {
+      code: 'GROOM500',
+      label: 'Free Bath / Nail Clip',
+      badge: 'Free Perk • ₹500+ Groom',
+      desc: 'Complimentary bath or nail clipping on grooming bills over ₹500',
+      category: 'grooming',
+      minSpend: 500,
+    },
     {
       code: 'FREESPA',
       label: 'Free Spa (4+ Nts)',
@@ -322,6 +342,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             label: 'Free Luxury Grooming Spa (₹2,199 Value)',
             isFreePerk: true,
           });
+        } else if (requestedCode === 'STAY6FREE1' && initialBooking.type === 'boarding' && nightsCount >= 6) {
+          const oneDayRate = Math.round(calculatedPrice / nightsCount) || 625;
+          setAppliedCoupon({
+            code: 'STAY6FREE1',
+            flatDiscount: oneDayRate,
+            label: `1 Day FREE Boarding (-₹${oneDayRate})`,
+          });
+        } else if (requestedCode === 'GROOM500' && initialBooking.type === 'grooming' && calculatedPrice >= 500) {
+          setAppliedCoupon({
+            code: 'GROOM500',
+            label: 'Free In-Store Perk (Bath or Nail Clip)',
+            isFreePerk: true,
+          });
         } else if (requestedCode === 'GROOM10' && initialBooking.type === 'grooming' && calculatedPrice >= 1000) {
           setAppliedCoupon({
             code: 'GROOM10',
@@ -484,6 +517,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         const reqNights = appliedCoupon.code === 'FREESPA15' ? 15 : appliedCoupon.code === 'FREESPA8' ? 8 : 4;
         if (remainingBoarding.length === 0 || totalNights < reqNights) {
           setSelectedServices(remaining.filter((s) => !s.isFreePerk));
+          setAppliedCoupon(null);
+        }
+      } else if (appliedCoupon.code === 'STAY6FREE1') {
+        const remainingBoarding = remaining.filter((s) => s.category === 'boarding');
+        const totalNights = remainingBoarding.reduce((sum, s) => sum + (s.nights || 1), 0);
+        if (remainingBoarding.length === 0 || totalNights < 6) {
+          setAppliedCoupon(null);
+        } else {
+          const primary = remainingBoarding[0];
+          const oneDayRate = Math.round(primary.price / (primary.nights || 1)) || 625;
+          setAppliedCoupon({
+            code: 'STAY6FREE1',
+            flatDiscount: oneDayRate,
+            label: `1 Day FREE Boarding (-₹${oneDayRate})`,
+          });
+        }
+      } else if (appliedCoupon.code === 'GROOM500') {
+        const groomingSubtotal = remaining
+          .filter((s) => s.category === 'grooming' && !s.isFreePerk)
+          .reduce((sum, s) => sum + s.price, 0);
+        if (groomingSubtotal < 500) {
           setAppliedCoupon(null);
         }
       } else if (appliedCoupon.code === 'GROOM10') {
@@ -685,6 +739,55 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }
     }
 
+    if (code === 'STAY6FREE1') {
+      const boardingServices = selectedServices.filter((s) => s.category === 'boarding');
+      if (boardingServices.length === 0) {
+        setCouponError('Code STAY6FREE1 requires cage-free boarding in your cart.');
+        return;
+      }
+
+      const totalNights = boardingServices.reduce((sum, s) => sum + (s.nights || 1), 0);
+      if (totalNights < 6) {
+        setCouponError(`Code STAY6FREE1 requires 6 or more boarding nights (Current: ${totalNights} night${totalNights === 1 ? '' : 's'}).`);
+        return;
+      }
+
+      const primary = boardingServices[0];
+      const oneDayRate = Math.round(primary.price / (primary.nights || 1)) || 625;
+      setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
+      setAppliedCoupon({
+        code: 'STAY6FREE1',
+        flatDiscount: oneDayRate,
+        label: `1 Day FREE Boarding (-₹${oneDayRate})`,
+      });
+      setCouponInput('');
+      return;
+    }
+
+    if (code === 'GROOM500') {
+      const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
+      const groomingSubtotal = groomingServices.reduce((sum, s) => sum + s.price, 0);
+
+      if (groomingServices.length === 0) {
+        setCouponError('Code GROOM500 requires at least one grooming package in your cart.');
+        return;
+      }
+
+      if (groomingSubtotal < 500) {
+        setCouponError(`Code GROOM500 requires grooming services total above ₹500 (Current: ₹${groomingSubtotal}). Add another grooming service to qualify!`);
+        return;
+      }
+
+      setSelectedServices((prev) => prev.filter((s) => !s.isFreePerk));
+      setAppliedCoupon({
+        code: 'GROOM500',
+        label: 'Free In-Store Perk (Bath or Nail Clip)',
+        isFreePerk: true,
+      });
+      setCouponInput('');
+      return;
+    }
+
     if (code === 'GROOM10') {
       const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
       const groomingSubtotal = groomingServices.reduce((sum, s) => sum + s.price, 0);
@@ -723,13 +826,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const subtotal = servicesBaseTotal + addonsTotal + taxiTotal;
   const grossOriginalTotal = servicesOrigTotal + addonsTotal + taxiTotal;
 
+  // Grooming subtotal & qualified perk (spend > ₹500 on grooming)
+  const groomingServices = selectedServices.filter((s) => s.category === 'grooming' && !s.isFreePerk);
+  const groomingSubtotal = groomingServices.reduce((sum, s) => sum + s.price, 0);
+  const qualifiesForGroomingReward = groomingSubtotal >= 500 || appliedCoupon?.code === 'GROOM500';
+  const claimedPerkTitle = qualifiesForGroomingReward
+    ? selectedFreeGroomingPerk === 'free_bath'
+      ? 'Free Furry Fresh Bath (₹499 Value)'
+      : 'Free Precision Nail Clipping & Filing (₹249 Value)'
+    : undefined;
+
   // Coupon discount calculation
   let discountAmount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.code === 'GROOM10') {
-      const groomingSubtotal = selectedServices
-        .filter((s) => s.category === 'grooming' && !s.isFreePerk)
-        .reduce((sum, s) => sum + s.price, 0);
       if (groomingSubtotal >= 1000) {
         discountAmount = Math.round(groomingSubtotal * 0.10);
       }
@@ -785,8 +895,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         petName: petName.trim(),
         petBreed: petBreed.trim() || (petType === 'cat' ? 'Feline' : `${petSize.toUpperCase()} Dog`),
         petWeightKg: petType === 'cat' ? 4.5 : petSize === 'small' ? 7.5 : petSize === 'medium' ? 18.0 : 32.0,
-        serviceType: serviceNamesSummary,
-        services_json: selectedServices,
+        serviceType: serviceNamesSummary + (claimedPerkTitle ? ` + 🎁 [CLAIM IN-STORE: ${claimedPerkTitle}]` : ''),
+        services_json: [
+          ...selectedServices,
+          ...(claimedPerkTitle
+            ? [{
+                id: 'instore_perk_claimed',
+                category: 'grooming',
+                name: claimedPerkTitle,
+                subtitle: '🎁 Free In-Store Perk (Bill > ₹500)',
+                price: 0,
+                origPrice: selectedFreeGroomingPerk === 'free_bath' ? 499 : 249,
+                isFreePerk: true,
+                claimInStore: true,
+              }]
+            : []),
+        ],
         checkInDate: checkInDate,
         checkOutDate: checkInDate,
         dropOffTime: preferredTimeSlot,
@@ -796,8 +920,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         discountAmount: discountAmount,
         totalAmount: finalTotal,
         isHighwayEarlyDropoff: true,
-        appliedOfferCode: appliedCoupon?.code || null,
-        specialInstructions: `${petGender.toUpperCase()} • Special notes: ${specialInstructions || 'None'}`,
+        appliedOfferCode: appliedCoupon?.code || (qualifiesForGroomingReward ? 'GROOM500' : null),
+        specialInstructions: `${petGender.toUpperCase()} • Special notes: ${specialInstructions || 'None'}${claimedPerkTitle ? ` • 🎁 In-Store Free Perk: ${claimedPerkTitle} (Show booking at studio to claim)` : ''}`,
       };
 
       // Option A: Pay at Studio Counter (Instant Reservation, Pay with Cash/UPI on Visit)
@@ -834,6 +958,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             totalSavings,
             date: `${checkInDate} (${preferredTimeSlot})`,
             pet: `${petName.trim()}`,
+            claimedPerk: claimedPerkTitle,
           });
         } catch (stErr: any) {
           console.error('[Pay at Studio Error]', stErr);
@@ -954,6 +1079,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               totalSavings,
               date: `${checkInDate} (${preferredTimeSlot})`,
               pet: `${petName.trim()}`,
+              claimedPerk: claimedPerkTitle,
             });
           } catch (verErr: any) {
             console.error('[Razorpay Verify Error]', verErr);
@@ -1044,6 +1170,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         totalSavings,
         date: `${checkInDate} (${preferredTimeSlot})`,
         pet: `${petName.trim()}`,
+        claimedPerk: claimedPerkTitle,
       });
     } catch (err: any) {
       alert('Verification error: ' + err.message);
@@ -1143,6 +1270,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
+            {/* Claim In-Store Free Perk Banner */}
+            {bookingSuccess.claimedPerk && (
+              <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-400 rounded-2xl text-left space-y-1.5 shadow-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-emerald-700 text-base">redeem</span>
+                  <span className="text-xs font-black text-emerald-950 uppercase tracking-wider">
+                    Complimentary In-Store Perk Claimed!
+                  </span>
+                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-600 text-white ml-auto">
+                    FREE
+                  </span>
+                </div>
+                <div className="text-xs font-black text-emerald-900 flex items-center gap-1.5 bg-white/80 p-2 rounded-xl border border-emerald-200">
+                  <span className="text-base">🎁</span>
+                  <span>{bookingSuccess.claimedPerk}</span>
+                </div>
+                <p className="text-[10.5px] text-emerald-900 font-bold leading-relaxed">
+                  👉 <strong>How to claim:</strong> Please show this booking screen or confirmation message to our reception desk / stylist upon arrival at the studio counter to receive your free reward!
+                </p>
+              </div>
+            )}
+
             {/* PROMINENT GOOGLE MAPS LOCATION & SAVE INSTRUCTIONS */}
             <div className="p-4 bg-gradient-to-br from-amber-50 via-white to-emerald-50 rounded-2xl border-2 border-amber-400 text-left space-y-2.5 shadow-sm">
               <div className="flex items-start gap-2.5">
@@ -1212,6 +1361,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   `Booking ID: ${bookingSuccess.bookingRef}\n` +
                   `Companion: ${bookingSuccess.pet}\n` +
                   `Visit Timing: ${bookingSuccess.date}\n` +
+                  (bookingSuccess.claimedPerk ? `🎁 Free In-Store Perk: ${bookingSuccess.claimedPerk}\n(Show booking at counter to claim!)\n` : '') +
                   `Payment: ${bookingSuccess.paymentStatus}\n\n` +
                   `📍 Studio Google Maps Link (Save this!):\n` +
                   `${STUDIO_MAPS_URL}\n\n` +
@@ -1573,6 +1723,101 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
                 ))}
               </div>
+
+              {/* Free Grooming Perk Selector (For bills >= 500) */}
+              {groomingSubtotal >= 500 && (
+                <div className="p-3.5 bg-gradient-to-br from-amber-50 via-orange-50/50 to-emerald-50/40 rounded-2xl border-2 border-amber-400 space-y-2.5 shadow-xs">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="size-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <span className="material-symbols-outlined text-base">redeem</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="text-xs font-black text-amber-950 uppercase tracking-wider">
+                            Grooming Bill Over ₹500 Unlocked!
+                          </h4>
+                          <span className="text-[9px] font-black px-2 py-0.2 rounded-full bg-emerald-600 text-white uppercase tracking-wider">
+                            100% Free Reward
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-900 font-bold mt-0.5">
+                          Choose your complimentary perk below to claim at the studio:
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Radio Choice Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div
+                      onClick={() => setSelectedFreeGroomingPerk('free_bath')}
+                      className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                        selectedFreeGroomingPerk === 'free_bath'
+                          ? 'bg-white border-amber-500 ring-2 ring-amber-400 shadow-xs text-sanctuary-dark font-black'
+                          : 'bg-white/80 border-black/10 hover:border-amber-300 text-sanctuary-dark'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">🛁</span>
+                        <div>
+                          <div className="text-xs font-black leading-tight">Free Furry Fresh Bath</div>
+                          <div className="text-[10px] text-emerald-800 font-bold">₹499 Value • 100% FREE</div>
+                        </div>
+                      </div>
+                      <input
+                        type="radio"
+                        name="grooming_perk"
+                        checked={selectedFreeGroomingPerk === 'free_bath'}
+                        onChange={() => setSelectedFreeGroomingPerk('free_bath')}
+                        className="size-4 accent-amber-600 shrink-0"
+                      />
+                    </div>
+
+                    <div
+                      onClick={() => setSelectedFreeGroomingPerk('free_nail_clip')}
+                      className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                        selectedFreeGroomingPerk === 'free_nail_clip'
+                          ? 'bg-white border-amber-500 ring-2 ring-amber-400 shadow-xs text-sanctuary-dark font-black'
+                          : 'bg-white/80 border-black/10 hover:border-amber-300 text-sanctuary-dark'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">✂️</span>
+                        <div>
+                          <div className="text-xs font-black leading-tight">Free Nail Clipping & Filing</div>
+                          <div className="text-[10px] text-emerald-800 font-bold">₹249 Value • 100% FREE</div>
+                        </div>
+                      </div>
+                      <input
+                        type="radio"
+                        name="grooming_perk"
+                        checked={selectedFreeGroomingPerk === 'free_nail_clip'}
+                        onChange={() => setSelectedFreeGroomingPerk('free_nail_clip')}
+                        className="size-4 accent-amber-600 shrink-0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Explicit Claim in Store Instruction */}
+                  <div className="p-2.5 bg-white/95 rounded-xl border border-amber-300/80 text-[11px] text-amber-950 font-bold flex items-start gap-2 shadow-xs">
+                    <span className="material-symbols-outlined text-amber-700 text-sm shrink-0 mt-0.5">storefront</span>
+                    <div>
+                      <strong>HOW TO CLAIM:</strong> Show your booking confirmation ID at our studio counter upon arrival, and our certified stylists will provide your chosen free perk!
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upsell nudge if grooming in cart is below 500 */}
+              {groomingSubtotal > 0 && groomingSubtotal < 500 && (
+                <div className="p-2.5 bg-amber-50/90 rounded-xl border border-dashed border-amber-400 text-[11px] font-bold text-amber-950 flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-amber-700 text-sm">redeem</span>
+                    <span>Add ₹{500 - groomingSubtotal} more in grooming for a <strong>Free Bath or Nail Clip</strong>!</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 4. COMPANION & VISIT DETAILS */}

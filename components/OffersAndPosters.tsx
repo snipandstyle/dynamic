@@ -9,6 +9,16 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
 
   const vouchers = [
     {
+      code: 'STAY6FREE1',
+      discount: '1 DAY FREE BOARDING',
+      title: 'Book 6 Days, Get 1 Day FREE',
+      desc: 'Book 6+ nights of cage-free luxury boarding and your companion gets 1 full day 100% free at checkout.',
+      badge: '🔥 6+ DAYS BOARDING',
+      color: 'bg-emerald-600 text-white font-black',
+      category: 'boarding',
+      nights: 6,
+    },
+    {
       code: 'FREESPA',
       discount: 'FREE SPA BATH',
       title: 'Free Furry Fresh Spa (4+ Nights)',
@@ -27,16 +37,6 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
       color: 'bg-amber-600 text-white',
       category: 'boarding',
       nights: 8,
-    },
-    {
-      code: 'FREESPA15',
-      discount: 'FREE FULL GROOM',
-      title: 'Full Luxury Grooming (15+ Nights)',
-      desc: 'Extended stays of 15+ nights receive a complete breed haircut, style, and luxury bath for ₹0.',
-      badge: '15+ NIGHTS BOARDING',
-      color: 'bg-purple-700 text-white',
-      category: 'boarding',
-      nights: 15,
     },
     {
       code: 'GROOM10',
@@ -141,46 +141,68 @@ export const OffersAndPosters: React.FC<OffersAndPostersProps> = ({ onOpenBookin
         <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
           <div className="bg-white/10 rounded-2xl p-3.5 border border-white/15 flex items-center gap-3.5">
             <img
-              src="/images/before_after_grooming.jpg"
-              alt="Before & After Grooming"
-              className="size-20 sm:size-24 rounded-xl object-cover object-top shrink-0 border border-white/10 shadow"
+              src="/images/offer_boarding_6days_free.jpg"
+              alt="Book 6 Days Boarding Get 1 Day Free"
+              className="size-20 sm:size-24 rounded-xl object-cover object-center shrink-0 border border-white/10 shadow"
             />
             <div className="space-y-1">
-              <span className="bg-amber-400 text-black text-[9px] font-black px-2 py-0.5 rounded uppercase">
-                Summer Special
+              <span className="bg-emerald-400 text-black text-[9px] font-black px-2 py-0.5 rounded uppercase">
+                Boarding Privilege
               </span>
-              <h4 className="text-sm font-black text-white">First 10 Customers FREE Bath</h4>
+              <h4 className="text-sm font-black text-white">Book 6 Days = 1 Day FREE!</h4>
               <p className="text-[11px] text-white/70">
-                New guests at our Kanakapura Road studio get a complimentary bath with grooming.
+                100% cage-free, air-conditioned suites. Apply code <code className="font-mono font-bold text-sanctuary-gold">STAY6FREE1</code> for a free day.
               </p>
               <button
-                onClick={onOpenBooking}
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent('snip_open_booking', {
+                      detail: {
+                        appliedCouponCode: 'STAY6FREE1',
+                        type: 'boarding',
+                        nights: 6,
+                        serviceName: 'Cage-Free Boarding Floor (6+ Days)',
+                        basePrice: 625,
+                      },
+                    })
+                  );
+                }}
                 className="text-[11px] text-sanctuary-gold underline font-bold hover:text-white"
               >
-                Claim in Checkout &rarr;
+                Apply & Book 6+ Days &rarr;
               </button>
             </div>
           </div>
 
           <div className="bg-white/10 rounded-2xl p-3.5 border border-white/15 flex items-center gap-3.5">
             <img
-              src="/images/brand_flyer_boarding.jpg"
-              alt="Clean Cat & Dog Boarding"
-              className="size-20 sm:size-24 rounded-xl object-cover object-top shrink-0 border border-white/10 shadow"
+              src="/images/offer_grooming_500_reward.jpg"
+              alt="Grooming Spend Over ₹500 Reward"
+              className="size-20 sm:size-24 rounded-xl object-cover object-center shrink-0 border border-white/10 shadow"
             />
             <div className="space-y-1">
-              <span className="bg-emerald-400 text-black text-[9px] font-black px-2 py-0.5 rounded uppercase">
-                Holiday Stay Reward
+              <span className="bg-amber-400 text-black text-[9px] font-black px-2 py-0.5 rounded uppercase">
+                Grooming Special
               </span>
-              <h4 className="text-sm font-black text-white">4+ Days = Free Grooming Refresh</h4>
+              <h4 className="text-sm font-black text-white">Grooming &gt; ₹500: Free Bath or Nail Clip</h4>
               <p className="text-[11px] text-white/70">
-                100% cage-free, air-conditioned studio floor with daily WhatsApp photo updates.
+                Pick your free reward at checkout and show your booking confirmation in-store to claim!
               </p>
               <button
-                onClick={onOpenBooking}
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent('snip_open_booking', {
+                      detail: {
+                        type: 'grooming',
+                        serviceName: 'Special Package Grooming',
+                        basePrice: 899,
+                      },
+                    })
+                  );
+                }}
                 className="text-[11px] text-sanctuary-gold underline font-bold hover:text-white"
               >
-                Book Nights & Get Spa &rarr;
+                Choose Grooming & Claim Perk &rarr;
               </button>
             </div>
           </div>

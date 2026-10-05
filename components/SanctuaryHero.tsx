@@ -63,6 +63,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
   const getMilestonePerk = () => {
     if (nights >= 15) return { title: 'FREE Full Package Grooming Treatment', value: '₹2,199 Value' };
     if (nights >= 8) return { title: 'FREE Special Package Treatment', value: '₹999 Value' };
+    if (nights >= 6) return { title: '1 Day FREE Boarding (Code: STAY6FREE1)', value: `₹${bRate.discounted} Value` };
     if (nights >= 4) return { title: 'FREE Furry Fresh Refresh', value: '₹749 Value' };
     return null;
   };
@@ -113,6 +114,38 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
             <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>100% Cage-Free Boarding</span>
           </div>
+        </div>
+
+        {/* LIVE PROMOTIONS HIGHLIGHT STRIP */}
+        <div className="bg-gradient-to-r from-amber-50/90 via-emerald-50/80 to-amber-50/90 p-2 sm:p-2.5 rounded-2xl border border-sanctuary-gold/40 flex flex-wrap items-center justify-between gap-2 text-xs shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🎁</span>
+            <div>
+              <span className="font-black text-sanctuary-dark text-[11px] sm:text-xs">
+                Active Promotions:
+              </span>
+              <span className="text-[11px] text-sanctuary-dark/85 font-medium ml-1.5">
+                <strong>Book 6 Days Boarding, Get 1 Day FREE</strong> (Code: <code className="font-mono font-bold text-sanctuary-forest">STAY6FREE1</code>) • <strong>Spend ₹500+ on Grooming = FREE Bath or Nail Clip!</strong>
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              if (onOpenBooking) {
+                onOpenBooking({
+                  type: 'boarding',
+                  serviceName: 'Cage-Free Boarding (6+ Days Deal)',
+                  basePrice: 625,
+                  origPrice: 750,
+                  nights: 6,
+                  appliedCouponCode: 'STAY6FREE1',
+                });
+              }
+            }}
+            className="px-2.5 py-1 bg-sanctuary-forest hover:bg-black text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors ml-auto sm:ml-0 shadow-xs"
+          >
+            Claim 6-Day Deal
+          </button>
         </div>
 
         {/* 2-Column Grid */}
@@ -350,6 +383,8 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                       ? 'bg-purple-100/90 text-purple-950 border-purple-300 shadow-xs'
                       : nights >= 8
                       ? 'bg-amber-100/90 text-amber-950 border-amber-300 shadow-xs'
+                      : nights >= 6
+                      ? 'bg-emerald-100/95 text-emerald-950 border-emerald-400 shadow-xs ring-1 ring-emerald-400'
                       : nights >= 4
                       ? 'bg-emerald-100/90 text-emerald-950 border-emerald-300 shadow-xs'
                       : 'bg-sanctuary-sand text-sanctuary-dark/70 border-black/5'
@@ -357,7 +392,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                     {milestone ? (
                       <span>UNLOCKED: {milestone.title} ({milestone.value}) Included With Stay</span>
                     ) : (
-                      <span>Book 4+ Days to unlock a complimentary Furry Fresh Grooming Refresh</span>
+                      <span>Book 6+ Days to get 1 Day FREE, or 4+ Days for Free Furry Fresh Bath!</span>
                     )}
                   </div>
 
@@ -387,7 +422,8 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                           petSize: pet === 'dog' ? dogSize : undefined,
                           catType: pet === 'cat' ? catType : undefined,
                           nights: nights,
-                          appliedCouponCode: nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 4 ? 'FREESPA' : undefined,
+                          appliedCouponCode:
+                            nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 6 ? 'STAY6FREE1' : nights >= 4 ? 'FREESPA' : undefined,
                         });
                       } else {
                         handleViewBoardingRates();

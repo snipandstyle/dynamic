@@ -280,8 +280,8 @@ const App: React.FC = () => {
             origPrice: 750,
             petType: 'dog',
             petSize: 'small',
-            nights: 4,
-            appliedCouponCode: 'FREESPA',
+            nights: 6,
+            appliedCouponCode: 'STAY6FREE1',
           });
           setIsCheckoutOpen(true);
         }}
