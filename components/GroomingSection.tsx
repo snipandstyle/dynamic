@@ -179,6 +179,32 @@ export const GroomingSection: React.FC<GroomingSectionProps> = ({ onOpenBooking 
           </div>
         </div>
 
+        {/* IN-STORE STUDIO EXPERIENCE BANNER */}
+        <div className="p-3 bg-gradient-to-r from-amber-50/80 via-white to-amber-50/60 rounded-2xl border border-amber-200/90 flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-xs">
+          <div className="flex items-center gap-2">
+            <div className="size-7 rounded-lg bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-bold">
+              <span className="material-symbols-outlined text-sm">storefront</span>
+            </div>
+            <div>
+              <span className="font-black text-sanctuary-dark block text-[11px]">
+                In-Store Grooming Experience:
+              </span>
+              <span className="text-[10px] text-sanctuary-dark/70 font-medium">
+                1. Pick Package & Arrival Slot → 2. Visit Our Kanakapura Studio → 3. Get Pampered On-Site!
+              </span>
+            </div>
+          </div>
+          <a
+            href="https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs transition-colors ml-auto sm:ml-0"
+          >
+            <span className="material-symbols-outlined text-xs text-sanctuary-gold">navigation</span>
+            <span>View Studio on Maps</span>
+          </a>
+        </div>
+
         {/* ============================================================ */}
         {/* MOBILE SIDE-SCROLLING / DESKTOP COMPACT 4-GRID */}
         {/* ============================================================ */}

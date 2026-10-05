@@ -121,18 +121,19 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
           {/* Left: Headline & Location / Stress Relief Pitch */}
           <div className="lg:col-span-7 space-y-3">
             
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sanctuary-gold/15 text-sanctuary-dark text-[11px] font-black uppercase tracking-wider">
-              <span>Kanakapura Highway • Nature Walks & Spa</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sanctuary-gold/20 text-sanctuary-dark text-[11px] font-black uppercase tracking-wider border border-sanctuary-gold/30">
+              <span className="material-symbols-outlined text-xs text-sanctuary-gold">storefront</span>
+              <span>Book Online & Visit Our Pet Studio • Kanakapura Road</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-[1.08]">
               Clean Cage-Free <br />
               <span className="text-sanctuary-gold">Pet Boarding</span> & Grooming <br />
-              On Kanakapura Highway
+              At Our Kanakapura Studio
             </h1>
 
             <p className="text-xs sm:text-sm text-sanctuary-dark/75 font-medium leading-relaxed max-w-xl">
-              Easy, hassle-free drop-off on your way out of Bangalore toward vacations and weekend getaways. Situated away from city noise, pets enjoy calm stress relief, open nature walks, and clean cage-free comfort.
+              <strong>Book your appointment online & visit our pet studio:</strong> Reserve your date and time slot, bring your furry companion to our Kanakapura Main Road studio, and our fear-free certified groomers pamper them on-site with zero waiting queue. (Doorstep pet cab pickup also available!)
             </p>
 
             {/* Visual Banner (Desktop / Tablet only to prevent mobile clutter) */}

@@ -60,14 +60,32 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [selectedServices, setSelectedServices] = useState<CheckoutServiceItem[]>([]);
   const [showAddServiceDropdown, setShowAddServiceDropdown] = useState(false);
 
-  // 4. Timing & Transport
+  // 4. Studio Visit Timing & Transport
   const [checkInDate, setCheckInDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     return d.toISOString().split('T')[0];
   });
-  const [preferredTimeSlot, setPreferredTimeSlot] = useState('Morning (09:30 AM – 01:00 PM)');
+  const [preferredTimeSlot, setPreferredTimeSlot] = useState('09:30 AM – 11:30 AM');
   const [includePetTaxi, setIncludePetTaxi] = useState<boolean>(false);
+
+  // Studio Location Constants
+  const STUDIO_MAPS_URL = 'https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru';
+  const STUDIO_ADDRESS = 'Site no 61, Kanakapura Main Road, Beside Shani Mahatma Temple, Bangalore 560082';
+
+  // 6 structured visit time slots
+  const TIME_SLOTS = [
+    { id: '09:30 AM – 11:30 AM', label: '09:30 AM – 11:30 AM', period: 'Morning Slot 1' },
+    { id: '11:30 AM – 01:30 PM', label: '11:30 AM – 01:30 PM', period: 'Morning Slot 2' },
+    { id: '01:30 PM – 03:30 PM', label: '01:30 PM – 03:30 PM', period: 'Afternoon Slot 1' },
+    { id: '03:30 PM – 05:30 PM', label: '03:30 PM – 05:30 PM', period: 'Afternoon Slot 2' },
+    { id: '05:30 PM – 07:00 PM', label: '05:30 PM – 07:00 PM', period: 'Evening Slot 1' },
+    { id: '07:00 PM – 08:30 PM', label: '07:00 PM – 08:30 PM', period: 'Evening Slot 2' },
+  ];
+
+  // Payment Choice: 'online' (Razorpay) or 'at_studio' (Pay at counter during visit)
+  const [paymentChoice, setPaymentChoice] = useState<'online' | 'at_studio'>('online');
+  const [copiedMapsLink, setCopiedMapsLink] = useState(false);
 
   // 5. Individual Quick-Care Add-ons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
@@ -782,6 +800,51 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         specialInstructions: `${petGender.toUpperCase()} • Special notes: ${specialInstructions || 'None'}`,
       };
 
+      // Option A: Pay at Studio Counter (Instant Reservation, Pay with Cash/UPI on Visit)
+      if (paymentChoice === 'at_studio') {
+        setIsProcessing(true);
+        setPaymentNotice('Reserving your studio appointment...');
+        try {
+          const token = localStorage.getItem('snip_auth_token');
+          const authHeaders: any = { 'Content-Type': 'application/json' };
+          if (token) authHeaders.Authorization = `Bearer ${token}`;
+
+          const studioRes = await fetch('/api/bookings', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({
+              ...bookingPayload,
+              paymentStatus: 'pending',
+              paymentMethod: 'pay_at_studio',
+            }),
+          });
+
+          const studioData = await studioRes.json();
+          if (!studioRes.ok) {
+            throw new Error(studioData.error || 'Failed to reserve booking.');
+          }
+
+          setBookingSuccess({
+            bookingRef: studioData.bookingRef || 'SNS-CONFIRMED',
+            bookingId: studioData.bookingId || '',
+            paymentStatus: `Pay at Studio Counter (₹${finalTotal})`,
+            paymentMethod: 'Pay at Studio (Cash / UPI on Visit)',
+            servicesCount: selectedServices.length,
+            totalAmount: finalTotal,
+            totalSavings,
+            date: `${checkInDate} (${preferredTimeSlot})`,
+            pet: `${petName.trim()}`,
+          });
+        } catch (stErr: any) {
+          console.error('[Pay at Studio Error]', stErr);
+          alert('Reservation Error: ' + stErr.message);
+        } finally {
+          setIsProcessing(false);
+        }
+        return;
+      }
+
+      // Option B: Online Razorpay Flow
       // Step 1: Call Backend to Create Razorpay Order (NO booking is recorded in DB yet!)
       const rzpRes = await fetch('/api/create-order', {
         method: 'POST',
@@ -1006,14 +1069,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         <div className="px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between border-b border-black/5 bg-[#FAF8F5] shrink-0">
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-lg bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-black">
-              <span className="material-symbols-outlined text-base">shopping_bag</span>
+              <span className="material-symbols-outlined text-base">storefront</span>
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-black text-sanctuary-dark leading-tight">
-                Review & Checkout
+                Review & Book Studio Visit
               </h2>
-              <p className="text-[10px] text-sanctuary-dark/60 font-semibold">
-                Kanakapura Highway (NH 948) • Direct Neon DB Sync
+              <p className="text-[10px] text-amber-900 font-bold flex items-center gap-1">
+                <span>📍 In-Store Visit • Kanakapura Main Road Studio</span>
               </p>
             </div>
           </div>
@@ -1030,17 +1093,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* SUCCESS CONFIRMATION VIEW */}
         {/* ============================================================ */}
         {bookingSuccess ? (
-          <div className="p-5 sm:p-6 text-center space-y-3.5 overflow-y-auto">
+          <div className="p-4 sm:p-5 text-center space-y-3 overflow-y-auto max-h-[85vh]">
             <div className="size-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-inner">
               <span className="material-symbols-outlined text-2xl">check_circle</span>
             </div>
 
             <div>
               <h3 className="text-xl font-black text-sanctuary-dark">
-                Booking Confirmed!
+                Studio Visit Confirmed!
               </h3>
               <p className="text-[11px] text-sanctuary-dark/70 font-medium">
-                Your reservation has been recorded in Neon PostgreSQL database.
+                Your appointment slot is locked. Show your Booking ID upon arrival at the studio.
               </p>
             </div>
 
@@ -1052,6 +1115,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             )}
 
+            {/* Booking Details Summary */}
             <div className="p-3 bg-sanctuary-sand/60 rounded-xl border border-black/10 text-xs space-y-1.5 text-left">
               <div className="flex justify-between items-center pb-1 border-b border-black/5">
                 <span className="text-sanctuary-dark/60 font-semibold">Booking ID:</span>
@@ -1060,7 +1124,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sanctuary-dark/60 font-semibold">Status:</span>
+                <span className="text-sanctuary-dark/60 font-semibold">Payment / Status:</span>
                 <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
                   {bookingSuccess.paymentStatus}
                 </span>
@@ -1070,12 +1134,100 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <span className="font-bold text-sanctuary-dark">{bookingSuccess.pet}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sanctuary-dark/60 font-semibold">Timing:</span>
+                <span className="text-sanctuary-dark/60 font-semibold">Visit Schedule:</span>
                 <span className="font-bold text-sanctuary-dark">{bookingSuccess.date}</span>
               </div>
               <div className="flex justify-between items-center pt-1 border-t border-black/5">
-                <span className="text-sanctuary-dark/60 font-semibold">Total Paid/Payable:</span>
+                <span className="text-sanctuary-dark/60 font-semibold">Total Amount:</span>
                 <span className="font-black text-sanctuary-dark text-sm">₹{bookingSuccess.totalAmount}</span>
+              </div>
+            </div>
+
+            {/* PROMINENT GOOGLE MAPS LOCATION & SAVE INSTRUCTIONS */}
+            <div className="p-4 bg-gradient-to-br from-amber-50 via-white to-emerald-50 rounded-2xl border-2 border-amber-400 text-left space-y-2.5 shadow-sm">
+              <div className="flex items-start gap-2.5">
+                <div className="size-9 rounded-xl bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center shrink-0 shadow-xs">
+                  <span className="material-symbols-outlined text-lg">location_on</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="text-xs font-black text-sanctuary-dark uppercase tracking-wider">
+                      Studio Address & Directions
+                    </h4>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      Save Location
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-sanctuary-dark mt-0.5">
+                    Snip & Style Pet Studio & Boarding
+                  </p>
+                  <p className="text-[11px] text-sanctuary-dark/75 font-medium leading-relaxed">
+                    {STUDIO_ADDRESS}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bold Save Alert */}
+              <div className="p-2.5 bg-amber-100/90 border border-amber-300 rounded-xl text-amber-950 text-[11px] font-bold flex items-start gap-2 shadow-xs">
+                <span className="material-symbols-outlined text-amber-700 text-sm shrink-0 mt-0.5">bookmark</span>
+                <div>
+                  <strong>PLEASE SAVE THIS GOOGLE MAPS LINK:</strong> Bookmark or open the link below on your phone now so you have turn-by-turn driving directions when visiting on <strong>{bookingSuccess.date}</strong>.
+                </div>
+              </div>
+
+              {/* Action Buttons: Open Maps & Copy Link */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                <a
+                  href={STUDIO_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm text-center transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm text-sanctuary-gold">navigation</span>
+                  <span>Open in Google Maps</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof navigator !== 'undefined') {
+                      navigator.clipboard.writeText(STUDIO_MAPS_URL);
+                      setCopiedMapsLink(true);
+                      setTimeout(() => setCopiedMapsLink(false), 2500);
+                    }
+                  }}
+                  className="py-2.5 px-3 bg-white hover:bg-black/5 text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border border-black/15 shadow-xs transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {copiedMapsLink ? 'check_circle' : 'content_copy'}
+                  </span>
+                  <span>{copiedMapsLink ? 'Maps Link Copied!' : 'Copy Maps Link'}</span>
+                </button>
+              </div>
+
+              {/* WhatsApp Share / Save Button */}
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `🐾 Snip & Style Studio Visit Confirmation\n\n` +
+                  `Booking ID: ${bookingSuccess.bookingRef}\n` +
+                  `Companion: ${bookingSuccess.pet}\n` +
+                  `Visit Timing: ${bookingSuccess.date}\n` +
+                  `Payment: ${bookingSuccess.paymentStatus}\n\n` +
+                  `📍 Studio Google Maps Link (Save this!):\n` +
+                  `${STUDIO_MAPS_URL}\n\n` +
+                  `Address: ${STUDIO_ADDRESS}\n` +
+                  `(Arrive 5-10 mins prior to slot)`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2 px-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">chat</span>
+                <span>Send Booking & Maps to WhatsApp (Save on Phone)</span>
+              </a>
+
+              <div className="text-[10px] text-center text-sanctuary-dark/60 font-semibold pt-0.5">
+                Customer parking available in front. Show Booking ID <strong>{bookingSuccess.bookingRef}</strong> at the desk.
               </div>
             </div>
 
@@ -1102,7 +1254,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           /* ============================================================ */
           /* SCROLLABLE COMPACT CHECKOUT BODY */
           /* ============================================================ */
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 max-h-[64vh]">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 max-h-[64vh]">
+
+            {/* IN-STORE STUDIO VISIT EXPLANATION BANNER */}
+            <div className="p-3 bg-gradient-to-r from-amber-50 via-white to-amber-50/80 rounded-2xl border border-amber-300 text-xs space-y-1 shadow-xs">
+              <div className="flex items-center gap-1.5 font-black text-amber-950">
+                <span className="material-symbols-outlined text-amber-600 text-sm">storefront</span>
+                <span>In-Store Pet Studio Visit</span>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 ml-auto">
+                  Zero Queue Wait
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-900/85 font-medium leading-relaxed">
+                You are booking a confirmed slot to <strong>bring your pet to our Kanakapura Road Studio</strong>. Select your visit date and arrival time below, and our master groomers will care for your pet on-site!
+              </p>
+            </div>
 
             {/* 1. SAVINGS HIGHLIGHT BANNER */}
             {totalSavings > 0 && (
@@ -1409,63 +1575,145 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            {/* 4. COMPANION & TIMING DETAILS */}
-            <div className="space-y-2 pt-1 border-t border-black/5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
-                Companion Details & Check-In Date
-              </span>
-
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  required
-                  placeholder="Pet Name *"
-                  value={petName}
-                  onChange={(e) => setPetName(e.target.value)}
-                  className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
-                />
-                <input
-                  type="text"
-                  placeholder="Breed (e.g. Shih Tzu / Persian)"
-                  value={petBreed}
-                  onChange={(e) => setPetBreed(e.target.value)}
-                  className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
-                />
-                <input
-                  type="date"
-                  required
-                  value={checkInDate}
-                  onChange={(e) => setCheckInDate(e.target.value)}
-                  className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
-                />
-                <select
-                  value={preferredTimeSlot}
-                  onChange={(e) => setPreferredTimeSlot(e.target.value)}
-                  className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold bg-white"
-                >
-                  <option>Morning (09:30 AM – 01:00 PM)</option>
-                  <option>Afternoon (01:00 PM – 05:00 PM)</option>
-                  <option>Evening (05:00 PM – 08:30 PM)</option>
-                </select>
+            {/* 4. COMPANION & VISIT DETAILS */}
+            <div className="space-y-3 pt-2 border-t border-black/5">
+              
+              {/* 4a. Companion Details */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                  Companion Details
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Pet Name *"
+                    value={petName}
+                    onChange={(e) => setPetName(e.target.value)}
+                    className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold bg-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Breed (e.g. Shih Tzu / Persian)"
+                    value={petBreed}
+                    onChange={(e) => setPetBreed(e.target.value)}
+                    className="p-2 rounded-xl border border-black/10 text-xs font-medium focus:outline-none focus:border-sanctuary-gold bg-white"
+                  />
+                </div>
               </div>
 
-              {/* Doorstep Pet Pickup Checkbox */}
-              <div
-                onClick={() => setIncludePetTaxi(!includePetTaxi)}
-                className={`p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all ${
-                  includePetTaxi ? 'bg-amber-50 border-amber-500 text-amber-950 font-bold' : 'bg-white border-black/10'
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-amber-600 text-sm">local_taxi</span>
-                  <span className="text-[11px] font-bold">Doorstep Pet Pickup & Drop (+₹299)</span>
+              {/* 4b. Date & Time of Store Visit */}
+              <div className="p-3 bg-sanctuary-sand/50 rounded-2xl border border-black/10 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-sanctuary-forest text-sm">calendar_month</span>
+                    <span className="text-xs font-black text-sanctuary-dark">
+                      Studio Visit Date & Arrival Time
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-bold text-sanctuary-forest bg-white px-2 py-0.5 rounded-full border border-black/10">
+                    Kanakapura Studio
+                  </span>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={includePetTaxi}
-                  onChange={() => {}}
-                  className="size-3.5 accent-amber-600 rounded"
-                />
+
+                {/* Visit Date */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-sanctuary-dark/70">
+                    <span>Select Visit Date:</span>
+                    {/* Quick date presets */}
+                    <div className="flex items-center gap-1">
+                      {[
+                        { label: 'Today', days: 0 },
+                        { label: 'Tomorrow', days: 1 },
+                        { label: '+2 Days', days: 2 },
+                      ].map((preset) => {
+                        const targetDate = new Date();
+                        targetDate.setDate(targetDate.getDate() + preset.days);
+                        const dateStr = targetDate.toISOString().split('T')[0];
+                        const isSelected = checkInDate === dateStr;
+                        return (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => setCheckInDate(dateStr)}
+                            className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all ${
+                              isSelected
+                                ? 'bg-sanctuary-forest text-white'
+                                : 'bg-white border border-black/10 text-sanctuary-dark/70 hover:border-black/30'
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
+                    className="w-full p-2 rounded-xl border border-black/10 text-xs font-bold focus:outline-none focus:border-sanctuary-gold bg-white"
+                  />
+                </div>
+
+                {/* Visit Time Slot Grid */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-sanctuary-dark/70 block">
+                    Choose Arrival Time Slot (09:30 AM – 08:30 PM):
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {TIME_SLOTS.map((slot) => {
+                      const isSelected = preferredTimeSlot === slot.id;
+                      return (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => setPreferredTimeSlot(slot.id)}
+                          className={`p-2 rounded-xl text-left border transition-all ${
+                            isSelected
+                              ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                              : 'bg-white border-black/10 hover:border-sanctuary-gold text-sanctuary-dark'
+                          }`}
+                        >
+                          <div className={`text-[9px] uppercase tracking-wider ${isSelected ? 'text-sanctuary-gold' : 'text-sanctuary-dark/50'} font-bold`}>
+                            {slot.period}
+                          </div>
+                          <div className="text-[11px] font-bold leading-tight mt-0.5">
+                            {slot.label}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-sanctuary-dark/65 font-medium leading-relaxed bg-white/70 p-2 rounded-xl border border-black/5">
+                  📍 <strong>Walk-in at your chosen time:</strong> Please arrive 5–10 minutes before your slot. Our certified stylists will have the grooming station sanitized and ready for your pet!
+                </p>
+
+                {/* Doorstep Pet Pickup Checkbox */}
+                <div
+                  onClick={() => setIncludePetTaxi(!includePetTaxi)}
+                  className={`p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all ${
+                    includePetTaxi ? 'bg-amber-50 border-amber-500 text-amber-950 font-bold' : 'bg-white border-black/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-amber-600 text-sm">local_taxi</span>
+                    <div>
+                      <div className="text-[11px] font-bold">Doorstep Pet Cab (+₹299)</div>
+                      <div className="text-[9px] text-sanctuary-dark/60 font-medium">Can't visit? We'll pick up & return your pet</div>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={includePetTaxi}
+                    onChange={() => {}}
+                    className="size-3.5 accent-amber-600 rounded"
+                  />
+                </div>
               </div>
             </div>
 
@@ -1582,28 +1830,84 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               )}
             </div>
 
-            {/* 7. PAYMENT METHOD (100% ONLINE VIA RAZORPAY) */}
-            <div className="space-y-1.5 pt-1 border-t border-black/5">
+            {/* 7. PAYMENT METHOD (SELECT ONLINE OR PAY AT STUDIO) */}
+            <div className="space-y-2 pt-1 border-t border-black/5">
               <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
-                Payment Method
+                Select Payment Option
               </span>
 
-              <div className="p-3 rounded-2xl border border-sanctuary-gold/40 bg-gradient-to-r from-amber-50/60 to-white flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-xl bg-[#0C2340] text-sanctuary-gold flex items-center justify-center font-black text-sm shrink-0">
-                    ₹
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {/* Option 1: Pay Online via Razorpay */}
+                <div
+                  onClick={() => setPaymentChoice('online')}
+                  className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    paymentChoice === 'online'
+                      ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500'
+                      : 'bg-white border-black/10 hover:border-black/20'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="size-7 rounded-xl bg-[#0C2340] text-sanctuary-gold flex items-center justify-center font-black text-xs">
+                        ₹
+                      </div>
+                      <div>
+                        <div className="font-black text-xs text-sanctuary-dark">
+                          Pay Online (Razorpay)
+                        </div>
+                        <div className="text-[10px] text-emerald-800 font-bold">
+                          Instant Confirmation
+                        </div>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="payment_choice"
+                      checked={paymentChoice === 'online'}
+                      onChange={() => setPaymentChoice('online')}
+                      className="size-4 accent-amber-600 mt-1"
+                    />
                   </div>
-                  <div>
-                    <div className="font-black text-sanctuary-dark text-[11px] flex items-center gap-1.5">
-                      <span>Razorpay Secure Online Checkout</span>
-                      <span className="text-[9px] font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded">Instant Confirmation</span>
-                    </div>
-                    <div className="text-[10px] text-sanctuary-dark/65 font-medium">
-                      UPI (GPay / PhonePe / Paytm / BHIM) • Cards • NetBanking
-                    </div>
+                  <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-2">
+                    UPI (GPay / PhonePe / Paytm), Cards, NetBanking
                   </div>
                 </div>
-                <span className="material-symbols-outlined text-emerald-600 text-base">verified_user</span>
+
+                {/* Option 2: Pay at Studio Counter */}
+                <div
+                  onClick={() => setPaymentChoice('at_studio')}
+                  className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    paymentChoice === 'at_studio'
+                      ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600'
+                      : 'bg-white border-black/10 hover:border-black/20'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="size-7 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-xs">
+                        <span className="material-symbols-outlined text-sm">storefront</span>
+                      </div>
+                      <div>
+                        <div className="font-black text-xs text-sanctuary-dark">
+                          Pay at Studio Counter
+                        </div>
+                        <div className="text-[10px] text-emerald-800 font-bold">
+                          Cash / UPI on Visit
+                        </div>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="payment_choice"
+                      checked={paymentChoice === 'at_studio'}
+                      onChange={() => setPaymentChoice('at_studio')}
+                      className="size-4 accent-emerald-700 mt-1"
+                    />
+                  </div>
+                  <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-2">
+                    Reserve slot now, pay when you bring your pet to the studio
+                  </div>
+                </div>
               </div>
 
               {paymentNotice && (
@@ -1613,8 +1917,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
 
-              {/* In-App Browser Warning & Open in Chrome/Safari Helper */}
-              {isInAppBrowser && (
+              {/* In-App Browser Warning (Only for Online Payments) */}
+              {paymentChoice === 'online' && isInAppBrowser && (
                 <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-300 text-xs space-y-2">
                   <div className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-amber-700 text-base shrink-0 mt-0.5">
@@ -1625,13 +1929,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         In-App Browser Detected (WhatsApp / Instagram)
                       </h5>
                       <p className="text-[11px] text-amber-900/80 mt-0.5 font-medium leading-relaxed">
-                        Banking and UPI apps (GPay, PhonePe, Paytm) block payments inside in-app webviews for security.
+                        UPI apps (GPay, PhonePe, Paytm) block payments inside in-app webviews for security. Switch to Chrome or choose &quot;Pay at Studio Counter&quot; above!
                       </p>
                     </div>
                   </div>
                   <div className="p-2.5 bg-white/90 rounded-xl border border-amber-200 text-[11px] space-y-1 text-sanctuary-dark font-semibold">
-                    <div>1. Tap the <strong>⋮ (3 dots)</strong> or share menu at the top-right</div>
-                    <div>2. Select <strong>&quot;Open in Chrome&quot;</strong> or <strong>&quot;Open in Safari&quot;</strong> to pay with 1-tap UPI</div>
+                    <div>1. Tap <strong>⋮ (3 dots)</strong> at the top right and pick <strong>&quot;Open in Chrome&quot;</strong></div>
+                    <div>2. Or simply select <strong>&quot;Pay at Studio Counter&quot;</strong> above to reserve instantly!</div>
                   </div>
                   <div className="flex gap-2 pt-0.5">
                     <button
@@ -1674,7 +1978,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           <div className="p-3.5 sm:p-4 bg-sanctuary-forest text-white border-t border-black/10 shrink-0 flex items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-white/70">Final Payable:</span>
+                <span className="text-[10px] text-white/70">
+                  {paymentChoice === 'at_studio' ? 'Pay at Counter:' : 'Final Payable:'}
+                </span>
                 {totalSavings > 0 && (
                   <span className="text-[10px] line-through text-red-400 font-bold decoration-red-400">
                     ₹{grossOriginalTotal}
@@ -1698,12 +2004,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             >
               <span>
                 {isProcessing
-                  ? 'Connecting Razorpay...'
+                  ? paymentChoice === 'at_studio'
+                    ? 'Reserving Visit...'
+                    : 'Connecting Razorpay...'
                   : !currentUser
                   ? 'Sign In to Book'
                   : selectedServices.filter((s) => !s.isFreePerk).length === 0
                   ? 'Add a Service'
-                  : 'Pay with Razorpay'}
+                  : paymentChoice === 'at_studio'
+                  ? `Confirm Visit (Pay ₹${finalTotal} at Studio)`
+                  : `Pay ₹${finalTotal} with Razorpay`}
               </span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>

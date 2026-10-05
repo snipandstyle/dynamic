@@ -471,6 +471,32 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                             </div>
                           </div>
                         )}
+
+                        {/* Studio Visit Location & Directions Card */}
+                        <div className="p-3 bg-gradient-to-r from-amber-50 via-white to-amber-50/80 rounded-xl border border-amber-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+                          <div className="flex items-start gap-2">
+                            <span className="material-symbols-outlined text-amber-700 text-base shrink-0 mt-0.5">location_on</span>
+                            <div>
+                              <div className="font-black text-amber-950 text-xs">
+                                Studio Location: Site no 61, Kanakapura Main Road, Bangalore 560082
+                              </div>
+                              <div className="text-[10px] text-amber-900/80 font-medium">
+                                Beside Shani Mahatma Temple • Please arrive 5–10 mins prior to your slot: <strong>{b.drop_off_time || '09:30 AM'}</strong>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <a
+                              href="https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-xs text-sanctuary-gold">navigation</span>
+                              <span>Open in Maps</span>
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
