@@ -63,17 +63,54 @@ export async function handleSignup(data: {
   }
 
   // Check if phone number already exists
-  const existingPhone = await query('SELECT id FROM users WHERE phone_number = $1 OR phone_number = $2 LIMIT 1', [cleanPhone, `+91${cleanPhone}`]);
+  const existingPhone = await query(
+    'SELECT id, full_name, email, role, is_phone_verified FROM users WHERE phone_number = $1 OR phone_number = $2 LIMIT 1',
+    [cleanPhone, `+91${cleanPhone}`]
+  );
+
+  // Get default organization id from Neon DB
+  const orgRes = await query('SELECT id FROM organizations LIMIT 1');
+  const orgId = orgRes.rows[0]?.id || null;
+
   if (existingPhone.rows.length > 0) {
+    const existingUser = existingPhone.rows[0];
+    // If account was created as a guest booking without a self-chosen password, upgrade it to an active user account
+    if (existingUser.full_name?.toLowerCase().includes('guest') || !existingUser.is_phone_verified) {
+      const passwordHash = await hashPassword(password);
+      await query(
+        `UPDATE users 
+         SET full_name = $1, password_hash = $2, is_phone_verified = true, updated_at = NOW() 
+         WHERE id = $3`,
+        [fullName.trim(), passwordHash, existingUser.id]
+      );
+      const token = signToken({
+        userId: existingUser.id,
+        email: existingUser.email || `${cleanPhone}@snipandstyle.pet`,
+        role: existingUser.role || 'customer',
+        name: fullName.trim(),
+        phone: cleanPhone,
+        orgId: orgId,
+      });
+      return {
+        status: 200,
+        body: {
+          message: 'Account registered and upgraded from guest booking successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: fullName.trim(),
+            email: existingUser.email || `${cleanPhone}@snipandstyle.pet`,
+            phone: cleanPhone,
+            role: existingUser.role || 'customer',
+          },
+        },
+      };
+    }
     return { status: 409, body: { error: 'An account with this phone number already exists. Please log in.' } };
   }
 
   // Optional email
   const userEmail = data.email?.toLowerCase().trim() || `${cleanPhone}@snipandstyle.pet`;
-
-  // Get default organization id from Neon DB
-  const orgRes = await query('SELECT id FROM organizations LIMIT 1');
-  const orgId = orgRes.rows[0]?.id || null;
 
   const passwordHash = await hashPassword(password);
   const userId = crypto.randomUUID();
@@ -946,6 +983,95 @@ export async function handleHealthCheckRoute() {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       database: dbRes.rows[0]?.live === 1 ? 'connected' : 'error',
+    },
+  };
+}
+
+// 12. ADMIN: GET ALL REGISTERED USERS
+export async function handleGetAdminUsers(authHeader?: string | null) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Admin authentication required.' } };
+  }
+
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || payload.role !== 'admin') {
+    return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
+  }
+
+  const res = await query(
+    `SELECT 
+       u.id, 
+       u.full_name, 
+       u.email, 
+       u.phone_number, 
+       u.role, 
+       u.is_phone_verified, 
+       u.created_at, 
+       u.updated_at,
+       (u.password_hash IS NOT NULL AND length(u.password_hash) > 10) as has_password,
+       COUNT(b.id) as bookings_count
+     FROM users u
+     LEFT JOIN bookings b ON u.id = b.user_id
+     GROUP BY u.id
+     ORDER BY u.created_at DESC`
+  );
+
+  return { status: 200, body: { users: res.rows } };
+}
+
+// 13. USER: UPDATE PROFILE OR CHANGE PASSWORD
+export async function handleUpdateProfile(
+  data: { fullName?: string; currentPassword?: string; newPassword?: string },
+  authHeader?: string | null
+) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { status: 401, body: { error: 'Authentication required.' } };
+  }
+
+  const payload = verifyToken(authHeader.replace('Bearer ', '').trim());
+  if (!payload || !payload.userId) {
+    return { status: 401, body: { error: 'Invalid or expired token.' } };
+  }
+
+  const userRes = await query('SELECT id, password_hash, full_name, phone_number FROM users WHERE id = $1 LIMIT 1', [payload.userId]);
+  if (userRes.rows.length === 0) {
+    return { status: 404, body: { error: 'User account not found.' } };
+  }
+
+  const user = userRes.rows[0];
+
+  // If changing password, verify current password first
+  if (data.newPassword) {
+    if (!data.currentPassword) {
+      return { status: 400, body: { error: 'Current password is required to change your password.' } };
+    }
+    const isCurrentValid = await comparePassword(data.currentPassword, user.password_hash);
+    if (!isCurrentValid) {
+      return { status: 400, body: { error: 'Current password does not match.' } };
+    }
+    if (data.newPassword.length < 6) {
+      return { status: 400, body: { error: 'New password must be at least 6 characters.' } };
+    }
+    const newHash = await hashPassword(data.newPassword);
+    await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [newHash, payload.userId]);
+  }
+
+  if (data.fullName && data.fullName.trim()) {
+    await query('UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2', [data.fullName.trim(), payload.userId]);
+  }
+
+  const updatedRes = await query('SELECT id, full_name, email, phone_number, role FROM users WHERE id = $1 LIMIT 1', [payload.userId]);
+  return {
+    status: 200,
+    body: {
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedRes.rows[0].id,
+        fullName: updatedRes.rows[0].full_name,
+        email: updatedRes.rows[0].email,
+        phone: updatedRes.rows[0].phone_number,
+        role: updatedRes.rows[0].role,
+      },
     },
   };
 }

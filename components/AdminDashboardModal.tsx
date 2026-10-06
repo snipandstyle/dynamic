@@ -10,7 +10,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminIdentifier, setAdminIdentifier] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [activeAdminTab, setActiveAdminTab] = useState<'bookings' | 'coupons'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'bookings' | 'coupons' | 'users'>('bookings');
 
   // Bookings State
   const [bookings, setBookings] = useState<any[]>([]);
@@ -23,12 +23,45 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const [serviceFilter, setServiceFilter] = useState<'all' | 'boarding' | 'grooming'>('all');
   const [copiedPaymentId, setCopiedPaymentId] = useState<string | null>(null);
 
+  // Users State
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
+  const [copiedUserPhone, setCopiedUserPhone] = useState<string | null>(null);
+
+  const fetchAdminUsers = async (token?: string) => {
+    const t = token || localStorage.getItem('snip_auth_token');
+    if (!t) return;
+    setUsersLoading(true);
+    try {
+      const res = await fetch('/api/admin/users', {
+        headers: { Authorization: `Bearer ${t}` },
+      });
+      const data = await res.json();
+      if (data.users) {
+        setUsers(data.users);
+      }
+    } catch (err) {
+      console.error('Error fetching admin users', err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const handleCopyPaymentId = (text: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text);
     }
     setCopiedPaymentId(text);
     setTimeout(() => setCopiedPaymentId(null), 2000);
+  };
+
+  const handleCopyUserPhone = (text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+    setCopiedUserPhone(text);
+    setTimeout(() => setCopiedUserPhone(null), 2000);
   };
 
   // Coupons State
@@ -69,6 +102,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
           setIsAdmin(true);
           fetchAdminBookings(token);
           fetchAdminCoupons(token);
+          fetchAdminUsers(token);
         }
       } catch {}
     }
@@ -94,6 +128,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
       setIsAdmin(true);
       fetchAdminBookings(data.token);
       fetchAdminCoupons(data.token);
+      fetchAdminUsers(data.token);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -483,6 +518,22 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
             >
               <span className="material-symbols-outlined text-base text-sanctuary-gold">loyalty</span>
               <span>Coupon Engine & Discounts ({coupons.length})</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveAdminTab('users');
+                const t = localStorage.getItem('snip_auth_token');
+                if (t) fetchAdminUsers(t);
+              }}
+              className={`py-3 px-4 text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b-2 transition-all ${
+                activeAdminTab === 'users'
+                  ? 'border-emerald-600 text-emerald-950 bg-white shadow-xs rounded-t-xl'
+                  : 'border-transparent text-sanctuary-dark/60 hover:text-sanctuary-dark'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base text-emerald-600">people</span>
+              <span>Registered Users & Database ({users.length})</span>
             </button>
           </div>
         )}
@@ -1023,7 +1074,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeAdminTab === 'coupons' ? (
             /* TAB 2: Dynamic Coupon & Discount Engine */
             <div className="space-y-4">
               {/* Top Metrics Row */}
@@ -1261,6 +1312,168 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* TAB 3: Registered Users & Database Accounts */
+            <div className="space-y-4">
+              {/* Top Metrics Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3 bg-sanctuary-sand/40 rounded-2xl border border-black/5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
+                    Total Registered Users
+                  </span>
+                  <span className="text-2xl font-black text-sanctuary-dark">{users.length}</span>
+                </div>
+                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200/50">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">
+                    Phone Verified
+                  </span>
+                  <span className="text-2xl font-black text-emerald-800">
+                    {users.filter((u) => u.is_phone_verified).length}
+                  </span>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-2xl border border-blue-200/50">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-800 block">
+                    Users With Bookings
+                  </span>
+                  <span className="text-2xl font-black text-blue-900">
+                    {users.filter((u) => Number(u.bookings_count) > 0).length}
+                  </span>
+                </div>
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/50">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 block">
+                    Database Password Hash
+                  </span>
+                  <div className="text-xs font-black text-amber-950 flex items-center gap-1 mt-1">
+                    <span className="material-symbols-outlined text-sm text-emerald-600">verified_user</span>
+                    <span>Bcrypt Salted (60-char)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls Bar: Search & Refresh */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-black/10 shadow-xs">
+                <div className="relative flex-1 w-full">
+                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-sanctuary-dark/40 text-sm">
+                    search
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search users by name, mobile number, or email..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-sanctuary-sand/40 rounded-xl text-xs font-medium border border-transparent focus:border-sanctuary-gold focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => fetchAdminUsers()}
+                  className="py-2 px-3 bg-sanctuary-sand hover:bg-black/10 text-sanctuary-dark rounded-xl text-xs font-bold transition-colors flex items-center gap-1 shrink-0"
+                >
+                  <span className="material-symbols-outlined text-sm">refresh</span>
+                  <span>Refresh Neon DB</span>
+                </button>
+              </div>
+
+              {/* Live Users Table / Cards */}
+              {usersLoading ? (
+                <div className="py-16 text-center space-y-2 bg-white rounded-2xl border border-black/10">
+                  <div className="size-6 border-2 border-sanctuary-forest border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p className="text-xs font-bold text-sanctuary-dark/60">Querying users from Neon PostgreSQL...</p>
+                </div>
+              ) : users.length === 0 ? (
+                <div className="py-14 text-center space-y-2 bg-white rounded-2xl border border-black/10 p-6">
+                  <span className="material-symbols-outlined text-3xl text-sanctuary-dark/30">people_outline</span>
+                  <p className="text-sm font-black text-sanctuary-dark">No Registered Users Found</p>
+                  <p className="text-xs text-sanctuary-dark/60">
+                    Users who register or check out will automatically be stored with hashed passwords in the users table.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {users
+                    .filter((u) => {
+                      if (!userSearch.trim()) return true;
+                      const q = userSearch.toLowerCase();
+                      return (
+                        (u.full_name || '').toLowerCase().includes(q) ||
+                        (u.phone_number || '').toLowerCase().includes(q) ||
+                        (u.email || '').toLowerCase().includes(q)
+                      );
+                    })
+                    .map((u) => (
+                      <div
+                        key={u.id}
+                        className="bg-white rounded-2xl p-4 border border-black/10 shadow-xs hover:border-black/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="size-11 rounded-2xl bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-black text-base shrink-0 shadow-xs">
+                            {u.full_name ? u.full_name[0].toUpperCase() : 'U'}
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-black text-xs sm:text-sm text-sanctuary-dark">{u.full_name}</h4>
+                              <span
+                                className={`text-[9px] font-black uppercase px-2 py-0.2 rounded-full ${
+                                  u.role === 'admin'
+                                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                    : 'bg-emerald-100 text-emerald-800'
+                                }`}
+                              >
+                                {u.role === 'admin' ? '⭐ Administrator' : 'Customer'}
+                              </span>
+
+                              {u.is_phone_verified && (
+                                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                  <span className="material-symbols-outlined text-[10px]">verified</span>
+                                  <span>Phone Verified</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs font-mono font-bold text-sanctuary-dark/80 flex-wrap">
+                              <span>📱 +91 {u.phone_number}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyUserPhone(u.phone_number)}
+                                className="text-[10px] text-sanctuary-dark/50 hover:text-black underline font-sans font-bold"
+                              >
+                                {copiedUserPhone === u.phone_number ? 'Copied!' : 'Copy'}
+                              </button>
+                              {u.email && (
+                                <>
+                                  <span className="text-sanctuary-dark/30">•</span>
+                                  <span className="text-[11px] font-sans text-sanctuary-dark/60 font-medium">{u.email}</span>
+                                </>
+                              )}
+                            </div>
+
+                            <div className="text-[10px] text-sanctuary-dark/55 flex items-center gap-1.5 pt-0.5 flex-wrap">
+                              <span>Created: {new Date(u.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                              <span>•</span>
+                              <span className="font-bold text-sanctuary-forest">{u.bookings_count || 0} Total Bookings</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Password & Security Status Badge */}
+                        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                          <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-right">
+                            <div className="text-[10px] font-black text-emerald-900 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-xs text-emerald-700">lock</span>
+                              <span>Bcrypt Hash in DB</span>
+                            </div>
+                            <div className="text-[9px] text-emerald-700 font-semibold font-mono">
+                              password_hash: 60-char secure
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>

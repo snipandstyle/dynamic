@@ -20,6 +20,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
   const [authLoading, setAuthLoading] = useState(false);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
 
+  // Profile & Password Update State
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [editFullName, setEditFullName] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState('');
+
   useEffect(() => {
     checkSession();
     window.addEventListener('snip_auth_change', checkSession);
@@ -116,6 +125,67 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
     setUser(null);
     setBookings([]);
     window.dispatchEvent(new CustomEvent('snip_auth_change'));
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError('');
+    setEditSuccess('');
+    setEditLoading(true);
+
+    try {
+      const token = localStorage.getItem('snip_auth_token');
+      if (!token) throw new Error('Authentication required.');
+
+      const payload: any = {};
+      if (editFullName.trim() && editFullName.trim() !== user?.fullName) {
+        payload.fullName = editFullName.trim();
+      }
+      if (newPassword) {
+        if (!currentPassword) {
+          throw new Error('Please enter your current password to set a new password.');
+        }
+        if (newPassword.length < 6) {
+          throw new Error('New password must be at least 6 characters.');
+        }
+        payload.currentPassword = currentPassword;
+        payload.newPassword = newPassword;
+      }
+
+      if (Object.keys(payload).length === 0) {
+        throw new Error('No changes provided to save.');
+      }
+
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update profile.');
+
+      if (data.user) {
+        localStorage.setItem('snip_user', JSON.stringify(data.user));
+        setUser(data.user);
+        window.dispatchEvent(new CustomEvent('snip_auth_change'));
+      }
+
+      setEditSuccess('Profile and password updated successfully in database!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setTimeout(() => {
+        setShowEditProfileModal(false);
+        setEditSuccess('');
+      }, 1800);
+    } catch (err: any) {
+      setEditError(err.message);
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -305,13 +375,31 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                 </div>
               </div>
 
-              <button
-                onClick={onOpenBooking}
-                className="py-2.5 px-5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 self-start sm:self-auto"
-              >
-                <span>Book New Service</span>
-                <span className="material-symbols-outlined text-sm">add</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditFullName(user.fullName || '');
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setEditError('');
+                    setEditSuccess('');
+                    setShowEditProfileModal(true);
+                  }}
+                  className="py-2.5 px-4 bg-white hover:bg-sanctuary-sand border border-black/15 text-sanctuary-dark rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-2xs flex items-center justify-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-sm">lock_reset</span>
+                  <span>Update Password</span>
+                </button>
+
+                <button
+                  onClick={onOpenBooking}
+                  className="py-2.5 px-5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5"
+                >
+                  <span>Book New Service</span>
+                  <span className="material-symbols-outlined text-sm">add</span>
+                </button>
+              </div>
             </div>
 
             {/* Bookings & Stays History */}
@@ -518,6 +606,104 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
               >
                 Call Studio
               </a>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* EDIT PROFILE & UPDATE PASSWORD MODAL */}
+        {/* ============================================================ */}
+        {showEditProfileModal && (
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm text-left">
+            <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-black/10 space-y-4 my-auto">
+              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="size-8 rounded-xl bg-sanctuary-gold/20 text-sanctuary-dark flex items-center justify-center">
+                    <span className="material-symbols-outlined text-base">manage_accounts</span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-sanctuary-dark">Account Security & Profile</h3>
+                    <p className="text-[10px] text-sanctuary-dark/60 font-medium">Update profile name or change account password</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowEditProfileModal(false)}
+                  className="size-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center"
+                >
+                  <span className="material-symbols-outlined text-base">close</span>
+                </button>
+              </div>
+
+              {editError && (
+                <div className="p-2.5 rounded-xl bg-red-50 text-red-700 text-xs font-bold border border-red-200">
+                  {editError}
+                </div>
+              )}
+
+              {editSuccess && (
+                <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-sm text-emerald-600">check_circle</span>
+                  <span>{editSuccess}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-sanctuary-dark/70 block mb-1">
+                    Your Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editFullName}
+                    onChange={(e) => setEditFullName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-sanctuary-dark/70 block mb-1">
+                    Current Password (Required to change password)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-sanctuary-dark/70 block mb-1">
+                    New Password (Min 6 characters)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter new secure password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditProfileModal(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-black/10 text-xs font-bold text-sanctuary-dark hover:bg-black/5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="flex-1 py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm"
+                  >
+                    {editLoading ? 'Updating in DB...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

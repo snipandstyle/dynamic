@@ -12,6 +12,8 @@ import {
   handleRazorpayWebhookRoute,
   handleGetOffersRoute,
   handleHealthCheckRoute,
+  handleGetAdminUsers,
+  handleUpdateProfile,
 } from '../lib/api-handlers';
 
 function readJsonBody(req: any): Promise<any> {
@@ -82,6 +84,9 @@ export function viteApiPlugin(): Plugin {
             result = await handleLogin(body);
           } else if (pathname === '/api/auth/me' && req.method === 'GET') {
             result = await handleGetMe(authHeader);
+          } else if (pathname === '/api/auth/profile' && req.method === 'PATCH') {
+            const body = await readJsonBody(req);
+            result = await handleUpdateProfile(body, authHeader);
           } else if (pathname === '/api/bookings') {
             if (req.method === 'POST') {
               const body = await readJsonBody(req);
@@ -89,6 +94,8 @@ export function viteApiPlugin(): Plugin {
             } else if (req.method === 'GET') {
               result = await handleGetUserBookings(authHeader);
             }
+          } else if (pathname === '/api/admin/users' && req.method === 'GET') {
+            result = await handleGetAdminUsers(authHeader);
           } else if (pathname === '/api/admin/bookings') {
             if (req.method === 'GET') {
               result = await handleGetAdminBookings(authHeader);
