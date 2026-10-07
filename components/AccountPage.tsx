@@ -575,7 +575,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
                             <a
-                              href="https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru"
+                              href="https://maps.app.goo.gl/MqFTrZiLPbttv3eD6"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs transition-colors"

@@ -147,7 +147,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <a
-                  href="https://share.google/RaJSL1HJJaTvSBVef"
+                  href="https://maps.app.goo.gl/MqFTrZiLPbttv3eD6"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-2.5 px-5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm"

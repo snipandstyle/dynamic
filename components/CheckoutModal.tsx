@@ -72,7 +72,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [includePetTaxi, setIncludePetTaxi] = useState<boolean>(false);
 
   // Studio Location Constants
-  const STUDIO_MAPS_URL = 'https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru';
+  const STUDIO_MAPS_URL = 'https://maps.app.goo.gl/MqFTrZiLPbttv3eD6';
   const STUDIO_ADDRESS = 'Site no 61, Kanakapura Main Road, Beside Shani Mahatma Temple, Bangalore 560082';
 
   // 6 structured visit time slots
@@ -2447,49 +2447,33 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       </span>
                     </div>
 
-                    {/* Boarding Stay Duration Stepper & Check-Out Date */}
-                    {totalBoardingNights > 0 && primaryBoarding && (
+                    {/* Confirmed Stay Duration Display (No redundant stepper in schedule) */}
+                    {totalBoardingNights > 0 && (
                       <div className="p-2.5 bg-white rounded-xl border border-amber-300/80 space-y-2 shadow-2xs">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-[10px] font-black text-sanctuary-dark uppercase tracking-wider">
-                              Boarding Duration
+                          <div className="flex items-center gap-2">
+                            <div className="size-7 rounded-lg bg-amber-500/15 text-amber-900 flex items-center justify-center">
+                              <span className="material-symbols-outlined text-base">hotel</span>
                             </div>
-                            <div className="text-xs font-black text-sanctuary-forest">
-                              {totalBoardingNights} Night{totalBoardingNights > 1 ? 's' : ''} Stay
+                            <div>
+                              <div className="text-[10px] font-black text-sanctuary-dark/70 uppercase tracking-wider">
+                                Confirmed Boarding Duration
+                              </div>
+                              <div className="text-xs font-black text-sanctuary-forest">
+                                {totalBoardingNights} Night{totalBoardingNights > 1 ? 's' : ''} Stay
+                              </div>
                             </div>
                           </div>
-
-                          {/* Interactive Stepper */}
-                          <div className="inline-flex items-center rounded-xl border border-black/15 bg-sanctuary-sand/60 overflow-hidden shadow-2xs">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateNights(primaryBoarding.id, Math.max(1, totalBoardingNights - 1))}
-                              disabled={totalBoardingNights <= 1}
-                              className="px-2.5 py-1 text-sm font-black hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
-                              title="Decrease nights"
-                            >
-                              -
-                            </button>
-                            <span className="px-3 py-1 text-xs font-black font-mono">
-                              {totalBoardingNights} nt{totalBoardingNights > 1 ? 's' : ''}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateNights(primaryBoarding.id, Math.min(60, totalBoardingNights + 1))}
-                              className="px-2.5 py-1 text-sm font-black hover:bg-black/10"
-                              title="Increase nights"
-                            >
-                              +
-                            </button>
-                          </div>
+                          <span className="text-[9px] font-bold text-sanctuary-dark/60 bg-sanctuary-sand px-2 py-0.5 rounded-full">
+                            Selected ({totalBoardingNights} {totalBoardingNights === 1 ? 'Night' : 'Nights'})
+                          </span>
                         </div>
 
                         {/* Calculated Dates summary */}
                         <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-black/5">
                           <div className="p-1.5 bg-amber-50/60 rounded-lg">
-                            <span className="text-[9px] text-sanctuary-dark/60 font-bold block">Check-In:</span>
-                            <span className="font-black text-sanctuary-dark">{checkInDate || 'Today'}</span>
+                            <span className="text-[9px] text-sanctuary-dark/60 font-bold block">Check-In (Drop-Off):</span>
+                            <span className="font-black text-sanctuary-dark">{checkInDate || 'Select below'}</span>
                           </div>
                           <div className="p-1.5 bg-emerald-50/60 rounded-lg">
                             <span className="text-[9px] text-emerald-800 font-bold block">Estimated Check-Out:</span>
@@ -2515,7 +2499,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           </div>
                         ) : (
                           <div className="text-[10px] text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 font-bold">
-                            💡 Add <strong>{6 - totalBoardingNights} more night{6 - totalBoardingNights > 1 ? 's' : ''}</strong> to unlock <strong>1 Day FREE Boarding</strong> with code STAY6FREE1!
+                            💡 Tip: 6+ night stays get <strong>1 Day 100% FREE</strong> with code STAY6FREE1!
                           </div>
                         )}
                       </div>
@@ -3197,46 +3181,57 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setConfirmNights((prev) => Math.max(1, prev - 1))}
-                            disabled={confirmNights <= 1}
-                            className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 disabled:opacity-30 disabled:cursor-not-allowed font-black text-base flex items-center justify-center transition-all shadow-2xs"
-                          >
-                            -
-                          </button>
-                          <span className="text-sm font-black font-mono w-14 text-center">
-                            {confirmNights} nt{confirmNights > 1 ? 's' : ''}
+                      {confirmModalData.existingItemId ? (
+                        <div className="p-2 bg-white rounded-xl border border-black/10 flex items-center justify-between">
+                          <span className="text-xs font-black text-sanctuary-dark">
+                            {confirmNights} Night{confirmNights > 1 ? 's' : ''} Stay (Selected)
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmNights((prev) => Math.min(60, prev + 1))}
-                            className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 font-black text-base flex items-center justify-center transition-all shadow-2xs"
-                          >
-                            +
-                          </button>
+                          <span className="text-[9px] text-sanctuary-dark/60 font-semibold bg-sanctuary-sand px-2 py-0.5 rounded-full">
+                            Editable in cart
+                          </span>
                         </div>
-
-                        {/* Quick preset chips */}
-                        <div className="flex items-center gap-1">
-                          {[2, 4, 6, 10].map((n) => (
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
                             <button
-                              key={n}
                               type="button"
-                              onClick={() => setConfirmNights(n)}
-                              className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                                confirmNights === n
-                                  ? 'bg-sanctuary-forest text-white'
-                                  : 'bg-white border border-black/10 hover:border-black/30 text-sanctuary-dark'
-                              }`}
+                              onClick={() => setConfirmNights((prev) => Math.max(1, prev - 1))}
+                              disabled={confirmNights <= 1}
+                              className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 disabled:opacity-30 disabled:cursor-not-allowed font-black text-base flex items-center justify-center transition-all shadow-2xs"
                             >
-                              {n}d{n === 6 ? ' ⭐' : ''}
+                              -
                             </button>
-                          ))}
+                            <span className="text-sm font-black font-mono w-14 text-center">
+                              {confirmNights} nt{confirmNights > 1 ? 's' : ''}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmNights((prev) => Math.min(60, prev + 1))}
+                              className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 font-black text-base flex items-center justify-center transition-all shadow-2xs"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* Quick preset chips */}
+                          <div className="flex items-center gap-1">
+                            {[2, 4, 6, 10].map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() => setConfirmNights(n)}
+                                className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                                  confirmNights === n
+                                    ? 'bg-sanctuary-forest text-white'
+                                    : 'bg-white border border-black/10 hover:border-black/30 text-sanctuary-dark'
+                                }`}
+                              >
+                                {n}d{n === 6 ? ' ⭐' : ''}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <p className="text-[10px] text-sanctuary-dark/65 font-medium">
                         Check-in at {checkInDate || 'selected date'} → Estimated check-out on {calculateCheckoutDate(checkInDate || new Date().toISOString().split('T')[0], confirmNights)}.

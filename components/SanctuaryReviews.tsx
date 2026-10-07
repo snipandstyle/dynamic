@@ -103,7 +103,7 @@ export const SanctuaryReviews: React.FC = () => {
         {/* Link to Google Maps */}
         <div className="text-center pt-2">
           <a
-            href="https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru"
+            href="https://maps.app.goo.gl/MqFTrZiLPbttv3eD6"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-sanctuary-dark hover:text-sanctuary-gold transition-colors"

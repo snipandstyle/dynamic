@@ -195,7 +195,7 @@ export const GroomingSection: React.FC<GroomingSectionProps> = ({ onOpenBooking 
             </div>
           </div>
           <a
-            href="https://maps.google.com/?q=Snip+and+Style+Kanakapura+Road+Bengaluru"
+            href="https://maps.app.goo.gl/MqFTrZiLPbttv3eD6"
             target="_blank"
             rel="noopener noreferrer"
             className="py-1.5 px-3 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs transition-colors ml-auto sm:ml-0"
