@@ -55,7 +55,7 @@ export function getUTMParams(): UTMParams {
 export function isAdVisitor(): boolean {
   if (typeof window === 'undefined') return false;
   const searchParams = new URLSearchParams(window.location.search);
-  const hash = window.location.hash.toLowerCase();
+  const pathname = window.location.pathname.toLowerCase();
 
   return (
     searchParams.has('ad') ||
@@ -64,7 +64,7 @@ export function isAdVisitor(): boolean {
     searchParams.has('utm_source') ||
     searchParams.has('gclid') ||
     searchParams.has('fbclid') ||
-    hash === '#boarding'
+    pathname.includes('/boarding')
   );
 }
 

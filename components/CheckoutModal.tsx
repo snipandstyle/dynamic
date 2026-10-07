@@ -29,12 +29,14 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialBooking?: BookingDetails;
+  isFullPage?: boolean;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   isOpen,
   onClose,
   initialBooking,
+  isFullPage = false,
 }) => {
   // 1. Authenticated User State (Phone + Password Only)
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -271,33 +273,92 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   // Initialize service cart when modal opens
   useEffect(() => {
     if (isOpen) {
-      if (initialBooking) {
-        if (initialBooking.petType) setPetType(initialBooking.petType);
-        if (initialBooking.petSize) setPetSize(initialBooking.petSize);
-        if (initialBooking.catType) setCatType(initialBooking.catType);
+      let bookingToLoad = initialBooking;
 
-        const nightsCount = initialBooking.nights || (initialBooking.type === 'boarding' ? 4 : 1);
-        const calculatedPrice = initialBooking.type === 'boarding'
-          ? initialBooking.basePrice * nightsCount
-          : initialBooking.basePrice;
-        const calculatedOrig = initialBooking.type === 'boarding'
-          ? (initialBooking.origPrice || (initialBooking.basePrice + 125)) * nightsCount
-          : (initialBooking.origPrice || initialBooking.basePrice + 150);
+      if (!bookingToLoad && typeof window !== 'undefined') {
+        try {
+          const stored = sessionStorage.getItem('snip_pending_booking');
+          if (stored) {
+            bookingToLoad = JSON.parse(stored);
+            sessionStorage.removeItem('snip_pending_booking');
+          }
+        } catch {}
+
+        if (!bookingToLoad && window.location.search) {
+          const sp = new URLSearchParams(window.location.search);
+          const serviceType = (sp.get('service') as 'boarding' | 'grooming') || (sp.get('type') as 'boarding' | 'grooming') || null;
+          const couponParam = (sp.get('coupon') || sp.get('appliedCouponCode') || '').trim();
+          const nightsParam = parseInt(sp.get('nights') || (serviceType === 'boarding' ? '4' : '1'), 10);
+          const petTypeParam = (sp.get('petType') as 'dog' | 'cat') || 'dog';
+          const petSizeParam = (sp.get('petSize') as 'small' | 'medium' | 'large') || 'small';
+          const catTypeParam = (sp.get('catType') as 'neutered' | 'non-neutered') || 'neutered';
+          const packageParam = sp.get('package') || sp.get('serviceName');
+          const priceParam = sp.get('price') ? parseInt(sp.get('price')!, 10) : undefined;
+
+          if (serviceType) {
+            bookingToLoad = {
+              type: serviceType,
+              serviceName: packageParam || (serviceType === 'boarding' ? 'Cage-Free Boarding Floor' : 'Full Grooming Spa Experience'),
+              basePrice: priceParam || (serviceType === 'boarding' ? 625 : 750),
+              origPrice: (priceParam || (serviceType === 'boarding' ? 625 : 750)) + 125,
+              petType: petTypeParam,
+              petSize: petSizeParam,
+              catType: catTypeParam,
+              nights: nightsParam,
+              appliedCouponCode: couponParam,
+            };
+          } else if (couponParam.toUpperCase() === 'STAY6FREE1') {
+            bookingToLoad = {
+              type: 'boarding',
+              serviceName: 'Cage-Free Boarding Floor (6+ Days)',
+              basePrice: 625,
+              origPrice: 750,
+              petType: petTypeParam,
+              petSize: petSizeParam,
+              nights: 6,
+              appliedCouponCode: 'STAY6FREE1',
+            };
+          } else if (couponParam.toUpperCase() === 'GROOM500') {
+            bookingToLoad = {
+              type: 'grooming',
+              serviceName: 'Full Grooming Spa Experience',
+              basePrice: 750,
+              origPrice: 900,
+              petType: petTypeParam,
+              petSize: petSizeParam,
+              appliedCouponCode: 'GROOM500',
+            };
+          }
+        }
+      }
+
+      if (bookingToLoad) {
+        if (bookingToLoad.petType) setPetType(bookingToLoad.petType);
+        if (bookingToLoad.petSize) setPetSize(bookingToLoad.petSize);
+        if (bookingToLoad.catType) setCatType(bookingToLoad.catType);
+
+        const nightsCount = bookingToLoad.nights || (bookingToLoad.type === 'boarding' ? 4 : 1);
+        const calculatedPrice = bookingToLoad.type === 'boarding'
+          ? bookingToLoad.basePrice * nightsCount
+          : bookingToLoad.basePrice;
+        const calculatedOrig = bookingToLoad.type === 'boarding'
+          ? (bookingToLoad.origPrice || (bookingToLoad.basePrice + 125)) * nightsCount
+          : (bookingToLoad.origPrice || bookingToLoad.basePrice + 150);
 
         const primaryItem: CheckoutServiceItem = {
           id: `srv_${Date.now()}`,
-          category: initialBooking.type,
-          name: initialBooking.serviceName,
-          subtitle: initialBooking.type === 'boarding' ? `${nightsCount} Nights Stay` : `${(initialBooking.petSize || 'small').toUpperCase()} Tier`,
+          category: bookingToLoad.type,
+          name: bookingToLoad.serviceName,
+          subtitle: bookingToLoad.type === 'boarding' ? `${nightsCount} Nights Stay` : `${(bookingToLoad.petSize || 'small').toUpperCase()} Tier`,
           price: calculatedPrice,
           origPrice: calculatedOrig,
-          nights: initialBooking.type === 'boarding' ? nightsCount : undefined,
+          nights: bookingToLoad.type === 'boarding' ? nightsCount : undefined,
         };
 
         const initialList: CheckoutServiceItem[] = [primaryItem];
-        const requestedCode = (initialBooking.appliedCouponCode || initialBooking.couponCode || '').trim().toUpperCase();
+        const requestedCode = (bookingToLoad.appliedCouponCode || bookingToLoad.couponCode || '').trim().toUpperCase();
 
-        if (requestedCode === 'FREESPA' && initialBooking.type === 'boarding' && nightsCount >= 4) {
+        if (requestedCode === 'FREESPA' && bookingToLoad.type === 'boarding' && nightsCount >= 4) {
           initialList.push({
             id: 'free_perk_spa_4',
             category: 'grooming',
@@ -312,7 +373,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             label: 'Free Furry Fresh Spa Bath (₹749 Value)',
             isFreePerk: true,
           });
-        } else if (requestedCode === 'FREESPA8' && initialBooking.type === 'boarding' && nightsCount >= 8) {
+        } else if (requestedCode === 'FREESPA8' && bookingToLoad.type === 'boarding' && nightsCount >= 8) {
           initialList.push({
             id: 'free_perk_spa_8',
             category: 'grooming',
@@ -327,7 +388,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             label: 'Free Special Care Spa (₹999 Value)',
             isFreePerk: true,
           });
-        } else if (requestedCode === 'FREESPA15' && initialBooking.type === 'boarding' && nightsCount >= 15) {
+        } else if (requestedCode === 'FREESPA15' && bookingToLoad.type === 'boarding' && nightsCount >= 15) {
           initialList.push({
             id: 'free_perk_spa_15',
             category: 'grooming',
@@ -342,20 +403,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             label: 'Free Luxury Grooming Spa (₹2,199 Value)',
             isFreePerk: true,
           });
-        } else if (requestedCode === 'STAY6FREE1' && initialBooking.type === 'boarding' && nightsCount >= 6) {
+        } else if (requestedCode === 'STAY6FREE1' && bookingToLoad.type === 'boarding' && nightsCount >= 6) {
           const oneDayRate = Math.round(calculatedPrice / nightsCount) || 625;
           setAppliedCoupon({
             code: 'STAY6FREE1',
             flatDiscount: oneDayRate,
             label: `1 Day FREE Boarding (-₹${oneDayRate})`,
           });
-        } else if (requestedCode === 'GROOM500' && initialBooking.type === 'grooming' && calculatedPrice >= 500) {
+        } else if (requestedCode === 'GROOM500' && bookingToLoad.type === 'grooming' && calculatedPrice >= 500) {
           setAppliedCoupon({
             code: 'GROOM500',
             label: 'Free In-Store Perk (Bath or Nail Clip)',
             isFreePerk: true,
           });
-        } else if (requestedCode === 'GROOM10' && initialBooking.type === 'grooming' && calculatedPrice >= 1000) {
+        } else if (requestedCode === 'GROOM10' && bookingToLoad.type === 'grooming' && calculatedPrice >= 1000) {
           setAppliedCoupon({
             code: 'GROOM10',
             discountPercent: 10,
@@ -1181,40 +1242,50 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-md overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 10 }}
-        className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-black/10 overflow-hidden text-left relative"
-      >
-        {/* Top Gold Stripe */}
-        <div className="h-1.5 bg-gradient-to-r from-sanctuary-gold via-amber-400 to-sanctuary-forest shrink-0" />
+  const cardInnerContent = (
+    <div
+      className={`bg-white rounded-3xl ${
+        isFullPage
+          ? 'w-full shadow-xl border border-black/10 overflow-hidden text-left relative flex flex-col'
+          : 'max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-black/10 overflow-hidden text-left relative'
+      }`}
+    >
+      {/* Top Gold Stripe */}
+      <div className="h-1.5 bg-gradient-to-r from-sanctuary-gold via-amber-400 to-sanctuary-forest shrink-0" />
 
-        {/* Compact Modal Header */}
-        <div className="px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between border-b border-black/5 bg-[#FAF8F5] shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-black">
-              <span className="material-symbols-outlined text-base">storefront</span>
-            </div>
-            <div>
-              <h2 className="text-sm sm:text-base font-black text-sanctuary-dark leading-tight">
-                Review & Book Studio Visit
-              </h2>
-              <p className="text-[10px] text-amber-900 font-bold flex items-center gap-1">
-                <span>📍 In-Store Visit • Kanakapura Main Road Studio</span>
-              </p>
-            </div>
+      {/* Compact Modal Header */}
+      <div className="px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between border-b border-black/5 bg-[#FAF8F5] shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="size-8 rounded-lg bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-black">
+            <span className="material-symbols-outlined text-base">storefront</span>
           </div>
+          <div>
+            <h2 className="text-sm sm:text-base font-black text-sanctuary-dark leading-tight">
+              Review & Book Studio Visit
+            </h2>
+            <p className="text-[10px] text-amber-900 font-bold flex items-center gap-1">
+              <span>📍 In-Store Visit • Kanakapura Main Road Studio</span>
+            </p>
+          </div>
+        </div>
 
+        {isFullPage ? (
+          <a
+            href="/"
+            className="py-1 px-3 rounded-lg bg-black/5 hover:bg-black/10 text-xs font-bold text-sanctuary-dark transition-colors flex items-center gap-1"
+          >
+            <span className="material-symbols-outlined text-xs">arrow_back</span>
+            <span>Back</span>
+          </a>
+        ) : (
           <button
             onClick={onClose}
             className="size-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors text-sanctuary-dark"
           >
             <span className="material-symbols-outlined text-xs">close</span>
           </button>
-        </div>
+        )}
+      </div>
 
         {/* ============================================================ */}
         {/* SUCCESS CONFIRMATION VIEW */}
@@ -1383,20 +1454,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div className="flex gap-2 pt-1 justify-center">
               <button
-                onClick={() => { setBookingSuccess(null); onClose(); }}
-                className="py-2 px-5 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-sm"
+                onClick={() => {
+                  setBookingSuccess(null);
+                  if (isFullPage) {
+                    window.location.href = '/';
+                  } else {
+                    onClose();
+                  }
+                }}
+                className="py-2.5 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-sm"
               >
-                Done
+                {isFullPage ? 'Return to Home' : 'Done'}
               </button>
               <button
                 onClick={() => {
                   setBookingSuccess(null);
-                  onClose();
-                  window.dispatchEvent(new CustomEvent('snip_open_auth'));
+                  if (isFullPage) {
+                    window.location.href = '/account';
+                  } else {
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('snip_open_auth'));
+                  }
                 }}
-                className="py-2 px-5 bg-sanctuary-sand hover:bg-black/10 text-sanctuary-dark rounded-xl text-xs font-black uppercase tracking-wider transition-colors border border-black/10"
+                className="py-2.5 px-6 bg-sanctuary-sand hover:bg-black/10 text-sanctuary-dark rounded-xl text-xs font-black uppercase tracking-wider transition-colors border border-black/10"
               >
-                View Account
+                View in My Account
               </button>
             </div>
           </div>
@@ -1404,7 +1486,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           /* ============================================================ */
           /* SCROLLABLE COMPACT CHECKOUT BODY */
           /* ============================================================ */
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 max-h-[64vh]">
+          <div className={`flex-1 ${isFullPage ? 'p-4 sm:p-6 space-y-4' : 'overflow-y-auto p-4 sm:p-5 space-y-3 max-h-[64vh]'}`}>
 
             {/* IN-STORE STUDIO VISIT EXPLANATION BANNER */}
             <div className="p-3 bg-gradient-to-r from-amber-50 via-white to-amber-50/80 rounded-2xl border border-amber-300 text-xs space-y-1 shadow-xs">
@@ -2357,7 +2439,95 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
           )}
         </AnimatePresence>
+    </div>
+  );
 
+  if (isFullPage) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5] text-sanctuary-dark flex flex-col">
+        {/* Full Page Header */}
+        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-black/5 px-4 sm:px-6 py-2.5">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <a href="/" className="flex items-center select-none py-0.5">
+              <img
+                src="/images/logo.png"
+                alt="Snip & Style Pet Grooming"
+                className="h-10 sm:h-12 w-auto object-contain rounded-lg"
+              />
+            </a>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                <span className="material-symbols-outlined text-sm text-emerald-700">lock</span>
+                <span>256-Bit SSL Secured</span>
+              </div>
+
+              <a
+                href="/"
+                className="inline-flex items-center gap-1 text-xs font-bold text-sanctuary-dark/70 hover:text-sanctuary-dark px-3 py-1.5 rounded-xl border border-black/10 hover:border-black/20 hover:bg-black/5 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">arrow_back</span>
+                <span>Back to Home</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* Full Page Main */}
+        <main className="flex-1 py-6 sm:py-10 px-3 sm:px-6 flex flex-col items-center">
+          <div className="w-full max-w-xl">
+            {/* Top breadcrumb & studio location banner */}
+            <div className="mb-4 bg-white/80 rounded-2xl p-3 border border-black/5 flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-lg bg-sanctuary-forest text-sanctuary-gold flex items-center justify-center font-black">
+                  <span className="material-symbols-outlined text-base">storefront</span>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-sanctuary-dark">Snip & Style Studio Reservation</p>
+                  <p className="text-[10px] text-amber-900 font-bold">📍 Kanakapura Main Road, Bangalore (Near Shani Mahatma Temple)</p>
+                </div>
+              </div>
+              <a
+                href={STUDIO_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] font-black uppercase tracking-wider text-sanctuary-forest hover:underline shrink-0 flex items-center gap-0.5"
+              >
+                <span>Maps</span>
+                <span className="material-symbols-outlined text-xs">open_in_new</span>
+              </a>
+            </div>
+
+            {cardInnerContent}
+          </div>
+        </main>
+
+        {/* Full Page Footer */}
+        <footer className="py-6 px-4 bg-white border-t border-black/5 text-center text-xs text-sanctuary-dark/60 font-medium">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© {new Date().getFullYear()} Snip & Style. All rights reserved.</p>
+            <div className="flex items-center gap-4 text-xs font-semibold">
+              <a href="/terms" className="hover:underline">Terms of Service</a>
+              <span>•</span>
+              <a href="/privacy" className="hover:underline">Privacy Policy</a>
+              <span>•</span>
+              <a href="tel:+919739887770" className="hover:underline">+91 9739887770</a>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-md overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        className="w-full max-w-lg"
+      >
+        {cardInnerContent}
       </motion.div>
     </div>
   );

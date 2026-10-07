@@ -31,8 +31,12 @@ import { getUTMParams, isAdVisitor } from './utils/analytics';
 
 export type PageId = 'home' | 'boarding' | 'grooming' | 'about' | 'reviews' | 'safety' | 'gallery' | 'contact' | 'pack' | 'admin' | 'account';
 
-const App: React.FC = () => {
-  const [activePage, setActivePage] = useState<PageId>('home');
+export interface AppProps {
+  initialPage?: PageId;
+}
+
+const App: React.FC<AppProps> = ({ initialPage = 'home' }) => {
+  const [activePage, setActivePage] = useState<PageId>(initialPage);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | undefined>(undefined);
   const [isPosterOpen, setIsPosterOpen] = useState<boolean>(false);
@@ -41,18 +45,36 @@ const App: React.FC = () => {
   const [isTermsOpen, setIsTermsOpen] = useState<boolean>(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState<boolean>(false);
 
+  // Navigate directly to /checkout route with encoded booking parameters
   const openBookingWithDetails = (details?: BookingDetails) => {
-    if (details) setSelectedBooking(details);
-    setIsCheckoutOpen(true);
+    const params = new URLSearchParams();
+    if (details) {
+      if (details.type) params.set('service', details.type);
+      if (details.nights) params.set('nights', details.nights.toString());
+      if (details.serviceName) params.set('package', details.serviceName);
+      if (details.basePrice) params.set('price', details.basePrice.toString());
+      if (details.appliedCouponCode || details.couponCode) {
+        params.set('coupon', details.appliedCouponCode || details.couponCode || '');
+      }
+      if (details.petType) params.set('petType', details.petType);
+      if (details.petSize) params.set('petSize', details.petSize);
+      if (details.catType) params.set('catType', details.catType);
+      try {
+        sessionStorage.setItem('snip_pending_booking', JSON.stringify(details));
+      } catch {}
+    }
+    const q = params.toString();
+    window.location.href = q ? `/checkout?${q}` : '/checkout';
   };
 
-  // Global event listener for custom booking trigger and auth modal
+  // Global event listener for custom booking triggers and auth navigation
   useEffect(() => {
     const handleCustomBooking = (e: any) => {
-      if (e.detail) setSelectedBooking(e.detail);
-      setIsCheckoutOpen(true);
+      openBookingWithDetails(e.detail);
     };
-    const handleOpenAuth = () => setIsAuthOpen(true);
+    const handleOpenAuth = () => {
+      window.location.href = '/account';
+    };
     window.addEventListener('snip_open_booking', handleCustomBooking as EventListener);
     window.addEventListener('snip_open_auth', handleOpenAuth);
     return () => {
@@ -73,31 +95,32 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Attribution tracking & URL deep linking for /admin, ads, or hash navigation
+  // Clean path-based routing & attribution tracking
   useEffect(() => {
     getUTMParams();
 
     const searchParams = new URLSearchParams(window.location.search);
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    const pathname = window.location.pathname.toLowerCase();
+    const pathname = window.location.pathname.toLowerCase().replace(/^\/+/, '');
     const isAd = isAdVisitor();
 
-    if (pathname.includes('/admin') || hash === 'admin' || searchParams.get('page') === 'admin') {
-      setActivePage('admin');
-      setIsAdminOpen(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.location.pathname.startsWith('/admin')) {
+      window.location.href = '/admin';
       return;
     }
 
-    if (pathname.includes('/account') || hash === 'account' || searchParams.get('page') === 'account') {
-      setActivePage('account');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.location.pathname.startsWith('/account')) {
+      window.location.href = '/account';
       return;
     }
 
-    const validPages: PageId[] = ['home' , 'boarding', 'grooming', 'about', 'reviews', 'safety', 'gallery', 'contact', 'pack', 'admin', 'account'];
+    if (window.location.pathname.startsWith('/checkout')) {
+      window.location.href = '/checkout' + (window.location.search || '');
+      return;
+    }
 
-    const target = (searchParams.get('page') || searchParams.get('landing') || (searchParams.has('ad') ? 'boarding' : '') || hash) as PageId;
+    const validPages: PageId[] = ['home', 'boarding', 'grooming', 'about', 'reviews', 'safety', 'gallery', 'contact', 'pack'];
+
+    const target = (pathname || searchParams.get('page') || searchParams.get('landing') || (searchParams.has('ad') ? 'boarding' : '')) as PageId;
 
     if (target && validPages.includes(target)) {
       setActivePage(target);
@@ -108,22 +131,39 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Sync hash with active page for shareable URLs
+  // Handle browser back/forward buttons cleanly
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+/, '').toLowerCase() as PageId;
+      const validPages: PageId[] = ['home', 'boarding', 'grooming', 'about', 'reviews', 'safety', 'gallery', 'contact', 'pack'];
+      if (!path || path === 'home') {
+        setActivePage('home');
+      } else if (validPages.includes(path)) {
+        setActivePage(path);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Clean Next.js path-based navigation (no hashes)
   const navigateTo = (page: string) => {
     if (page === 'admin') {
-      setActivePage('admin');
-      setIsAdminOpen(true);
-      window.history.pushState(null, '', '/admin');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.location.href = '/admin';
+      return;
+    }
+    if (page === 'account') {
+      window.location.href = '/account';
+      return;
+    }
+    if (page === 'checkout') {
+      window.location.href = '/checkout';
       return;
     }
     const p = page as PageId;
     setActivePage(p);
-    if (p === 'home') {
-      window.history.replaceState(null, '', '/' + window.location.search);
-    } else {
-      window.history.replaceState(null, '', `/${window.location.search}#${p}`);
-    }
+    const path = p === 'home' ? '/' : `/${p}`;
+    window.history.pushState(null, '', path + (window.location.search || ''));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -273,7 +313,7 @@ const App: React.FC = () => {
         onClose={() => setIsPosterOpen(false)}
         onApplyAndBook={() => {
           setIsPosterOpen(false);
-          setSelectedBooking({
+          openBookingWithDetails({
             type: 'boarding',
             serviceName: 'Cage-Free Boarding Floor',
             basePrice: 625,
@@ -283,7 +323,6 @@ const App: React.FC = () => {
             nights: 6,
             appliedCouponCode: 'STAY6FREE1',
           });
-          setIsCheckoutOpen(true);
         }}
       />
 

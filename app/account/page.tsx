@@ -7,7 +7,7 @@ export default function Page() {
   return (
     <AccountPage
       onNavigateHome={() => (window.location.href = '/')}
-      onOpenBooking={() => (window.location.href = '/#grooming')}
+      onOpenBooking={() => (window.location.href = '/checkout?service=grooming')}
     />
   );
 }
