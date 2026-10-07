@@ -85,9 +85,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     { id: '07:00 PM – 08:30 PM', label: '07:00 PM – 08:30 PM', period: 'Evening Slot 2' },
   ];
 
-  // Payment Choice: 'online' (Razorpay) or 'at_studio' (Pay at counter during visit)
-  const [paymentChoice, setPaymentChoice] = useState<'online' | 'at_studio'>('online');
+  // Payment Method: Exclusively Secure Online Checkout via Razorpay
   const [copiedMapsLink, setCopiedMapsLink] = useState(false);
+
+  // Confirm Companion & Size Modal State
+  const [confirmModalData, setConfirmModalData] = useState<{
+    category: 'boarding' | 'grooming';
+    serviceKey: 'boarding' | 'furry-fresh' | 'special' | 'style' | 'full-groom';
+    serviceTitle: string;
+    existingItemId?: string;
+  } | null>(null);
+  const [confirmPetType, setConfirmPetType] = useState<'dog' | 'cat'>(petType);
+  const [confirmDogSize, setConfirmDogSize] = useState<'small' | 'medium' | 'large'>(petSize);
+  const [confirmCatType, setConfirmCatType] = useState<'neutered' | 'non-neutered'>(catType);
+  const [confirmNights, setConfirmNights] = useState<number>(4);
 
   // 5. Individual Quick-Care Add-ons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
@@ -526,19 +537,332 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     window.dispatchEvent(new CustomEvent('snip_auth_change'));
   };
 
-  // Add a Service to Cart
-  const handleAddService = (category: 'boarding' | 'grooming', name: string, price: number, origPrice: number, subtitle?: string, nightsCount?: number) => {
-    const newItem: CheckoutServiceItem = {
-      id: `srv_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      category,
-      name,
-      subtitle: subtitle || (category === 'boarding' ? `${nightsCount || 4} Nights` : 'Package'),
-      price: category === 'boarding' ? price * (nightsCount || 4) : price,
-      origPrice: category === 'boarding' ? origPrice * (nightsCount || 4) : origPrice,
-      nights: category === 'boarding' ? (nightsCount || 4) : undefined,
+  // Pricing lookup matrix based on companion species, weight tier, and nights
+  const getServicePriceForPet = (
+    serviceKey: 'boarding' | 'furry-fresh' | 'special' | 'style' | 'full-groom' | string,
+    category: 'boarding' | 'grooming',
+    pType: 'dog' | 'cat',
+    dSize: 'small' | 'medium' | 'large',
+    cType: 'neutered' | 'non-neutered',
+    nightsCount: number = 1
+  ) => {
+    if (category === 'boarding' || serviceKey === 'boarding') {
+      if (pType === 'cat') {
+        const perNight = cType === 'neutered' ? 625 : 750;
+        const origPerNight = cType === 'neutered' ? 750 : 899;
+        return {
+          name: 'Cage-Free Boarding Floor',
+          subtitle: `${nightsCount} Night${nightsCount > 1 ? 's' : ''} Stay (${cType === 'neutered' ? 'Neutered' : 'Non-Neutered'} Cat)`,
+          price: perNight * nightsCount,
+          origPrice: origPerNight * nightsCount,
+          perNight,
+          origPerNight,
+        };
+      } else {
+        const perNight = dSize === 'small' ? 625 : dSize === 'medium' ? 750 : 875;
+        const origPerNight = dSize === 'small' ? 750 : dSize === 'medium' ? 899 : 1050;
+        return {
+          name: 'Cage-Free Boarding Floor',
+          subtitle: `${nightsCount} Night${nightsCount > 1 ? 's' : ''} Stay (${dSize.toUpperCase()} Dog)`,
+          price: perNight * nightsCount,
+          origPrice: origPerNight * nightsCount,
+          perNight,
+          origPerNight,
+        };
+      }
+    }
+
+    if (serviceKey === 'furry-fresh') {
+      if (pType === 'cat') {
+        return {
+          name: 'Furry Fresh Hygiene Bath',
+          subtitle: 'Cat Hygiene Refresh',
+          price: 749,
+          origPrice: 999,
+          perNight: 749,
+          origPerNight: 999,
+        };
+      }
+      const prices = { small: 499, medium: 699, large: 849 };
+      const origs = { small: 649, medium: 899, large: 1099 };
+      return {
+        name: 'Furry Fresh Hygiene Bath',
+        subtitle: `${dSize.toUpperCase()} Dog Hygiene Refresh`,
+        price: prices[dSize],
+        origPrice: origs[dSize],
+        perNight: prices[dSize],
+        origPerNight: origs[dSize],
+      };
+    }
+
+    if (serviceKey === 'special') {
+      if (pType === 'cat') {
+        return {
+          name: 'Special Care & Spa Package',
+          subtitle: 'Cat Oral & Paws Refresh',
+          price: 874,
+          origPrice: 1199,
+          perNight: 874,
+          origPerNight: 1199,
+        };
+      }
+      const prices = { small: 899, medium: 949, large: 999 };
+      const origs = { small: 1124, medium: 1199, large: 1249 };
+      return {
+        name: 'Special Care & Spa Package',
+        subtitle: `${dSize.toUpperCase()} Dog Special Package`,
+        price: prices[dSize],
+        origPrice: origs[dSize],
+        perNight: prices[dSize],
+        origPerNight: origs[dSize],
+      };
+    }
+
+    if (serviceKey === 'style') {
+      const price = pType === 'cat' ? 1799 : dSize === 'small' ? 1799 : dSize === 'medium' ? 2199 : 2599;
+      const origPrice = pType === 'cat' ? 2249 : dSize === 'small' ? 2249 : dSize === 'medium' ? 2749 : 3249;
+      return {
+        name: 'Style Your Pet Breed Trim',
+        subtitle: `${pType === 'cat' ? 'Cat' : `${dSize.toUpperCase()} Dog`} Full Breed Styling`,
+        price,
+        origPrice,
+        perNight: price,
+        origPerNight: origPrice,
+      };
+    }
+
+    // Default: full-grooming
+    const price = pType === 'cat' ? 2199 : dSize === 'small' ? 2199 : dSize === 'medium' ? 2599 : 2999;
+    const origPrice = pType === 'cat' ? 3249 : dSize === 'small' ? 3249 : dSize === 'medium' ? 3749 : 4249;
+    return {
+      name: 'Full Grooming Ultimate Spa',
+      subtitle: `${pType === 'cat' ? 'Cat' : `${dSize.toUpperCase()} Dog`} Full Grooming Spa`,
+      price,
+      origPrice,
+      perNight: price,
+      origPerNight: origPrice,
     };
-    setSelectedServices((prev) => [...prev, newItem]);
+  };
+
+  // Open confirmation modal whenever user adds or configures a service
+  const openAddServiceConfirmation = (
+    category: 'boarding' | 'grooming',
+    serviceKey: 'boarding' | 'furry-fresh' | 'special' | 'style' | 'full-groom',
+    serviceTitle: string,
+    defaultNights: number = 4,
+    existingItemId?: string
+  ) => {
+    setConfirmModalData({ category, serviceKey, serviceTitle, existingItemId });
+    setConfirmPetType(petType);
+    setConfirmDogSize(petSize);
+    setConfirmCatType(catType);
+    setConfirmNights(defaultNights);
     setShowAddServiceDropdown(false);
+  };
+
+  // Confirm size and add/update service in cart
+  const handleConfirmAndAddService = () => {
+    if (!confirmModalData) return;
+
+    // Update global pet specifications
+    setPetType(confirmPetType);
+    setPetSize(confirmDogSize);
+    setCatType(confirmCatType);
+
+    const serviceInfo = getServicePriceForPet(
+      confirmModalData.serviceKey,
+      confirmModalData.category,
+      confirmPetType,
+      confirmDogSize,
+      confirmCatType,
+      confirmNights
+    );
+
+    if (confirmModalData.existingItemId) {
+      // Update existing item
+      setSelectedServices((prev) =>
+        prev.map((item) => {
+          if (item.id === confirmModalData.existingItemId) {
+            return {
+              ...item,
+              name: serviceInfo.name,
+              subtitle: serviceInfo.subtitle,
+              price: serviceInfo.price,
+              origPrice: serviceInfo.origPrice,
+              nights: confirmModalData.category === 'boarding' ? confirmNights : undefined,
+            };
+          }
+          return item;
+        })
+      );
+    } else {
+      // Add new item
+      const newItem: CheckoutServiceItem = {
+        id: `srv_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        category: confirmModalData.category,
+        name: serviceInfo.name,
+        subtitle: serviceInfo.subtitle,
+        price: serviceInfo.price,
+        origPrice: serviceInfo.origPrice,
+        nights: confirmModalData.category === 'boarding' ? confirmNights : undefined,
+      };
+      setSelectedServices((prev) => [...prev, newItem]);
+    }
+
+    setConfirmModalData(null);
+
+    // Auto-update STAY6FREE1 coupon if active
+    if (confirmModalData.category === 'boarding' && confirmNights >= 6 && appliedCoupon?.code === 'STAY6FREE1') {
+      const unitRate = Math.round(serviceInfo.price / confirmNights);
+      setAppliedCoupon({
+        code: 'STAY6FREE1',
+        flatDiscount: unitRate,
+        label: `1 Day FREE Boarding (-₹${unitRate})`,
+      });
+    }
+  };
+
+  // Allow editing number of nights directly on boarding services in the cart
+  const handleUpdateNights = (itemId: string, newNights: number) => {
+    if (newNights < 1 || newNights > 60) return;
+
+    setSelectedServices((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === itemId && item.category === 'boarding') {
+          const currentNights = item.nights || 1;
+          const unitPrice = Math.round(item.price / currentNights);
+          const unitOrig = Math.round(item.origPrice / currentNights);
+          return {
+            ...item,
+            nights: newNights,
+            price: unitPrice * newNights,
+            origPrice: unitOrig * newNights,
+            subtitle: `${newNights} Nights Stay (${petType === 'cat' ? `${catType === 'neutered' ? 'Neutered' : 'Non-Neutered'} Cat` : `${petSize.toUpperCase()} Dog`})`,
+          };
+        }
+        return item;
+      });
+
+      // Recalculate STAY6FREE1 coupon
+      const totalBoardingNights = updated
+        .filter((s) => s.category === 'boarding')
+        .reduce((sum, s) => sum + (s.nights || 1), 0);
+
+      if (appliedCoupon?.code === 'STAY6FREE1') {
+        if (totalBoardingNights >= 6) {
+          const boardingItem = updated.find((s) => s.category === 'boarding');
+          const unitRate = boardingItem ? Math.round(boardingItem.price / (boardingItem.nights || 1)) : 625;
+          setAppliedCoupon({
+            code: 'STAY6FREE1',
+            flatDiscount: unitRate,
+            label: `1 Day FREE Boarding (-₹${unitRate})`,
+          });
+          setCouponError('');
+        } else {
+          setAppliedCoupon(null);
+          setCouponError(`Code STAY6FREE1 requires 6 or more boarding nights (Current: ${totalBoardingNights}).`);
+        }
+      }
+
+      return updated;
+    });
+  };
+
+  // Sync existing cart items if user changes companion size in companion details
+  const handleChangeDogSize = (newSize: 'small' | 'medium' | 'large') => {
+    setPetSize(newSize);
+    setSelectedServices((prev) =>
+      prev.map((item) => {
+        if (item.isFreePerk) return item;
+        if (item.category === 'boarding') {
+          const nightsCount = item.nights || 4;
+          const perNight = newSize === 'small' ? 625 : newSize === 'medium' ? 750 : 875;
+          const origPerNight = newSize === 'small' ? 750 : newSize === 'medium' ? 899 : 1050;
+          return {
+            ...item,
+            price: perNight * nightsCount,
+            origPrice: origPerNight * nightsCount,
+            subtitle: `${nightsCount} Nights Stay (${newSize.toUpperCase()} Dog)`,
+          };
+        }
+        if (item.category === 'grooming') {
+          let key = 'furry-fresh';
+          if (item.name.toLowerCase().includes('special')) key = 'special';
+          else if (item.name.toLowerCase().includes('style')) key = 'style';
+          else if (item.name.toLowerCase().includes('ultimate') || item.name.toLowerCase().includes('full')) key = 'full-groom';
+          const info = getServicePriceForPet(key, 'grooming', 'dog', newSize, catType, 1);
+          return {
+            ...item,
+            price: info.price,
+            origPrice: info.origPrice,
+            subtitle: info.subtitle,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleChangeCatType = (newCatType: 'neutered' | 'non-neutered') => {
+    setCatType(newCatType);
+    setSelectedServices((prev) =>
+      prev.map((item) => {
+        if (item.isFreePerk) return item;
+        if (item.category === 'boarding') {
+          const nightsCount = item.nights || 4;
+          const perNight = newCatType === 'neutered' ? 625 : 750;
+          const origPerNight = newCatType === 'neutered' ? 750 : 899;
+          return {
+            ...item,
+            price: perNight * nightsCount,
+            origPrice: origPerNight * nightsCount,
+            subtitle: `${nightsCount} Nights Stay (${newCatType === 'neutered' ? 'Neutered' : 'Non-Neutered'} Cat)`,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleChangePetType = (newPetType: 'dog' | 'cat') => {
+    setPetType(newPetType);
+    setSelectedServices((prev) =>
+      prev.map((item) => {
+        if (item.isFreePerk) return item;
+        let key = 'furry-fresh';
+        if (item.category === 'boarding') key = 'boarding';
+        else if (item.name.toLowerCase().includes('special')) key = 'special';
+        else if (item.name.toLowerCase().includes('style')) key = 'style';
+        else if (item.name.toLowerCase().includes('ultimate') || item.name.toLowerCase().includes('full')) key = 'full-groom';
+        const info = getServicePriceForPet(key, item.category, newPetType, petSize, catType, item.nights || 4);
+        return {
+          ...item,
+          price: info.price,
+          origPrice: info.origPrice,
+          subtitle: info.subtitle,
+        };
+      })
+    );
+  };
+
+  const calculateCheckoutDate = (dateStr: string, nightsCount: number) => {
+    try {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + nightsCount);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  };
+
+  // Fallback add service directly (now routes to confirmation)
+  const handleAddService = (category: 'boarding' | 'grooming', name: string, price: number, origPrice: number, subtitle?: string, nightsCount?: number) => {
+    let key: any = 'furry-fresh';
+    if (category === 'boarding') key = 'boarding';
+    else if (name.toLowerCase().includes('special')) key = 'special';
+    else if (name.toLowerCase().includes('style')) key = 'style';
+    else if (name.toLowerCase().includes('ultimate') || name.toLowerCase().includes('full')) key = 'full-groom';
+    openAddServiceConfirmation(category, key, name, nightsCount || 4);
   };
 
   const handleRemoveCoupon = () => {
@@ -985,52 +1309,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         specialInstructions: `${petGender.toUpperCase()} • Special notes: ${specialInstructions || 'None'}${claimedPerkTitle ? ` • 🎁 In-Store Free Perk: ${claimedPerkTitle} (Show booking at studio to claim)` : ''}`,
       };
 
-      // Option A: Pay at Studio Counter (Instant Reservation, Pay with Cash/UPI on Visit)
-      if (paymentChoice === 'at_studio') {
-        setIsProcessing(true);
-        setPaymentNotice('Reserving your studio appointment...');
-        try {
-          const token = localStorage.getItem('snip_auth_token');
-          const authHeaders: any = { 'Content-Type': 'application/json' };
-          if (token) authHeaders.Authorization = `Bearer ${token}`;
-
-          const studioRes = await fetch('/api/bookings', {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify({
-              ...bookingPayload,
-              paymentStatus: 'pending',
-              paymentMethod: 'pay_at_studio',
-            }),
-          });
-
-          const studioData = await studioRes.json();
-          if (!studioRes.ok) {
-            throw new Error(studioData.error || 'Failed to reserve booking.');
-          }
-
-          setBookingSuccess({
-            bookingRef: studioData.bookingRef || 'SNS-CONFIRMED',
-            bookingId: studioData.bookingId || '',
-            paymentStatus: `Pay at Studio Counter (₹${finalTotal})`,
-            paymentMethod: 'Pay at Studio (Cash / UPI on Visit)',
-            servicesCount: selectedServices.length,
-            totalAmount: finalTotal,
-            totalSavings,
-            date: `${checkInDate} (${preferredTimeSlot})`,
-            pet: `${petName.trim()}`,
-            claimedPerk: claimedPerkTitle,
-          });
-        } catch (stErr: any) {
-          console.error('[Pay at Studio Error]', stErr);
-          alert('Reservation Error: ' + stErr.message);
-        } finally {
-          setIsProcessing(false);
-        }
-        return;
-      }
-
-      // Option B: Online Razorpay Flow
+      // Online Razorpay Payment Flow (100% Secure & Verified)
       // Step 1: Call Backend to Create Razorpay Order (NO booking is recorded in DB yet!)
       const rzpRes = await fetch('/api/create-order', {
         method: 'POST',
@@ -1664,50 +1943,59 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
               {/* Add Service Quick Dropdown */}
               {showAddServiceDropdown && (
-                <div className="p-2 bg-white rounded-xl border border-sanctuary-gold shadow-md space-y-1 text-xs">
-                  <div className="text-[10px] font-black text-sanctuary-dark/50 uppercase tracking-wider px-1">
-                    Choose Service to Add:
+                <div className="p-2.5 bg-white rounded-2xl border-2 border-sanctuary-gold shadow-lg space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[10px] font-black text-sanctuary-dark/60 uppercase tracking-wider">
+                      Select Service (Confirm Pet Size):
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddServiceDropdown(false)}
+                      className="text-[10px] text-sanctuary-dark/40 hover:text-black font-bold"
+                    >
+                      Close ✕
+                    </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-2 gap-1.5">
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Furry Fresh Hygiene Bath', 499, 649, 'Hygiene Refresh')}
-                      className="p-1.5 rounded-lg border border-black/10 text-left hover:bg-sanctuary-sand"
+                      onClick={() => openAddServiceConfirmation('grooming', 'furry-fresh', 'Furry Fresh Hygiene Bath')}
+                      className="p-2 rounded-xl border border-black/10 text-left hover:bg-sanctuary-sand transition-all"
                     >
-                      <div className="font-bold text-[11px]">Furry Fresh</div>
-                      <div className="text-[10px] text-sanctuary-dark/60 font-black">₹499 (was ₹649)</div>
+                      <div className="font-bold text-[11px] text-sanctuary-dark">🛁 Furry Fresh Bath</div>
+                      <div className="text-[10px] text-emerald-800 font-black">From ₹499 (was ₹649)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Special Package Care', 899, 1124, 'Hygiene + Oral & Paws')}
-                      className="p-1.5 rounded-lg border border-black/10 text-left hover:bg-sanctuary-sand"
+                      onClick={() => openAddServiceConfirmation('grooming', 'special', 'Special Package Care')}
+                      className="p-2 rounded-xl border border-black/10 text-left hover:bg-sanctuary-sand transition-all"
                     >
-                      <div className="font-bold text-[11px]">Special Package</div>
-                      <div className="text-[10px] text-sanctuary-dark/60 font-black">₹899 (was ₹1124)</div>
+                      <div className="font-bold text-[11px] text-sanctuary-dark">✨ Special Package</div>
+                      <div className="text-[10px] text-emerald-800 font-black">From ₹899 (was ₹1,124)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Style Your Pet Breed Trim', 1799, 2249, 'Full Breed Styling')}
-                      className="p-1.5 rounded-lg border border-black/10 text-left hover:bg-sanctuary-sand"
+                      onClick={() => openAddServiceConfirmation('grooming', 'style', 'Style Your Pet Breed Trim')}
+                      className="p-2 rounded-xl border border-black/10 text-left hover:bg-sanctuary-sand transition-all"
                     >
-                      <div className="font-bold text-[11px]">Style Your Pet</div>
-                      <div className="text-[10px] text-sanctuary-dark/60 font-black">₹1,799 (was ₹2249)</div>
+                      <div className="font-bold text-[11px] text-sanctuary-dark">✂️ Style Your Pet</div>
+                      <div className="text-[10px] text-emerald-800 font-black">From ₹1,799 (was ₹2,249)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Full Grooming Ultimate Spa', 2199, 3249, 'Therapeutic Medicated')}
-                      className="p-1.5 rounded-lg border border-black/10 text-left hover:bg-sanctuary-sand"
+                      onClick={() => openAddServiceConfirmation('grooming', 'full-groom', 'Full Grooming Ultimate Spa')}
+                      className="p-2 rounded-xl border border-black/10 text-left hover:bg-sanctuary-sand transition-all"
                     >
-                      <div className="font-bold text-[11px]">Full Grooming Spa</div>
-                      <div className="text-[10px] text-sanctuary-dark/60 font-black">₹2,199 (was ₹3249)</div>
+                      <div className="font-bold text-[11px] text-sanctuary-dark">👑 Full Grooming Spa</div>
+                      <div className="text-[10px] text-emerald-800 font-black">From ₹2,199 (was ₹3,249)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('boarding', 'Cage-Free Boarding Floor', 625, 750, '4 Nights Stay', 4)}
-                      className="p-1.5 rounded-lg border border-black/10 text-left hover:bg-sanctuary-sand col-span-2"
+                      onClick={() => openAddServiceConfirmation('boarding', 'boarding', 'Cage-Free Boarding Floor', 4)}
+                      className="p-2 rounded-xl border border-sanctuary-gold bg-amber-50/50 text-left hover:bg-amber-100/60 col-span-2 transition-all"
                     >
-                      <div className="font-bold text-[11px]">Cage-Free Boarding Floor (4 Nights)</div>
-                      <div className="text-[10px] text-sanctuary-dark/60 font-black">₹2,500 (was ₹3,000)</div>
+                      <div className="font-bold text-[11px] text-sanctuary-dark">🐕 Cage-Free Boarding Floor (Select Nights)</div>
+                      <div className="text-[10px] text-emerald-800 font-black">From ₹625/nt (was ₹750/nt) • 6+ Nts: 1 Day FREE!</div>
                     </button>
                   </div>
                 </div>
@@ -1726,82 +2014,150 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="grid grid-cols-2 gap-1.5 pt-1">
                     <button
                       type="button"
-                      onClick={() => handleAddService('boarding', 'Cage-Free Boarding Floor', 625, 750, '4 Nights Stay', 4)}
+                      onClick={() => openAddServiceConfirmation('boarding', 'boarding', 'Cage-Free Boarding Floor', 4)}
                       className="p-2 rounded-xl border border-sanctuary-gold bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
                     >
-                      <div className="text-[11px] font-black text-sanctuary-dark">🐕 Boarding (4 Nights)</div>
-                      <div className="text-[10px] text-emerald-700 font-bold">₹2,500 (Save ₹500)</div>
+                      <div className="text-[11px] font-black text-sanctuary-dark">🐕 Boarding (Custom Nights)</div>
+                      <div className="text-[10px] text-emerald-700 font-bold">From ₹625/night</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Special Grooming Package', 899, 1124, 'Hygiene + Oral & Paws')}
+                      onClick={() => openAddServiceConfirmation('grooming', 'special', 'Special Grooming Package')}
                       className="p-2 rounded-xl border border-sanctuary-gold bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
                     >
                       <div className="text-[11px] font-black text-sanctuary-dark">✨ Special Grooming</div>
-                      <div className="text-[10px] text-emerald-700 font-bold">₹899 (Save ₹225)</div>
+                      <div className="text-[10px] text-emerald-700 font-bold">From ₹899 (Save ₹225)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Furry Fresh Hygiene Bath', 499, 649, 'Hygiene Refresh')}
+                      onClick={() => openAddServiceConfirmation('grooming', 'furry-fresh', 'Furry Fresh Hygiene Bath')}
                       className="p-2 rounded-xl border border-black/10 bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
                     >
                       <div className="text-[11px] font-black text-sanctuary-dark">🛁 Furry Fresh Bath</div>
-                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">₹499 (was ₹649)</div>
+                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">From ₹499 (was ₹649)</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleAddService('grooming', 'Style Your Pet Breed Trim', 1799, 2249, 'Full Breed Styling')}
+                      onClick={() => openAddServiceConfirmation('grooming', 'style', 'Style Your Pet Breed Trim')}
                       className="p-2 rounded-xl border border-black/10 bg-white hover:bg-sanctuary-sand text-left shadow-2xs transition-all"
                     >
                       <div className="text-[11px] font-black text-sanctuary-dark">✂️ Breed Styling</div>
-                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">₹1,799 (was ₹2,249)</div>
+                      <div className="text-[10px] text-sanctuary-dark/70 font-bold">From ₹1,799 (was ₹2,249)</div>
                     </button>
                   </div>
                 </div>
               )}
 
               {/* Service Cards List */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {selectedServices.map((item) => (
                   <div
                     key={item.id}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                    className={`p-3 rounded-2xl border transition-all ${
                       item.isFreePerk || item.price === 0
                         ? 'border-emerald-300 bg-emerald-50/80 shadow-xs'
                         : 'border-black/10 bg-white shadow-2xs'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-black text-sanctuary-dark">{item.name}</span>
-                        {item.isFreePerk || item.price === 0 ? (
-                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
-                            🎁 FREE PERK (₹0)
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-black text-sanctuary-dark text-xs">{item.name}</span>
+                          {item.isFreePerk || item.price === 0 ? (
+                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                              🎁 FREE PERK (₹0)
+                            </span>
+                          ) : item.subtitle ? (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sanctuary-sand text-sanctuary-dark/70">
+                              {item.subtitle}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] line-through text-red-500 font-bold decoration-red-400">
+                            ₹{item.origPrice}
                           </span>
-                        ) : item.subtitle ? (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-sanctuary-sand text-sanctuary-dark/70">
-                            {item.subtitle}
+                          <span className={`text-xs font-black ${item.price === 0 ? 'text-emerald-700 font-black' : 'text-sanctuary-forest'}`}>
+                            {item.price === 0 ? 'FREE (₹0)' : `₹${item.price}`}
                           </span>
-                        ) : null}
+                          {item.category === 'boarding' && item.nights && (
+                            <span className="text-[10px] text-sanctuary-dark/50 font-medium">
+                              (₹{Math.round(item.price / item.nights)}/night)
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] line-through text-red-500 font-bold decoration-red-400">
-                          ₹{item.origPrice}
-                        </span>
-                        <span className={`text-xs font-black ${item.price === 0 ? 'text-emerald-700 font-black' : 'text-sanctuary-forest'}`}>
-                          {item.price === 0 ? 'FREE (₹0)' : `₹${item.price}`}
-                        </span>
-                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveService(item.id)}
+                        className="size-6 rounded-full hover:bg-red-50 text-sanctuary-dark/40 hover:text-red-600 flex items-center justify-center transition-colors shrink-0"
+                        title={item.isFreePerk ? 'Remove free perk' : 'Remove service'}
+                      >
+                        <span className="material-symbols-outlined text-xs">close</span>
+                      </button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveService(item.id)}
-                      className="size-6 rounded-full hover:bg-red-50 text-sanctuary-dark/40 hover:text-red-600 flex items-center justify-center transition-colors shrink-0"
-                      title={item.isFreePerk ? 'Remove free perk' : 'Remove service'}
-                    >
-                      <span className="material-symbols-outlined text-xs">close</span>
-                    </button>
+                    {/* Interactive controls: Nights Stepper & Size Confirmation */}
+                    {!item.isFreePerk && (
+                      <div className="mt-2 pt-2 border-t border-black/5 flex items-center justify-between flex-wrap gap-2 text-xs">
+                        {item.category === 'boarding' ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-sanctuary-dark/70">Nights:</span>
+                            <div className="inline-flex items-center rounded-lg border border-black/15 bg-sanctuary-sand/60 overflow-hidden">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateNights(item.id, Math.max(1, (item.nights || 1) - 1))}
+                                disabled={(item.nights || 1) <= 1}
+                                className="px-2 py-0.5 text-xs font-bold hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Decrease nights"
+                              >
+                                -
+                              </button>
+                              <span className="px-2 py-0.5 text-xs font-black font-mono">
+                                {item.nights || 1} nt{(item.nights || 1) > 1 ? 's' : ''}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateNights(item.id, Math.min(60, (item.nights || 1) + 1))}
+                                className="px-2 py-0.5 text-xs font-bold hover:bg-black/10"
+                                title="Increase nights"
+                              >
+                                +
+                              </button>
+                            </div>
+                            {(item.nights || 1) >= 6 && (
+                              <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                🎁 1 Day Free Eligible
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-sanctuary-dark/60 font-medium">
+                            Category: Grooming Salon
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (item.category === 'boarding') {
+                              openAddServiceConfirmation('boarding', 'boarding', item.name, item.nights || 4, item.id);
+                            } else {
+                              let key: any = 'furry-fresh';
+                              if (item.name.toLowerCase().includes('special')) key = 'special';
+                              else if (item.name.toLowerCase().includes('style')) key = 'style';
+                              else if (item.name.toLowerCase().includes('ultimate') || item.name.toLowerCase().includes('full')) key = 'full-groom';
+                              openAddServiceConfirmation('grooming', key, item.name, 1, item.id);
+                            }
+                          }}
+                          className="text-[10px] font-black text-sanctuary-forest hover:text-black flex items-center gap-1 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300 transition-colors ml-auto"
+                        >
+                          <span className="material-symbols-outlined text-xs text-amber-700">tune</span>
+                          <span>Confirm / Change Pet Size</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1906,11 +2262,104 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="space-y-3 pt-2 border-t border-black/5">
               
               {/* 4a. Companion Details */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
-                  Companion Details
-                </span>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                    Companion Profile & Size
+                  </span>
+                  <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Live Rates Synced to Cart
+                  </span>
+                </div>
+
+                {/* Species Toggle: Dog vs Cat */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleChangePetType('dog')}
+                    className={`p-2 rounded-xl border flex items-center justify-center gap-2 transition-all ${
+                      petType === 'dog'
+                        ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                        : 'bg-white border-black/10 text-sanctuary-dark font-bold hover:border-sanctuary-gold'
+                    }`}
+                  >
+                    <span className="text-sm">🐕</span>
+                    <span className="text-xs">Dog / Canine</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChangePetType('cat')}
+                    className={`p-2 rounded-xl border flex items-center justify-center gap-2 transition-all ${
+                      petType === 'cat'
+                        ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                        : 'bg-white border-black/10 text-sanctuary-dark font-bold hover:border-sanctuary-gold'
+                    }`}
+                  >
+                    <span className="text-sm">🐈</span>
+                    <span className="text-xs">Cat / Feline</span>
+                  </button>
+                </div>
+
+                {/* Weight / Profile Tier */}
+                {petType === 'dog' ? (
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold text-sanctuary-dark/60 block">Dog Size Tier (Changes Cart Pricing):</span>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[
+                        { id: 'small', label: 'Small', desc: '< 10 kg', sub: 'Shih Tzu, Pug' },
+                        { id: 'medium', label: 'Medium', desc: '10–25 kg', sub: 'Beagle, Indie' },
+                        { id: 'large', label: 'Large', desc: '> 25 kg', sub: 'Lab, Golden' },
+                      ].map((tier) => (
+                        <button
+                          key={tier.id}
+                          type="button"
+                          onClick={() => handleChangeDogSize(tier.id as any)}
+                          className={`p-1.5 rounded-xl border text-center transition-all ${
+                            petSize === tier.id
+                              ? 'bg-amber-100 border-amber-600 text-amber-950 font-black ring-1 ring-amber-500 shadow-2xs'
+                              : 'bg-white border-black/10 text-sanctuary-dark hover:border-amber-300'
+                          }`}
+                        >
+                          <div className="text-[11px] font-bold">{tier.label}</div>
+                          <div className="text-[9px] text-sanctuary-dark/60 font-medium">{tier.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold text-sanctuary-dark/60 block">Cat Profile Tier:</span>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleChangeCatType('neutered')}
+                        className={`p-1.5 rounded-xl border text-left transition-all ${
+                          catType === 'neutered'
+                            ? 'bg-amber-100 border-amber-600 text-amber-950 font-black ring-1 ring-amber-500 shadow-2xs'
+                            : 'bg-white border-black/10 text-sanctuary-dark hover:border-amber-300'
+                        }`}
+                      >
+                        <div className="text-[11px] font-bold">Neutered Cat</div>
+                        <div className="text-[9px] text-emerald-800 font-bold">₹625 / night</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleChangeCatType('non-neutered')}
+                        className={`p-1.5 rounded-xl border text-left transition-all ${
+                          catType === 'non-neutered'
+                            ? 'bg-amber-100 border-amber-600 text-amber-950 font-black ring-1 ring-amber-500 shadow-2xs'
+                            : 'bg-white border-black/10 text-sanctuary-dark hover:border-amber-300'
+                        }`}
+                      >
+                        <div className="text-[11px] font-bold">Non-Neutered Cat</div>
+                        <div className="text-[9px] text-emerald-800 font-bold">₹750 / night</div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pet Name & Breed Inputs */}
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
                   <input
                     type="text"
                     required
@@ -1929,119 +2378,201 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               </div>
 
-              {/* 4b. Date & Time of Store Visit */}
-              <div className="p-3 bg-sanctuary-sand/50 rounded-2xl border border-black/10 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-sanctuary-forest text-sm">calendar_month</span>
-                    <span className="text-xs font-black text-sanctuary-dark">
-                      Studio Visit Date & Arrival Time
-                    </span>
-                  </div>
-                  <span className="text-[9px] font-bold text-sanctuary-forest bg-white px-2 py-0.5 rounded-full border border-black/10">
-                    Kanakapura Studio
-                  </span>
-                </div>
+              {/* 4b. Date & Time of Store Visit / Boarding Duration */}
+              {(() => {
+                const boardingItems = selectedServices.filter((s) => s.category === 'boarding');
+                const totalBoardingNights = boardingItems.reduce((sum, s) => sum + (s.nights || 1), 0);
+                const primaryBoarding = boardingItems[0];
 
-                {/* Visit Date */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-sanctuary-dark/70">
-                    <span>Select Visit Date:</span>
-                    {/* Quick date presets */}
-                    <div className="flex items-center gap-1">
-                      {[
-                        { label: 'Today', days: 0 },
-                        { label: 'Tomorrow', days: 1 },
-                        { label: '+2 Days', days: 2 },
-                      ].map((preset) => {
-                        const targetDate = new Date();
-                        targetDate.setDate(targetDate.getDate() + preset.days);
-                        const dateStr = targetDate.toISOString().split('T')[0];
-                        const isSelected = checkInDate === dateStr;
-                        return (
-                          <button
-                            key={preset.label}
-                            type="button"
-                            onClick={() => setCheckInDate(dateStr)}
-                            className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all ${
-                              isSelected
-                                ? 'bg-sanctuary-forest text-white'
-                                : 'bg-white border border-black/10 text-sanctuary-dark/70 hover:border-black/30'
-                            }`}
-                          >
-                            {preset.label}
-                          </button>
-                        );
-                      })}
+                return (
+                  <div className="p-3 bg-sanctuary-sand/50 rounded-2xl border border-black/10 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-sanctuary-forest text-sm">calendar_month</span>
+                        <span className="text-xs font-black text-sanctuary-dark">
+                          {totalBoardingNights > 0 ? 'Boarding Stay Schedule' : 'Studio Visit Date & Arrival Time'}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-bold text-sanctuary-forest bg-white px-2 py-0.5 rounded-full border border-black/10">
+                        Kanakapura Studio
+                      </span>
+                    </div>
+
+                    {/* Boarding Stay Duration Stepper & Check-Out Date */}
+                    {totalBoardingNights > 0 && primaryBoarding && (
+                      <div className="p-2.5 bg-white rounded-xl border border-amber-300/80 space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-[10px] font-black text-sanctuary-dark uppercase tracking-wider">
+                              Boarding Duration
+                            </div>
+                            <div className="text-xs font-black text-sanctuary-forest">
+                              {totalBoardingNights} Night{totalBoardingNights > 1 ? 's' : ''} Stay
+                            </div>
+                          </div>
+
+                          {/* Interactive Stepper */}
+                          <div className="inline-flex items-center rounded-xl border border-black/15 bg-sanctuary-sand/60 overflow-hidden shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateNights(primaryBoarding.id, Math.max(1, totalBoardingNights - 1))}
+                              disabled={totalBoardingNights <= 1}
+                              className="px-2.5 py-1 text-sm font-black hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                              title="Decrease nights"
+                            >
+                              -
+                            </button>
+                            <span className="px-3 py-1 text-xs font-black font-mono">
+                              {totalBoardingNights} nt{totalBoardingNights > 1 ? 's' : ''}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateNights(primaryBoarding.id, Math.min(60, totalBoardingNights + 1))}
+                              className="px-2.5 py-1 text-sm font-black hover:bg-black/10"
+                              title="Increase nights"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Calculated Dates summary */}
+                        <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-black/5">
+                          <div className="p-1.5 bg-amber-50/60 rounded-lg">
+                            <span className="text-[9px] text-sanctuary-dark/60 font-bold block">Check-In:</span>
+                            <span className="font-black text-sanctuary-dark">{checkInDate || 'Today'}</span>
+                          </div>
+                          <div className="p-1.5 bg-emerald-50/60 rounded-lg">
+                            <span className="text-[9px] text-emerald-800 font-bold block">Estimated Check-Out:</span>
+                            <span className="font-black text-emerald-950">
+                              {calculateCheckoutDate(checkInDate || new Date().toISOString().split('T')[0], totalBoardingNights)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* STAY6FREE1 Offer Indicator */}
+                        {totalBoardingNights >= 6 ? (
+                          <div className="p-2 bg-emerald-100/70 rounded-lg border border-emerald-300 text-[10px] text-emerald-950 font-bold flex items-center justify-between">
+                            <span>🎉 6+ Nights: 1 Day FREE with code <strong>STAY6FREE1</strong>!</span>
+                            {appliedCoupon?.code !== 'STAY6FREE1' && (
+                              <button
+                                type="button"
+                                onClick={() => applyCouponCode('STAY6FREE1')}
+                                className="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[9px] font-black uppercase tracking-wider"
+                              >
+                                Apply Free Day
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 font-bold">
+                            💡 Add <strong>{6 - totalBoardingNights} more night{6 - totalBoardingNights > 1 ? 's' : ''}</strong> to unlock <strong>1 Day FREE Boarding</strong> with code STAY6FREE1!
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Visit / Check-In Date */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-sanctuary-dark/70">
+                        <span>{totalBoardingNights > 0 ? 'Check-In Date:' : 'Select Visit Date:'}</span>
+                        {/* Quick date presets */}
+                        <div className="flex items-center gap-1">
+                          {[
+                            { label: 'Today', days: 0 },
+                            { label: 'Tomorrow', days: 1 },
+                            { label: '+2 Days', days: 2 },
+                          ].map((preset) => {
+                            const targetDate = new Date();
+                            targetDate.setDate(targetDate.getDate() + preset.days);
+                            const dateStr = targetDate.toISOString().split('T')[0];
+                            const isSelected = checkInDate === dateStr;
+                            return (
+                              <button
+                                key={preset.label}
+                                type="button"
+                                onClick={() => setCheckInDate(dateStr)}
+                                className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all ${
+                                  isSelected
+                                    ? 'bg-sanctuary-forest text-white'
+                                    : 'bg-white border border-black/10 text-sanctuary-dark/70 hover:border-black/30'
+                                }`}
+                              >
+                                {preset.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <input
+                        type="date"
+                        required
+                        min={new Date().toISOString().split('T')[0]}
+                        value={checkInDate}
+                        onChange={(e) => setCheckInDate(e.target.value)}
+                        className="w-full p-2 rounded-xl border border-black/10 text-xs font-bold focus:outline-none focus:border-sanctuary-gold bg-white"
+                      />
+                    </div>
+
+                    {/* Visit Time Slot Grid */}
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-sanctuary-dark/70 block">
+                        Arrival Time Slot (09:30 AM – 08:30 PM):
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                        {TIME_SLOTS.map((slot) => {
+                          const isSelected = preferredTimeSlot === slot.id;
+                          return (
+                            <button
+                              key={slot.id}
+                              type="button"
+                              onClick={() => setPreferredTimeSlot(slot.id)}
+                              className={`p-2 rounded-xl text-left border transition-all ${
+                                isSelected
+                                  ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                                  : 'bg-white border-black/10 hover:border-sanctuary-gold text-sanctuary-dark'
+                              }`}
+                            >
+                              <div className={`text-[9px] uppercase tracking-wider ${isSelected ? 'text-sanctuary-gold' : 'text-sanctuary-dark/50'} font-bold`}>
+                                {slot.period}
+                              </div>
+                              <div className="text-[11px] font-bold leading-tight mt-0.5">
+                                {slot.label}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-sanctuary-dark/65 font-medium leading-relaxed bg-white/70 p-2 rounded-xl border border-black/5">
+                      📍 <strong>Arrival at your chosen slot:</strong> Please arrive 5–10 minutes before your slot. Our certified stylists and boarding attendants will have everything sanitized and ready!
+                    </p>
+
+                    {/* Doorstep Pet Pickup Checkbox */}
+                    <div
+                      onClick={() => setIncludePetTaxi(!includePetTaxi)}
+                      className={`p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all ${
+                        includePetTaxi ? 'bg-amber-50 border-amber-500 text-amber-950 font-bold' : 'bg-white border-black/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-amber-600 text-sm">local_taxi</span>
+                        <div>
+                          <div className="text-[11px] font-bold">Doorstep Pet Cab (+₹299)</div>
+                          <div className="text-[9px] text-sanctuary-dark/60 font-medium">Can't visit? We'll pick up & return your pet</div>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={includePetTaxi}
+                        onChange={() => {}}
+                        className="size-3.5 accent-amber-600 rounded"
+                      />
                     </div>
                   </div>
-                  <input
-                    type="date"
-                    required
-                    min={new Date().toISOString().split('T')[0]}
-                    value={checkInDate}
-                    onChange={(e) => setCheckInDate(e.target.value)}
-                    className="w-full p-2 rounded-xl border border-black/10 text-xs font-bold focus:outline-none focus:border-sanctuary-gold bg-white"
-                  />
-                </div>
-
-                {/* Visit Time Slot Grid */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-sanctuary-dark/70 block">
-                    Choose Arrival Time Slot (09:30 AM – 08:30 PM):
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                    {TIME_SLOTS.map((slot) => {
-                      const isSelected = preferredTimeSlot === slot.id;
-                      return (
-                        <button
-                          key={slot.id}
-                          type="button"
-                          onClick={() => setPreferredTimeSlot(slot.id)}
-                          className={`p-2 rounded-xl text-left border transition-all ${
-                            isSelected
-                              ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
-                              : 'bg-white border-black/10 hover:border-sanctuary-gold text-sanctuary-dark'
-                          }`}
-                        >
-                          <div className={`text-[9px] uppercase tracking-wider ${isSelected ? 'text-sanctuary-gold' : 'text-sanctuary-dark/50'} font-bold`}>
-                            {slot.period}
-                          </div>
-                          <div className="text-[11px] font-bold leading-tight mt-0.5">
-                            {slot.label}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <p className="text-[10px] text-sanctuary-dark/65 font-medium leading-relaxed bg-white/70 p-2 rounded-xl border border-black/5">
-                  📍 <strong>Walk-in at your chosen time:</strong> Please arrive 5–10 minutes before your slot. Our certified stylists will have the grooming station sanitized and ready for your pet!
-                </p>
-
-                {/* Doorstep Pet Pickup Checkbox */}
-                <div
-                  onClick={() => setIncludePetTaxi(!includePetTaxi)}
-                  className={`p-2 rounded-xl border cursor-pointer flex items-center justify-between text-xs transition-all ${
-                    includePetTaxi ? 'bg-amber-50 border-amber-500 text-amber-950 font-bold' : 'bg-white border-black/10'
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-amber-600 text-sm">local_taxi</span>
-                    <div>
-                      <div className="text-[11px] font-bold">Doorstep Pet Cab (+₹299)</div>
-                      <div className="text-[9px] text-sanctuary-dark/60 font-medium">Can't visit? We'll pick up & return your pet</div>
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={includePetTaxi}
-                    onChange={() => {}}
-                    className="size-3.5 accent-amber-600 rounded"
-                  />
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* 5. INDIVIDUAL ADD-ONS (COMPACT) */}
@@ -2157,84 +2688,54 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               )}
             </div>
 
-            {/* 7. PAYMENT METHOD (SELECT ONLINE OR PAY AT STUDIO) */}
+            {/* 7. SECURE PAYMENT (ONLINE VIA RAZORPAY) */}
             <div className="space-y-2 pt-1 border-t border-black/5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
-                Select Payment Option
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                  Payment Method
+                </span>
+                <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[11px] text-emerald-700">lock</span>
+                  <span>256-Bit Bank Encrypted</span>
+                </span>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {/* Option 1: Pay Online via Razorpay */}
-                <div
-                  onClick={() => setPaymentChoice('online')}
-                  className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    paymentChoice === 'online'
-                      ? 'bg-amber-50/70 border-amber-500 shadow-xs ring-1 ring-amber-500'
-                      : 'bg-white border-black/10 hover:border-black/20'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="size-7 rounded-xl bg-[#0C2340] text-sanctuary-gold flex items-center justify-center font-black text-xs">
-                        ₹
+              {/* Single High-Trust Razorpay Card */}
+              <div className="p-3.5 rounded-2xl border-2 border-amber-400 bg-gradient-to-br from-white via-amber-50/30 to-emerald-50/20 shadow-xs space-y-2.5">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="size-8 rounded-xl bg-[#0C2340] text-sanctuary-gold flex items-center justify-center font-black text-sm shadow-2xs">
+                      ₹
+                    </div>
+                    <div>
+                      <div className="font-black text-xs text-sanctuary-dark flex items-center gap-1.5">
+                        <span>Razorpay Secure Online Checkout</span>
+                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-600 text-white uppercase tracking-wider">
+                          Verified
+                        </span>
                       </div>
-                      <div>
-                        <div className="font-black text-xs text-sanctuary-dark">
-                          Pay Online (Razorpay)
-                        </div>
-                        <div className="text-[10px] text-emerald-800 font-bold">
-                          Instant Confirmation
-                        </div>
+                      <div className="text-[10px] text-emerald-800 font-bold mt-0.5">
+                        Instant Slot & Suite Confirmation
                       </div>
                     </div>
-                    <input
-                      type="radio"
-                      name="payment_choice"
-                      checked={paymentChoice === 'online'}
-                      onChange={() => setPaymentChoice('online')}
-                      className="size-4 accent-amber-600 mt-1"
-                    />
-                  </div>
-                  <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-2">
-                    UPI (GPay / PhonePe / Paytm), Cards, NetBanking
                   </div>
                 </div>
 
-                {/* Option 2: Pay at Studio Counter */}
-                <div
-                  onClick={() => setPaymentChoice('at_studio')}
-                  className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    paymentChoice === 'at_studio'
-                      ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600'
-                      : 'bg-white border-black/10 hover:border-black/20'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="size-7 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-xs">
-                        <span className="material-symbols-outlined text-sm">storefront</span>
-                      </div>
-                      <div>
-                        <div className="font-black text-xs text-sanctuary-dark">
-                          Pay at Studio Counter
-                        </div>
-                        <div className="text-[10px] text-emerald-800 font-bold">
-                          Cash / UPI on Visit
-                        </div>
-                      </div>
-                    </div>
-                    <input
-                      type="radio"
-                      name="payment_choice"
-                      checked={paymentChoice === 'at_studio'}
-                      onChange={() => setPaymentChoice('at_studio')}
-                      className="size-4 accent-emerald-700 mt-1"
-                    />
+                <div className="grid grid-cols-3 gap-1.5 pt-1 text-center">
+                  <div className="p-1.5 bg-white rounded-xl border border-black/5 text-[10px] font-bold text-sanctuary-dark">
+                    ⚡ UPI (GPay/PhonePe)
                   </div>
-                  <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-2">
-                    Reserve slot now, pay when you bring your pet to the studio
+                  <div className="p-1.5 bg-white rounded-xl border border-black/5 text-[10px] font-bold text-sanctuary-dark">
+                    💳 Cards (Debit/Credit)
+                  </div>
+                  <div className="p-1.5 bg-white rounded-xl border border-black/5 text-[10px] font-bold text-sanctuary-dark">
+                    🏦 NetBanking & Wallets
                   </div>
                 </div>
+
+                <p className="text-[10px] text-sanctuary-dark/65 font-medium leading-relaxed">
+                  Your reservation is verified instantly upon payment. You will receive an immediate booking confirmation ID, receipt, and Google Maps directions link.
+                </p>
               </div>
 
               {paymentNotice && (
@@ -2244,8 +2745,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
 
-              {/* In-App Browser Warning (Only for Online Payments) */}
-              {paymentChoice === 'online' && isInAppBrowser && (
+              {/* In-App Browser Warning (WhatsApp / Instagram) */}
+              {isInAppBrowser && (
                 <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-300 text-xs space-y-2">
                   <div className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-amber-700 text-base shrink-0 mt-0.5">
@@ -2256,13 +2757,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         In-App Browser Detected (WhatsApp / Instagram)
                       </h5>
                       <p className="text-[11px] text-amber-900/80 mt-0.5 font-medium leading-relaxed">
-                        UPI apps (GPay, PhonePe, Paytm) block payments inside in-app webviews for security. Switch to Chrome or choose &quot;Pay at Studio Counter&quot; above!
+                        UPI apps (GPay, PhonePe, Paytm) require opening in Chrome for seamless app auto-redirect.
                       </p>
                     </div>
-                  </div>
-                  <div className="p-2.5 bg-white/90 rounded-xl border border-amber-200 text-[11px] space-y-1 text-sanctuary-dark font-semibold">
-                    <div>1. Tap <strong>⋮ (3 dots)</strong> at the top right and pick <strong>&quot;Open in Chrome&quot;</strong></div>
-                    <div>2. Or simply select <strong>&quot;Pay at Studio Counter&quot;</strong> above to reserve instantly!</div>
                   </div>
                   <div className="flex gap-2 pt-0.5">
                     <button
@@ -2306,7 +2803,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] text-white/70">
-                  {paymentChoice === 'at_studio' ? 'Pay at Counter:' : 'Final Payable:'}
+                  Final Payable:
                 </span>
                 {totalSavings > 0 && (
                   <span className="text-[10px] line-through text-red-400 font-bold decoration-red-400">
@@ -2331,15 +2828,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             >
               <span>
                 {isProcessing
-                  ? paymentChoice === 'at_studio'
-                    ? 'Reserving Visit...'
-                    : 'Connecting Razorpay...'
+                  ? 'Connecting Razorpay...'
                   : !currentUser
                   ? 'Sign In to Book'
                   : selectedServices.filter((s) => !s.isFreePerk).length === 0
                   ? 'Add a Service'
-                  : paymentChoice === 'at_studio'
-                  ? `Confirm Visit (Pay ₹${finalTotal} at Studio)`
                   : `Pay ₹${finalTotal} with Razorpay`}
               </span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -2434,6 +2927,311 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div className="p-2 bg-sanctuary-sand/40 border-t border-black/5 text-center text-[9px] text-sanctuary-dark/50 flex items-center justify-center gap-1">
                   <span className="material-symbols-outlined text-[10px]">lock</span>
                   <span>256-bit SSL Bank Encrypted</span>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* ============================================================ */}
+        {/* CONFIRM COMPANION & PET SIZE MODAL */}
+        {/* ============================================================ */}
+        <AnimatePresence>
+          {confirmModalData && (
+            <div className="fixed inset-0 z-[260] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 15 }}
+                className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-black/10 text-left flex flex-col max-h-[90vh]"
+              >
+                {/* Header */}
+                <div className="bg-sanctuary-forest text-white p-4 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="size-9 rounded-xl bg-sanctuary-gold text-sanctuary-dark flex items-center justify-center font-black">
+                      <span className="material-symbols-outlined text-lg">pets</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-white">Confirm Pet Size & Tier</h3>
+                      <p className="text-[10px] text-white/70 truncate max-w-[210px]">
+                        {confirmModalData.serviceTitle}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmModalData(null)}
+                    className="size-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+
+                {/* Body */}
+                <div className="p-4 overflow-y-auto space-y-3.5 text-xs">
+                  <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-[11px] text-amber-950 font-bold leading-relaxed flex items-start gap-2">
+                    <span className="material-symbols-outlined text-amber-700 text-sm shrink-0 mt-0.5">verified</span>
+                    <div>
+                      <strong>Accurate Pricing Guarantee:</strong> Please confirm your companion's species and weight tier so our suite caretakers & stylists prepare the exact amenities.
+                    </div>
+                  </div>
+
+                  {/* Step 1: Species Selection */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                      1. Select Companion Species
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmPetType('dog')}
+                        className={`p-2.5 rounded-xl border text-center transition-all flex items-center justify-center gap-2 ${
+                          confirmPetType === 'dog'
+                            ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                            : 'bg-white border-black/10 text-sanctuary-dark font-bold hover:border-black/30'
+                        }`}
+                      >
+                        <span className="text-base">🐕</span>
+                        <span>Dog / Canine</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmPetType('cat')}
+                        className={`p-2.5 rounded-xl border text-center transition-all flex items-center justify-center gap-2 ${
+                          confirmPetType === 'cat'
+                            ? 'bg-sanctuary-forest text-white border-sanctuary-forest shadow-xs font-black'
+                            : 'bg-white border-black/10 text-sanctuary-dark font-bold hover:border-black/30'
+                        }`}
+                      >
+                        <span className="text-base">🐈</span>
+                        <span>Cat / Feline</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Weight Tier if Dog */}
+                  {confirmPetType === 'dog' ? (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                        2. Select Dog Weight Tier
+                      </span>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          {
+                            id: 'small',
+                            title: 'Small Dog (< 10 kg)',
+                            desc: 'Shih Tzu, Lhasa, Pomeranian, Pug, Maltese, Chihuahua, Dachshund',
+                          },
+                          {
+                            id: 'medium',
+                            title: 'Medium Dog (10 – 25 kg)',
+                            desc: 'Beagle, Cocker Spaniel, French Bulldog, Indie / Desi, Corgi, Spitz',
+                          },
+                          {
+                            id: 'large',
+                            title: 'Large Dog (> 25 kg)',
+                            desc: 'Golden Retriever, Labrador, German Shepherd, Husky, Boxer, Rottweiler',
+                          },
+                        ].map((tier) => (
+                          <div
+                            key={tier.id}
+                            onClick={() => setConfirmDogSize(tier.id as any)}
+                            className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start justify-between ${
+                              confirmDogSize === tier.id
+                                ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-400 font-black shadow-xs'
+                                : 'bg-white border-black/10 hover:border-black/30'
+                            }`}
+                          >
+                            <div>
+                              <div className="text-xs font-black text-sanctuary-dark">{tier.title}</div>
+                              <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-0.5">{tier.desc}</div>
+                            </div>
+                            <input
+                              type="radio"
+                              name="confirm_dog_size"
+                              checked={confirmDogSize === tier.id}
+                              onChange={() => setConfirmDogSize(tier.id as any)}
+                              className="size-4 accent-amber-600 shrink-0 mt-0.5"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Step 2: Cat Profile Tier */
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/70 block">
+                        2. Select Cat Profile Tier
+                      </span>
+                      <div className="grid grid-cols-1 gap-2">
+                        <div
+                          onClick={() => setConfirmCatType('neutered')}
+                          className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start justify-between ${
+                            confirmCatType === 'neutered'
+                              ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-400 font-black shadow-xs'
+                              : 'bg-white border-black/10 hover:border-black/30'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-black text-sanctuary-dark">Neutered / Spayed Cat</div>
+                            <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-0.5">
+                              Calm socialization & stress-free communal suite (₹625 / nt)
+                            </div>
+                          </div>
+                          <input
+                            type="radio"
+                            name="confirm_cat_type"
+                            checked={confirmCatType === 'neutered'}
+                            onChange={() => setConfirmCatType('neutered')}
+                            className="size-4 accent-amber-600 shrink-0 mt-0.5"
+                          />
+                        </div>
+
+                        <div
+                          onClick={() => setConfirmCatType('non-neutered')}
+                          className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start justify-between ${
+                            confirmCatType === 'non-neutered'
+                              ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-400 font-black shadow-xs'
+                              : 'bg-white border-black/10 hover:border-black/30'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-black text-sanctuary-dark">Non-Neutered Cat</div>
+                            <div className="text-[10px] text-sanctuary-dark/65 font-medium mt-0.5">
+                              Dedicated private individual partitioned suite & attention (₹750 / nt)
+                            </div>
+                          </div>
+                          <input
+                            type="radio"
+                            name="confirm_cat_type"
+                            checked={confirmCatType === 'non-neutered'}
+                            onChange={() => setConfirmCatType('non-neutered')}
+                            className="size-4 accent-amber-600 shrink-0 mt-0.5"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: Nights Stepper if Boarding */}
+                  {confirmModalData.category === 'boarding' && (
+                    <div className="space-y-2 p-3 bg-sanctuary-sand/50 rounded-2xl border border-black/10">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark">
+                          Stay Duration (Nights)
+                        </span>
+                        {confirmNights >= 6 && (
+                          <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                            🎁 1 Day FREE with STAY6FREE1
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmNights((prev) => Math.max(1, prev - 1))}
+                            disabled={confirmNights <= 1}
+                            className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 disabled:opacity-30 disabled:cursor-not-allowed font-black text-base flex items-center justify-center transition-all shadow-2xs"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-black font-mono w-14 text-center">
+                            {confirmNights} nt{confirmNights > 1 ? 's' : ''}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmNights((prev) => Math.min(60, prev + 1))}
+                            className="size-8 rounded-xl bg-white border border-black/15 hover:bg-black/5 font-black text-base flex items-center justify-center transition-all shadow-2xs"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Quick preset chips */}
+                        <div className="flex items-center gap-1">
+                          {[2, 4, 6, 10].map((n) => (
+                            <button
+                              key={n}
+                              type="button"
+                              onClick={() => setConfirmNights(n)}
+                              className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                                confirmNights === n
+                                  ? 'bg-sanctuary-forest text-white'
+                                  : 'bg-white border border-black/10 hover:border-black/30 text-sanctuary-dark'
+                              }`}
+                            >
+                              {n}d{n === 6 ? ' ⭐' : ''}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <p className="text-[10px] text-sanctuary-dark/65 font-medium">
+                        Check-in at {checkInDate || 'selected date'} → Estimated check-out on {calculateCheckoutDate(checkInDate || new Date().toISOString().split('T')[0], confirmNights)}.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Calculated Price Breakdown */}
+                  {(() => {
+                    const calculated = getServicePriceForPet(
+                      confirmModalData.serviceKey,
+                      confirmModalData.category,
+                      confirmPetType,
+                      confirmDogSize,
+                      confirmCatType,
+                      confirmNights
+                    );
+                    const savings = calculated.origPrice - calculated.price;
+                    return (
+                      <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50/40 rounded-2xl border border-amber-300 flex items-center justify-between">
+                        <div>
+                          <span className="text-[9px] font-black uppercase tracking-wider text-amber-900 block">
+                            Calculated Rate Preview
+                          </span>
+                          <div className="flex items-baseline gap-2 mt-0.5">
+                            <span className="text-base font-black text-sanctuary-dark">
+                              ₹{calculated.price}
+                            </span>
+                            <span className="text-xs line-through text-red-500 font-bold">
+                              ₹{calculated.origPrice}
+                            </span>
+                            {savings > 0 && (
+                              <span className="text-[10px] font-black text-emerald-700">
+                                Save ₹{savings}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-sanctuary-dark/60 font-medium">
+                            {calculated.subtitle}
+                          </span>
+                        </div>
+
+                        <span className="text-2xl">✨</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="p-3.5 bg-sanctuary-sand/40 border-t border-black/10 flex items-center justify-end gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmModalData(null)}
+                    className="py-2 px-3.5 rounded-xl border border-black/10 hover:bg-black/5 text-xs font-bold text-sanctuary-dark"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmAndAddService}
+                    className="py-2 px-4 rounded-xl bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark font-black text-xs uppercase tracking-wider shadow-xs flex items-center gap-1.5"
+                  >
+                    <span>{confirmModalData.existingItemId ? 'Update Service' : 'Confirm & Add to Cart'}</span>
+                    <span className="material-symbols-outlined text-sm">check</span>
+                  </button>
                 </div>
               </motion.div>
             </div>

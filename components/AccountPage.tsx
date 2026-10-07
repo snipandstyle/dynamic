@@ -479,7 +479,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                                   : 'bg-amber-100 text-amber-800'
                               }`}
                             >
-                              {b.payment_status === 'paid' ? '✓ Payment Verified' : '⏳ Pay at Studio'}
+                              {b.payment_status === 'paid' ? '✓ Payment Verified' : '⏳ Pending'}
                             </span>
 
                             <span
