@@ -27,7 +27,7 @@ export const SanctuaryMobileBar: React.FC<SanctuaryMobileBarProps> = ({ onOpenBo
           onClick={onOpenBooking}
           className="py-2.5 px-6 bg-sanctuary-gold hover:bg-white text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
         >
-          <span>Book Now</span>
+          <span>Book Studio Visit</span>
           <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
         </button>
 

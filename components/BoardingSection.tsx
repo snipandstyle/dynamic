@@ -270,6 +270,9 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
                       <span>Reserve {tier.title}</span>
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
                     </button>
+                    <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                      📍 Book online & visit studio on check-in day
+                    </p>
                   </div>
                 </div>
               ))}
@@ -354,6 +357,9 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
                       <span>Reserve {tier.title}</span>
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
                     </button>
+                    <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                      📍 Book online & visit studio on check-in day
+                    </p>
                   </div>
                 </div>
               ))}

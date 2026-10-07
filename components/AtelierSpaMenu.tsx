@@ -239,6 +239,9 @@ export const AtelierSpaMenu: React.FC = () => {
                     <span>Book Treatment</span>
                     <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                   </button>
+                  <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                    📍 Book online & visit our Kanakapura Road Studio
+                  </p>
                 </div>
               </div>
             );

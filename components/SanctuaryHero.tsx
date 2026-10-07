@@ -431,9 +431,12 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                     }}
                     className="w-full py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                   >
-                    <span>Book Stay Now</span>
+                    <span>Book Online & Visit Studio</span>
                     <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                   </button>
+                  <p className="text-[10px] text-center text-sanctuary-dark/75 font-semibold pt-0.5">
+                    📍 Book online here & bring your companion to our Kanakapura Road Studio
+                  </p>
                 </div>
               )}
 
@@ -537,9 +540,12 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                     }}
                     className="w-full py-2.5 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                   >
-                    <span>Book Grooming Now</span>
+                    <span>Book Online & Visit Studio</span>
                     <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                   </button>
+                  <p className="text-[10px] text-center text-sanctuary-dark/75 font-semibold pt-0.5">
+                    📍 Book online here & bring your companion to our Kanakapura Road Studio
+                  </p>
                 </div>
               )}
 

@@ -192,7 +192,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
           </h1>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            Zero wire cages, zero loneliness. A clean, cage-free boarding floor with private orthopaedic bedding, nature walks, city stress relief, and daily WhatsApp updates while you travel.
+            <strong>Book online & drop off your companion at our Kanakapura Main Road studio:</strong> Zero wire cages, zero loneliness. A clean, cage-free boarding floor with private orthopaedic bedding, nature walks, city stress relief, and daily WhatsApp updates while you travel.
           </p>
         </div>
 
@@ -317,6 +317,9 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
                       <span>Book This Rate</span>
                       <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                     </button>
+                    <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                      📍 Book online & drop off at Kanakapura Studio
+                    </p>
                   </div>
                 </div>
               ))}
@@ -393,6 +396,9 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
                 >
                   Book Stay & Claim
                 </button>
+                <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                  📍 Book online & drop off at Kanakapura Studio
+                </p>
               </div>
             ))}
           </div>
@@ -570,24 +576,29 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
               )}
             </div>
 
-            <button
-              onClick={() =>
-                onOpenBooking({
-                  type: 'boarding',
-                  serviceName: `${pet === 'cat' ? (catType === 'neutered' ? 'Neutered Cat' : 'Non-Neutered Cat') : `${dogSize.toUpperCase()} Dog`} Boarding`,
-                  basePrice: dailyRate,
-                  origPrice: dailyOrig,
-                  petType: pet,
-                  petSize: pet === 'dog' ? dogSize : undefined,
-                  catType: pet === 'cat' ? catType : undefined,
-                  nights: nights,
-                  appliedCouponCode: nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 4 ? 'FREESPA' : undefined,
-                })
-              }
-              className="w-full sm:w-auto py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shrink-0"
-            >
-              Book with Milestone Rewards
-            </button>
+            <div className="flex flex-col items-center gap-1 w-full sm:w-auto">
+              <button
+                onClick={() =>
+                  onOpenBooking({
+                    type: 'boarding',
+                    serviceName: `${pet === 'cat' ? (catType === 'neutered' ? 'Neutered Cat' : 'Non-Neutered Cat') : `${dogSize.toUpperCase()} Dog`} Boarding`,
+                    basePrice: dailyRate,
+                    origPrice: dailyOrig,
+                    petType: pet,
+                    petSize: pet === 'dog' ? dogSize : undefined,
+                    catType: pet === 'cat' ? catType : undefined,
+                    nights: nights,
+                    appliedCouponCode: nights >= 15 ? 'FREESPA15' : nights >= 8 ? 'FREESPA8' : nights >= 4 ? 'FREESPA' : undefined,
+                  })
+                }
+                className="w-full sm:w-auto py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shrink-0"
+              >
+                Book with Milestone Rewards
+              </button>
+              <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold">
+                📍 Book online & drop off at Kanakapura Studio
+              </p>
+            </div>
           </div>
         </div>
 

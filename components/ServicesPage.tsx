@@ -317,7 +317,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
           </div>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
-            All services feature tearless organic shampoos, sanitized clippers, low-stress fear-free handling, and 10% discount on grooming above ₹999 using code <strong className="font-mono text-sanctuary-dark">GROOM10</strong>.
+            <strong>Book online & visit our Kanakapura Main Road studio:</strong> All services feature tearless organic shampoos, sanitized clippers, low-stress fear-free handling, and 10% discount on grooming above ₹999 using code <strong className="font-mono text-sanctuary-dark">GROOM10</strong>.
           </p>
         </div>
 
@@ -457,6 +457,9 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
                           <span>Book with 15% OFF</span>
                           <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                         </button>
+                        <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                          📍 Book online & visit studio at your selected time
+                        </p>
                       </div>
                     </div>
                   );
@@ -527,6 +530,9 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking, onNav
                           <span>Book with 15% OFF</span>
                           <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
                         </button>
+                        <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                          📍 Book online & visit studio at your selected time
+                        </p>
                       </div>
                     </div>
                   );

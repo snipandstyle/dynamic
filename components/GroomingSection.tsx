@@ -319,6 +319,9 @@ export const GroomingSection: React.FC<GroomingSectionProps> = ({ onOpenBooking 
                       <span>Book {pkg.title}</span>
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
                     </button>
+                    <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                      📍 Book online & visit studio at your selected time
+                    </p>
                   </div>
                 </div>
               );

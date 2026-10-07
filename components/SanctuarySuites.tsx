@@ -166,6 +166,9 @@ export const SanctuarySuites: React.FC = () => {
                   <span>Book {current.name}</span>
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
+                <p className="text-[10px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                  📍 Book online & drop off at our Kanakapura Road Studio
+                </p>
               </div>
             </div>
 

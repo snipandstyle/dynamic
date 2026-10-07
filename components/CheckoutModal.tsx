@@ -1767,18 +1767,67 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           /* ============================================================ */
           <div className={`flex-1 ${isFullPage ? 'p-4 sm:p-6 space-y-4' : 'overflow-y-auto p-4 sm:p-5 space-y-3 max-h-[64vh]'}`}>
 
-            {/* IN-STORE STUDIO VISIT EXPLANATION BANNER */}
-            <div className="p-3 bg-gradient-to-r from-amber-50 via-white to-amber-50/80 rounded-2xl border border-amber-300 text-xs space-y-1 shadow-xs">
-              <div className="flex items-center gap-1.5 font-black text-amber-950">
-                <span className="material-symbols-outlined text-amber-600 text-sm">storefront</span>
-                <span>In-Store Pet Studio Visit</span>
-                <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 ml-auto">
-                  Zero Queue Wait
+            {/* IN-STORE STUDIO VISIT EXPLANATION BANNER (PROMINENT UPFRONT NOTICE) */}
+            <div className="p-3.5 bg-gradient-to-br from-amber-100/90 via-orange-50/70 to-emerald-50/60 rounded-2xl border-2 border-amber-400 text-xs space-y-2 shadow-sm">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="size-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-2xs font-black">
+                    <span className="material-symbols-outlined text-lg">storefront</span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-amber-950 uppercase tracking-wide">
+                      In-Studio Appointment / Boarding Visit
+                    </h4>
+                    <span className="text-[10px] text-emerald-900 font-black">
+                      📍 Book Online Here → Visit Our Physical Studio in Person
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0 uppercase tracking-wider">
+                  Confirmed Slot
                 </span>
               </div>
-              <p className="text-[11px] text-amber-900/85 font-medium leading-relaxed">
-                You are booking a confirmed slot to <strong>bring your pet to our Kanakapura Road Studio</strong>. Select your visit date and arrival time below, and our master groomers will care for your pet on-site!
-              </p>
+
+              <div className="p-2.5 bg-white/95 rounded-xl border border-amber-300/80 space-y-2 text-[11px] text-sanctuary-dark font-medium leading-relaxed shadow-2xs">
+                <p className="text-amber-950 font-bold">
+                  👉 <strong>IMPORTANT — HOW YOUR BOOKING WORKS:</strong>
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2 rounded-lg bg-amber-50/80 border border-amber-200">
+                    <div className="font-black text-amber-950 flex items-center gap-1">
+                      <span>1️⃣</span>
+                      <span>Book Online Here</span>
+                    </div>
+                    <p className="text-[10px] text-amber-900/80 mt-0.5 font-medium">
+                      Select your date & arrival slot, confirm pet size, and complete secure payment to lock in your appointment.
+                    </p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-emerald-50/80 border border-emerald-200">
+                    <div className="font-black text-emerald-950 flex items-center gap-1">
+                      <span>2️⃣</span>
+                      <span>Bring Pet to Our Studio</span>
+                    </div>
+                    <p className="text-[10px] text-emerald-900/80 mt-0.5 font-medium">
+                      Visit our <strong>Kanakapura Main Road Studio, Bangalore</strong> at your chosen time. Our stylists & caretakers will be sanitized and waiting!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-black/5 text-[10px]">
+                  <span className="text-sanctuary-dark/75 font-bold flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs text-sanctuary-forest">near_me</span>
+                    <span>Studio: Kanakapura Main Road (Near Shani Mahatma Temple)</span>
+                  </span>
+                  <a
+                    href={STUDIO_MAPS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sanctuary-forest hover:underline font-black uppercase tracking-wider flex items-center gap-0.5"
+                  >
+                    <span>View on Maps</span>
+                    <span className="material-symbols-outlined text-xs">open_in_new</span>
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* 1. SAVINGS HIGHLIGHT BANNER */}
@@ -2799,44 +2848,65 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* COMPACT MODAL FOOTER BAR */}
         {/* ============================================================ */}
         {!bookingSuccess && (
-          <div className="p-3.5 sm:p-4 bg-sanctuary-forest text-white border-t border-black/10 shrink-0 flex items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-white/70">
-                  Final Payable:
+          <div className="bg-sanctuary-forest text-white border-t border-black/10 shrink-0">
+            {/* In-Studio Visit Pre-Payment Banner */}
+            <div className="px-3.5 py-1.5 bg-[#071727] text-white/90 text-[10px] font-bold flex items-center justify-between gap-2 border-b border-white/10">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="material-symbols-outlined text-sanctuary-gold text-xs shrink-0">storefront</span>
+                <span className="truncate">
+                  <strong>In-Studio Service:</strong> Book online here & bring your pet to our <strong>Kanakapura Road Studio</strong> on appointment day!
                 </span>
-                {totalSavings > 0 && (
-                  <span className="text-[10px] line-through text-red-400 font-bold decoration-red-400">
-                    ₹{grossOriginalTotal}
-                  </span>
-                )}
               </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xl sm:text-2xl font-black text-sanctuary-gold">₹{finalTotal}</span>
-                {totalSavings > 0 && (
-                  <span className="text-[10px] font-black text-emerald-300">
-                    (Saved ₹{totalSavings}!)
-                  </span>
-                )}
-              </div>
+              <a
+                href={STUDIO_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] text-sanctuary-gold hover:underline shrink-0 uppercase tracking-wider font-black flex items-center gap-0.5"
+              >
+                <span>Maps</span>
+                <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+              </a>
             </div>
 
-            <button
-              onClick={handleConfirmOrder}
-              disabled={isProcessing || !currentUser || selectedServices.filter((s) => !s.isFreePerk).length === 0}
-              className="py-2.5 px-5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-            >
-              <span>
-                {isProcessing
-                  ? 'Connecting Razorpay...'
-                  : !currentUser
-                  ? 'Sign In to Book'
-                  : selectedServices.filter((s) => !s.isFreePerk).length === 0
-                  ? 'Add a Service'
-                  : `Pay ₹${finalTotal} with Razorpay`}
-              </span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
+            <div className="p-3.5 sm:p-4 flex items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-white/70">
+                    Final Payable:
+                  </span>
+                  {totalSavings > 0 && (
+                    <span className="text-[10px] line-through text-red-400 font-bold decoration-red-400">
+                      ₹{grossOriginalTotal}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl sm:text-2xl font-black text-sanctuary-gold">₹{finalTotal}</span>
+                  {totalSavings > 0 && (
+                    <span className="text-[10px] font-black text-emerald-300">
+                      (Saved ₹{totalSavings}!)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleConfirmOrder}
+                disabled={isProcessing || !currentUser || selectedServices.filter((s) => !s.isFreePerk).length === 0}
+                className="py-2.5 px-5 bg-sanctuary-gold hover:bg-amber-400 text-sanctuary-dark font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                <span>
+                  {isProcessing
+                    ? 'Connecting Razorpay...'
+                    : !currentUser
+                    ? 'Sign In to Book'
+                    : selectedServices.filter((s) => !s.isFreePerk).length === 0
+                    ? 'Add a Service'
+                    : `Pay ₹${finalTotal} & Reserve Visit`}
+                </span>
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </button>
+            </div>
           </div>
         )}
 
