@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-primary-container": "#7a9385", "on-primary-fixed-variant": "#344c3f", "on-secondary-container": "#745c00", "surface-container-lowest": "#ffffff", "error": "#ba1a1a", "outline-variant": "#c2c8c2", "on-secondary": "#ffffff", "primary-fixed-dim": "#b2cdbc", "on-surface": "#1b1c1a", "primary": "#01160c", "on-primary-fixed": "#082015", "tertiary-fixed-dim": "#4edea3", "inverse-surface": "#30312f", "background": "#fbf9f6", "tertiary-container": "#002d1c", "on-error": "#ffffff", "on-surface-variant": "#424844", "tertiary-fixed": "#6ffbbe", "secondary-container": "#fed65b", "surface": "#fbf9f6", "surface-container-high": "#eae8e5", "on-secondary-fixed": "#241a00", "on-error-container": "#93000a", "secondary-fixed": "#ffe088", "surface-variant": "#e4e2df", "surface-container": "#efeeeb", "primary-fixed": "#cee9d8", "surface-container-low": "#f5f3f0", "inverse-on-surface": "#f2f0ed", "surface-tint": "#4c6456", "surface-bright": "#fbf9f6", "on-background": "#1b1c1a", "secondary": "#735c00", "on-tertiary-fixed": "#002113", "outline": "#727974", "surface-dim": "#dbdad7", "primary-container": "#142b20", "on-tertiary-container": "#00a16f", "secondary-fixed-dim": "#e9c349", "on-primary": "#ffffff", "tertiary": "#00160b", "on-tertiary-fixed-variant": "#005236", "error-container": "#ffdad6", "on-secondary-fixed-variant": "#574500", "on-tertiary": "#ffffff", "surface-container-highest": "#e4e2df", "inverse-primary": "#b2cdbc" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-lg": "2rem", "gutter": "1rem", "space-xl": "2.5rem", "margin-md": "2rem", "gutter-md": "1.5rem", "margin-lg": "3.5rem", "margin": "1rem", "space-md": "1rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "body-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "display-hero-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "display-hero-mobile": ["34px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_2px_12px_rgba(20,43,32,0.04)]"><div class="h-20 w-full px-gutter-md lg:px-gutter-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm"><div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">pets</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">Snip &amp; Style</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Resort &amp; Grooming</span></div></div><div class="hidden xl:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-full"><span class="material-symbols-outlined text-secondary text-[14px]">star</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">4.9</span><span class="font-body-sm text-body-sm text-on-surface-variant">(500+ Google Reviews)</span></div></div><nav class="hidden lg:flex items-center gap-space-xs bg-surface-container-low/80 p-1.5 rounded-full" data-active-classes="text-primary font-label-lg font-bold bg-surface-container rounded-full px-space-md py-space-xs"><a aria-current="page" class="transition-colors text-primary font-label-lg font-bold bg-surface-container rounded-full px-space-md py-space-xs" data-path="boarding" href="#">Boarding</a><a class="px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="grooming" href="#">Grooming</a><a class="px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="studio-location" href="#">Studio Location</a><a class="px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="pricing-calculator" href="#">Pricing Calculator</a><a class="px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="faq" href="#">FAQ</a></nav><div class="flex items-center gap-space-sm"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container-low px-space-md py-2 rounded-full"><span class="material-symbols-outlined text-primary text-[16px]">location_on</span><span class="font-label-md text-label-md text-on-surface">Kanakapura Rd Studio</span></div><a class="flex items-center gap-space-xs bg-primary-container text-on-primary px-space-md py-2 rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98]" data-path="checkout" href="#"><span class="material-symbols-outlined text-[18px]">shopping_bag</span><span class="font-label-md text-label-md text-on-primary">Cart</span><span class="w-5 h-5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm flex items-center justify-center font-bold">1</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background"><div class="flex flex-col w-full">
+<!-- 1. HERO SECTION & PROMINENT 2-SERVICE SWITCHER -->
+<section class="relative w-full px-gutter-md lg:px-gutter-lg pt-space-md lg:pt-space-xl pb-space-xl overflow-hidden">
+<!-- Subtle Ambient Glow -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[340px] bg-gradient-to-b from-primary-fixed/30 via-secondary-fixed/15 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
+<div class="max-w-6xl mx-auto flex flex-col items-center text-center">
+<!-- Eyebrow Trust Badge -->
+<div class="inline-flex items-center gap-space-xs bg-surface-container-low px-space-md py-1.5 rounded-full shadow-sm mb-space-md">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+<span class="font-label-sm text-label-sm text-primary tracking-wide uppercase font-bold">South Bangalore's Premier 100% Cage-Free Sanctuary</span>
+</div>
+<!-- Main Headline -->
+<h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-primary max-w-4xl tracking-tight mb-space-sm">
+        Stress-Free Pet Care on Kanakapura Main Road
+      </h1>
+<!-- Subtitle -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-space-lg">
+        Bangalore's Trusted 100% Cage-Free Resort &amp; Fear-Free Grooming Studio. Gentle handling, temperature-controlled play suites, and certified master pet stylists.
+      </p>
+<!-- Center-Stage 2-Service Switcher (Segmented Control) -->
+<div class="w-full max-w-xl bg-surface-container-high p-1.5 rounded-full shadow-inner flex items-center justify-between gap-1 mb-space-md">
+<button class="flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm font-bold" id="toggle-boarding-btn" onclick="switchService('boarding')">
+<span class="material-symbols-outlined text-[20px] text-secondary-fixed">cottage</span>
+<span>Cage-Free Boarding</span>
+</button>
+<button class="flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface hover:text-primary font-semibold" id="toggle-grooming-btn" onclick="switchService('grooming')">
+<span class="material-symbols-outlined text-[20px] text-secondary">content_cut</span>
+<span>Pet Grooming &amp; Spa</span>
+</button>
+</div>
+<!-- Live Quick Stats Strip -->
+<div class="flex flex-wrap items-center justify-center gap-x-space-md gap-y-space-xs text-on-surface-variant font-label-md text-label-md bg-surface-container-lowest/80 px-space-lg py-2.5 rounded-full shadow-sm">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim inline-block animate-pulse"></span> 500+ Happy Tails</span>
+<span class="text-outline-variant font-light">•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">health_and_safety</span> 24/7 Vet On Call</span>
+<span class="text-outline-variant font-light">•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">lock_open</span> Zero Metal Cages</span>
+<span class="text-outline-variant font-light">•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">ac_unit</span> Climate Regulated</span>
+</div>
+</div>
+</section>
+<!-- 2. DEDICATED FRONT & CENTER PET SIZE SELECTOR (STEP 1) -->
+<section class="w-full px-gutter-md lg:px-gutter-lg pb-space-xl">
+<div class="max-w-6xl mx-auto bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md mb-space-lg">
+<div>
+<span class="inline-block px-space-sm py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase font-bold tracking-wider mb-2">Step 1 of 2</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">
+            Choose Your Pet Size <span class="text-on-surface-variant font-normal text-headline-md block sm:inline">(Prices Adjust Automatically)</span>
+</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            Transparent upfront rates with zero surprise charges at check-in.
+          </p>
+</div>
+<!-- Dog / Cat Switcher -->
+<div class="flex items-center bg-surface-container p-1 rounded-full self-start md:self-auto">
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md font-bold bg-primary text-on-primary shadow-sm flex items-center gap-1.5 transition-all" id="pet-dog-btn" onclick="setPetSpecies('dog')">
+<span>🐕 Dogs</span>
+</button>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all" id="pet-cat-btn" onclick="setPetSpecies('cat')">
+<span>🐈 Cats</span>
+</button>
+</div>
+</div>
+<!-- 3 Large Front-and-Center Interactive Size Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mb-space-lg">
+<!-- Card 1: Small (Selected Default) -->
+<div class="group cursor-pointer relative rounded-xl p-space-md transition-all duration-200 bg-surface-container-low shadow-md hover:shadow-lg" id="size-card-small" onclick="selectPetSize('small', 625, 499, 899)">
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[24px]">
+              🐶
+            </div>
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-bold" id="badge-small">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">check_circle</span> Selected
+            </span>
+</div>
+<div class="flex items-baseline justify-between mb-1">
+<h3 class="font-headline-md text-headline-md text-primary font-bold">Small Breed</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full font-semibold">&lt; 10 kg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+            Shih Tzu, Pug, Maltese, Pomeranian, Lhasa Apso &amp; Indie Pups.
+          </p>
+<div class="pt-space-sm bg-surface-container-lowest/80 p-space-sm rounded-lg flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Boarding From</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">₹625</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/night</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Medium -->
+<div class="group cursor-pointer relative rounded-xl p-space-md transition-all duration-200 bg-surface-container-lowest shadow-sm hover:shadow-md hover:bg-surface-container-low" id="size-card-medium" onclick="selectPetSize('medium', 750, 649, 1099)">
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-primary flex items-center justify-center text-[24px]">
+              🐕
+            </div>
+<span class="hidden inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-bold" id="badge-medium">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">check_circle</span> Selected
+            </span>
+</div>
+<div class="flex items-baseline justify-between mb-1">
+<h3 class="font-headline-md text-headline-md text-primary font-bold">Medium Breed</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full font-semibold">10 – 25 kg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+            Beagle, Indie Desi Dogs, Cocker Spaniel, Frenchie, Corgi.
+          </p>
+<div class="pt-space-sm bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Boarding From</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">₹750</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/night</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Large -->
+<div class="group cursor-pointer relative rounded-xl p-space-md transition-all duration-200 bg-surface-container-lowest shadow-sm hover:shadow-md hover:bg-surface-container-low" id="size-card-large" onclick="selectPetSize('large', 875, 799, 1299)">
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-primary flex items-center justify-center text-[24px]">
+              🦮
+            </div>
+<span class="hidden inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-bold" id="badge-large">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">check_circle</span> Selected
+            </span>
+</div>
+<div class="flex items-baseline justify-between mb-1">
+<h3 class="font-headline-md text-headline-md text-primary font-bold">Large Breed</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full font-semibold">&gt; 25 kg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+            Golden Retriever, Labrador, German Shepherd, Husky, Rottweiler.
+          </p>
+<div class="pt-space-sm bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Boarding From</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">₹875</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/night</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Breed Chips Carousel / Row -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Quick Breed Selector</span>
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 scrollbar-none">
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-primary-container text-on-primary font-bold shadow-sm" onclick="filterByBreedChip('all')">
+            ⭐ All Small Breeds
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('shihtzu')">
+            Shih Tzu
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('pug')">
+            Pug
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('beagle')">
+            Beagle
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('indie')">
+            Indie / Desi Dog
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('retriever')">
+            Golden Retriever
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('labrador')">
+            Labrador
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('shepherd')">
+            German Shepherd
+          </button>
+<button class="breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors" onclick="filterByBreedChip('cocker')">
+            Cocker Spaniel
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. DYNAMIC PRICING & SERVICE CARDS (STEP 2) -->
+<section class="w-full px-gutter-md lg:px-gutter-lg pb-space-xl">
+<div class="max-w-6xl mx-auto flex flex-col gap-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<span class="inline-block px-space-sm py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm uppercase font-bold tracking-wider mb-1">Step 2 of 2</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">
+            Select Your Service Package
+          </h2>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-space-md py-1.5 rounded-full self-start sm:self-auto">
+<span class="material-symbols-outlined text-secondary text-[16px]">info</span>
+<span>Configured for: <strong class="text-primary font-bold" id="current-size-display">Small Breed (&lt; 10 kg)</strong></span>
+</div>
+</div>
+<!-- BOARDING CARD / HERO OFFER (Prominent 12-column Bento Layout) -->
+<div class="w-full bg-surface-container-lowest rounded-xl overflow-hidden shadow-md transition-shadow hover:shadow-lg" id="boarding-section-anchor">
+<div class="grid grid-cols-1 lg:grid-cols-12 items-stretch">
+<!-- Image Feature Column -->
+<div class="lg:col-span-5 relative min-h-[260px] lg:min-h-[380px] bg-surface-container overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A sunlit, ultra-clean luxury dog hotel suite with an orthopedic bed, warm wooden flooring, living indoor plants, and a joyful Shih Tzu relaxing calmly without any cages or confinement, captured in architectural photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIQ6PjYp-uYwwbFhRXHWm6SLL5CdaCqCRYmAi35IcejmNgaFrObqQONfGJW0pXcbukfMXuLJgv_6ZYC42q5eGcgToPxLOF_UmjfS8rB-OetYbLp2SgX7tbPCbXeYNYFJigKULEg2CADKX9GKFAW6mtgfBlfxd9mju6Kg-XJV4wfhahpYtF0A0a0kvjNcxiY2dXZliQioehz5fpgEJE4VrfDxR11OaLU_J0rUsdmuFWKIVQpsdqQXMR"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+<div class="absolute top-space-md left-space-md">
+<span class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed px-space-sm py-1 rounded-full font-label-sm text-label-sm font-bold shadow-sm">
+<span class="material-symbols-outlined text-[14px]">star</span> Bangalore's Flagship Resort
+              </span>
+</div>
+<div class="absolute bottom-space-md left-space-md right-space-md text-on-primary">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-fixed block font-bold">Overnight Sanctuary</span>
+<p class="font-headline-sm text-headline-sm font-bold">100% Cage-Free Rest &amp; Lawn Play</p>
+</div>
+</div>
+<!-- Content & Booking Column -->
+<div class="lg:col-span-7 p-space-md lg:p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-sm">
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-md text-primary font-bold" id="boarding-card-title">
+                  Luxury Cage-Free Overnight Boarding (Small Breed Rate)
+                </h3>
+<span class="bg-surface-container px-space-sm py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant font-semibold">Overnight Stay</span>
+</div>
+<!-- Pricing Header -->
+<div class="flex flex-wrap items-baseline gap-space-sm mb-space-md">
+<span class="font-display-hero text-headline-lg md:text-display-hero text-primary font-extrabold" id="boarding-live-price">₹625</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant">/ night</span>
+<span class="font-body-md text-body-md text-outline line-through" id="boarding-strike-price">₹750</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-space-sm py-1 rounded-full font-bold">
+                  Save ₹125/day • Inaugural Offer
+                </span>
+</div>
+<!-- Key Value Bullets -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-space-md gap-y-space-sm mb-space-lg">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Private soundproof cozy suite with orthopedic bed</span>
+</div>
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">3 scheduled off-leash lawn walks in fenced green yard</span>
+</div>
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Live WhatsApp video updates &amp; photos twice daily</span>
+</div>
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Zero metal cages — 100% open-play socialization</span>
+</div>
+<div class="flex items-start gap-space-xs sm:col-span-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Custom fresh meal prep &amp; complimentary bedtime ear rubs</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="pt-space-md flex flex-col sm:flex-row items-center gap-space-sm">
+<button class="w-full sm:w-auto flex-1 h-12 rounded-full bg-surface-container-high text-primary hover:bg-surface-variant font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 transition-all" onclick="addToCart('Luxury Cage-Free Overnight Boarding', 625, 'boarding')">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Add to Cart</span>
+</button>
+<button class="w-full sm:w-auto flex-1 h-12 rounded-full bg-primary-container text-on-primary hover:bg-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-transform hover:scale-[1.01] active:scale-[0.98]" onclick="quickBook('Luxury Cage-Free Overnight Boarding', 625)">
+<span>Book Boarding Now</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- GROOMING & SPA HIGHLIGHTS (4 High-Clarity Service Cards) -->
+<div class="pt-space-md" id="grooming-section-anchor">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-md">
+<h3 class="font-headline-md text-headline-md text-primary font-bold">
+            Master Grooming &amp; Botanical Spa Packages
+          </h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Stress-free, certified groomers using organic hypoallergenic blends</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Package 1: Furry Fresh -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+<div>
+<div class="w-full h-36 rounded-lg overflow-hidden relative mb-space-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A clean, fluffy small dog happily getting a gentle bubble bath in a modern stainless steel ceramic grooming tub with natural eucalyptus shampoo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT_PE4sSzyKPbWmJyO6sqUmSg2xPPrvGv4bR6OmWdWJWho4Rg9sa5ugnKrxpxOms0I0u46R-1faxLjqo2HRmSaqborNyae54PdJyoHb-jjqOT0P3dcaXub9SvSrpbfjqyj1Vh8EOpz3Od6zt9Q9bzZIiRGPNAQHMCCI4sw-cWR2y4uwFmT1CIY1sGUJUvE-0o_WsWsx7V3DBAt9rWT531yBH8Il8QofG9YPQzpyXmZSEbttKGB-oqv"/>
+<span class="absolute top-2 left-2 bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">45 Mins</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold mb-1">Furry Fresh</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-space-sm">Essential Hygiene Bath &amp; Blow Dry</p>
+<div class="flex items-baseline gap-space-xs mb-space-md">
+<span class="font-headline-md text-headline-md text-primary font-bold" id="groom-p1-price">₹499</span>
+<span class="font-body-sm text-body-sm text-outline line-through" id="groom-p1-strike">₹650</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">(Small)</span>
+</div>
+<ul class="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Organic aloe botanical bath</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Warm low-noise blow-dry</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Nail clipping &amp; ear cleaning</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Sanitary hygiene trim</li>
+</ul>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-sm">
+<button class="w-full py-2.5 rounded-full bg-surface-container font-label-md text-label-md font-semibold text-primary hover:bg-surface-variant flex items-center justify-center gap-1 transition-colors" onclick="addToCart('Furry Fresh (Hygiene Bath)', 499, 'grooming')">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Add to Cart</span>
+</button>
+<button class="w-full py-2.5 rounded-full bg-primary-container font-label-md text-label-md font-bold text-on-primary hover:bg-primary flex items-center justify-center gap-1 transition-colors shadow-sm" onclick="quickBook('Furry Fresh (Hygiene Bath)', 499)">
+<span>Book Now</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Package 2: Special Package (Most Popular) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-md relative hover:shadow-lg transition-shadow">
+<!-- Gold ribbon badge -->
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-on-secondary px-space-md py-0.5 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-sm whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">stars</span> Most Popular
+            </div>
+<div>
+<div class="w-full h-36 rounded-lg overflow-hidden relative mb-space-sm bg-surface-container mt-1">
+<img class="w-full h-full object-cover" data-alt="A pampering spa moment with a dog getting gentle organic paw balm applied and a warm towel wrap in an upscale warm-wood pet studio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrI9bnjf54rKIGBTtFUGDllvg7YXyBLSwS79m07L7hK9EQWfedsSd5froNDRiKTFI1d5LVVvIZyyA2ON_bSfWwi5--E55j_s-CCQdZDkITH8wPHjBBtgh9dZI3_wMaMFhlPeRlbl569hcVXIoRj8wVILfIaSfttbzqoksqPFDa2XjAEe18rNUnALWkN0dRWvv06Q-7iwrhabyBb3ktt1HH6V7hqNJU3kakT8r9dW57CzBfA8FWaiFd"/>
+<span class="absolute top-2 left-2 bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">75 Mins</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold mb-1">Special Package</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-space-sm">Bath + Dental + Paw Balm</p>
+<div class="flex items-baseline gap-space-xs mb-space-md">
+<span class="font-headline-md text-headline-md text-primary font-bold" id="groom-p2-price">₹899</span>
+<span class="font-body-sm text-body-sm text-outline line-through" id="groom-p2-strike">₹1,150</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">(Small)</span>
+</div>
+<ul class="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary shrink-0">check</span> Deep cleansing botanical bath</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary shrink-0">check</span> Enzymatic teeth hygiene brush</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary shrink-0">check</span> Paw pad healing balm butter</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary shrink-0">check</span> Gentle gland expression &amp; mist</li>
+</ul>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-sm">
+<button class="w-full py-2.5 rounded-full bg-surface-container font-label-md text-label-md font-semibold text-primary hover:bg-surface-variant flex items-center justify-center gap-1 transition-colors" onclick="addToCart('Special Package (Bath + Dental)', 899, 'grooming')">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Add to Cart</span>
+</button>
+<button class="w-full py-2.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-md text-label-md font-bold hover:bg-secondary-fixed flex items-center justify-center gap-1 transition-colors shadow-sm" onclick="quickBook('Special Package (Bath + Dental)', 899)">
+<span>Book Package</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Package 3: Style Your Pet -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+<div>
+<div class="w-full h-36 rounded-lg overflow-hidden relative mb-space-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional master pet groomer neatly scissoring the coat of a fluffy poodle on an ergonomic hydraulic grooming table under soft bright vanity lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlgf--KRqAwV_VLC3Td5yq7C-9yEAqmZqp3XLmUW0njebJtI5YCj-ub46ZKqp5No02c3FHKD9yl11F2oP7qKE6A5bUIj0QlmKUPeQyqsF_0HPcJHOh3M6N0dwSDqzxjGTYh2h0w1y2WLkwR9OZQwXy75yjuhCqBpSiHGVeItPF2dOdafcXmafRGB3JSCud08u-bg0_7B2CMXSC-rV7BDKa9rImeld5h5M9xhIb6RLo76LM2cLPj4c_"/>
+<span class="absolute top-2 left-2 bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">90 Mins</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold mb-1">Style Your Pet</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-space-sm">Full Breed Styling &amp; Haircut</p>
+<div class="flex items-baseline gap-space-xs mb-space-md">
+<span class="font-headline-md text-headline-md text-primary font-bold">₹1,799</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Flat Rate</span>
+</div>
+<ul class="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Full customized breed scissors trim</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Aromatherapy conditioning bath</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Ear plucking &amp; sanitary groom</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Finishing cologne spritz</li>
+</ul>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-sm">
+<button class="w-full py-2.5 rounded-full bg-surface-container font-label-md text-label-md font-semibold text-primary hover:bg-surface-variant flex items-center justify-center gap-1 transition-colors" onclick="addToCart('Style Your Pet (Full Styling)', 1799, 'grooming')">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Add to Cart</span>
+</button>
+<button class="w-full py-2.5 rounded-full bg-primary-container font-label-md text-label-md font-bold text-on-primary hover:bg-primary flex items-center justify-center gap-1 transition-colors shadow-sm" onclick="quickBook('Style Your Pet (Full Styling)', 1799)">
+<span>Book Haircut</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Package 4: Full Spa & Medicated Anti-Tick Bath -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+<div>
+<div class="w-full h-36 rounded-lg overflow-hidden relative mb-space-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="An expert soothing pet spa treatment with botanical herbal oils applied by a calm certified therapist to a golden retriever dog resting comfortably." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpS4srxaE3u3fgUlE8_dW-AvlOrJNLbinNPsbEkmizHn-dxzc4s2PTp8zzDFDu8tr533YUGWeJi7QV0Oh1CILWsV9LCYqL0LPnca-g_QJYVAT8YZnqeK61OUi-ojEA9HpC6-KHjttULvKyq2XMsNeuyUPe8fo1ZqhxPTU-Oi6a0JcEmxgXJMsbZeTr-e1boajGQOkAct-UBamllu1Td3kk21SUjpcGTInPdxle03OqdtBhDRqNKw0Q"/>
+<span class="absolute top-2 left-2 bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">105 Mins</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold mb-1">Full Spa &amp; Medicated</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-space-sm">Herbal Anti-Tick Botanical Dip</p>
+<div class="flex items-baseline gap-space-xs mb-space-md">
+<span class="font-headline-md text-headline-md text-primary font-bold">₹2,199</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Flat Rate</span>
+</div>
+<ul class="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Herbal anti-tick botanical dip</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> De-shedding Furminator treatment</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Medicated soothing bath &amp; ozone</li>
+<li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary shrink-0">check</span> Full manual head-to-tail tick sweep</li>
+</ul>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-sm">
+<button class="w-full py-2.5 rounded-full bg-surface-container font-label-md text-label-md font-semibold text-primary hover:bg-surface-variant flex items-center justify-center gap-1 transition-colors" onclick="addToCart('Full Spa &amp; Medicated Anti-Tick Bath', 2199, 'grooming')">
+<span class="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+<span>Add to Cart</span>
+</button>
+<button class="w-full py-2.5 rounded-full bg-primary-container font-label-md text-label-md font-bold text-on-primary hover:bg-primary flex items-center justify-center gap-1 transition-colors shadow-sm" onclick="quickBook('Full Spa &amp; Medicated Anti-Tick Bath', 2199)">
+<span>Book Spa</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. COMPACT TRUST & STUDIO HIGHLIGHTS BAR -->
+<section class="w-full px-gutter-md lg:px-gutter-lg pb-space-xl">
+<div class="max-w-6xl mx-auto flex flex-col gap-space-lg">
+<!-- 4-Column Trust Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">cottage</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold">100% Cage-Free</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Air-conditioned indoor play areas with zero confinement.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold">24/7 CCTV &amp; Updates</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Live camera access and daily WhatsApp logs for parents.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">medical_services</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold">Vet On Call</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Direct speed-dial partner clinic 5 mins from facility.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_taxi</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold">AC Pet Taxi</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Stress-free pickup &amp; drop across South Bangalore.</p>
+</div>
+</div>
+</div>
+<!-- Location Card & Interactive Map Banner -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-center">
+<div class="lg:col-span-7 flex flex-col gap-space-sm">
+<div class="inline-flex items-center gap-1 text-primary font-label-sm text-label-sm uppercase font-bold tracking-wider">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Kanakapura Road Flagship
+            </div>
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary font-bold">
+              Visit Us in Person or Drop In Anytime
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Kanakapura Main Road (Beside Shani Mahatma Temple, 800m before Silk Institute Metro Station), Bangalore, Karnataka 560062.
+            </p>
+<div class="flex items-center gap-2 text-on-surface font-label-md text-label-md">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span>Open 7 Days a Week: <strong>9:00 AM – 8:00 PM</strong></span>
+</div>
+<!-- Action buttons -->
+<div class="pt-space-sm flex flex-wrap items-center gap-space-sm">
+<a class="px-space-md py-2.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md font-bold flex items-center gap-1.5 shadow-sm hover:bg-primary transition-colors" href="https://maps.google.com" target="_blank">
+<span class="material-symbols-outlined text-[18px]">map</span>
+<span>Open in Google Maps</span>
+</a>
+<a class="px-space-md py-2.5 rounded-full bg-surface-container text-primary font-label-md text-label-md font-bold flex items-center gap-1.5 hover:bg-surface-variant transition-colors" href="https://wa.me/919876543210" target="_blank">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+<span>Chat on WhatsApp (+91 98765 43210)</span>
+</a>
+</div>
+</div>
+<!-- Location Map Placeholder Triggering System Integration -->
+<div class="lg:col-span-5 h-56 lg:h-64 rounded-xl overflow-hidden shadow-sm relative" data-alt="A clean top-down graphic street map highlighting Kanakapura Main Road Bangalore near Silk Institute metro station with a lush green location pin marker." data-location="Kanakapura Main Road, Judicial Layout, Bangalore, Karnataka" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBD4wLFuB7XVSxTZC_sD4yzHZKAnJFc6hTuE9w6mmNHA1ITyoPe4xqmYV3FxO5GtWXwo0RMNIgxd4rcM-h07GZVEu0_6d1NCR07dvPbV76R3js11D-TLmo-X9tdWK1IEfiPWFD_iTqRo01qVIX5d3KpYHAxSDEzl6odpz2al5adRCmFrgsBjU3RB_mm8rIm7TWTOXqJ1Etvs2l5mOhlkGQVSKvcua9_QlVTxNP1aHRjDArKEjMH_Glb')">
+<div class="absolute inset-0 bg-primary/10"></div>
+<div class="absolute bottom-3 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px]">pin_drop</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Kanakapura Road Retreat</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. INTERACTIVE STICKY FLOATING CART PILL / BAR (Swiggy / Airbnb Hybrid) -->
+<aside class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto z-40 max-w-lg transition-transform duration-300" id="floating-cart-bar">
+<div class="bg-primary text-on-primary rounded-2xl p-space-sm sm:p-space-md shadow-xl flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="relative w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+<span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm flex items-center justify-center font-bold" id="cart-item-count">1</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 truncate">
+<span class="font-label-md text-label-md font-bold truncate" id="cart-item-name">Special Package (Bath + Dental)</span>
+<span class="hidden sm:inline font-label-sm text-label-sm text-primary-fixed bg-primary-container px-1.5 py-0.2 rounded" id="cart-item-size">Small</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-primary" id="cart-total-price">₹899</span>
+<span class="bg-secondary text-on-secondary px-1.5 py-0.5 rounded text-[10px] font-bold tracking-tight uppercase">GROOM10 (10% OFF)</span>
+</div>
+</div>
+</div>
+<button class="shrink-0 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-fixed px-space-md py-2.5 rounded-full font-label-md text-label-md font-bold flex items-center gap-1 transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-sm" onclick="handleCheckoutClick()">
+<span>Checkout</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</aside>
+<!-- Checkout Drawer / Mini Modal (Hidden by default, triggered by checkout) -->
+<div class="fixed inset-0 bg-primary/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-space-md" id="quick-checkout-modal">
+<div class="bg-surface-container-lowest w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-space-lg shadow-2xl flex flex-col gap-space-md animate-in fade-in duration-200">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">pets</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Reserve Appointment</h3>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="closeCheckoutModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div>
+<span class="font-label-md text-label-md text-primary font-bold block" id="modal-service-name">Special Package (Bath + Dental)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant" id="modal-service-details">Selected Size: Small Breed (&lt; 10 kg)</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary font-bold" id="modal-service-price">₹899</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface font-semibold">Pet Parent Name &amp; Phone</label>
+<input class="w-full h-11 px-space-sm rounded-lg bg-surface-container-lowest text-primary text-body-md shadow-sm outline-none focus:bg-surface-container-low mb-2" placeholder="e.g. Rahul Sharma" type="text"/>
+<input class="w-full h-11 px-space-sm rounded-lg bg-surface-container-lowest text-primary text-body-md shadow-sm outline-none focus:bg-surface-container-low" placeholder="+91 98450 XXXXX" type="tel"/>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface font-semibold">Preferred Date</label>
+<input class="w-full h-11 px-space-sm rounded-lg bg-surface-container-lowest text-primary text-body-md shadow-sm outline-none focus:bg-surface-container-low" type="date" value="2025-05-15"/>
+</div>
+<button class="w-full py-3 rounded-full bg-primary text-on-primary font-label-lg text-label-lg font-bold hover:bg-primary-container transition-colors shadow-md mt-space-xs" onclick="confirmBooking()">
+        Confirm via WhatsApp Concierge
+      </button>
+<span class="text-center font-body-sm text-body-sm text-on-surface-variant">
+        Zero advance payment required. Pay at studio check-in.
+      </span>
+</div>
+</div>
+</div>
+<script>
+  let currentSpecies = 'dog';
+  let currentSize = 'small';
+  let cartItem = {
+    name: 'Special Package (Bath + Dental)',
+    price: 899,
+    size: 'Small Breed (< 10 kg)',
+    type: 'grooming'
+  };
+
+  const pricingData = {
+    small: {
+      label: 'Small Breed (< 10 kg)',
+      boarding: 625,
+      boardingStrike: 750,
+      furryFresh: 499,
+      furryFreshStrike: 650,
+      specialPkg: 899,
+      specialPkgStrike: 1150
+    },
+    medium: {
+      label: 'Medium Breed (10 – 25 kg)',
+      boarding: 750,
+      boardingStrike: 900,
+      furryFresh: 649,
+      furryFreshStrike: 800,
+      specialPkg: 1099,
+      specialPkgStrike: 1350
+    },
+    large: {
+      label: 'Large Breed (> 25 kg)',
+      boarding: 875,
+      boardingStrike: 1050,
+      furryFresh: 799,
+      furryFreshStrike: 950,
+      specialPkg: 1299,
+      specialPkgStrike: 1550
+    }
+  };
+
+  function setPetSpecies(species) {
+    currentSpecies = species;
+    const dogBtn = document.getElementById('pet-dog-btn');
+    const catBtn = document.getElementById('pet-cat-btn');
+
+    if (species === 'dog') {
+      dogBtn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md font-bold bg-primary text-on-primary shadow-sm flex items-center gap-1.5 transition-all';
+      catBtn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all';
+    } else {
+      catBtn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md font-bold bg-primary text-on-primary shadow-sm flex items-center gap-1.5 transition-all';
+      dogBtn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all';
+    }
+  }
+
+  function selectPetSize(sizeKey) {
+    currentSize = sizeKey;
+    const data = pricingData[sizeKey];
+
+    // Update active visual classes on the 3 cards
+    ['small', 'medium', 'large'].forEach((k) => {
+      const card = document.getElementById(`size-card-${k}`);
+      const badge = document.getElementById(`badge-${k}`);
+      if (k === sizeKey) {
+        card.classList.remove('bg-surface-container-lowest', 'shadow-sm');
+        card.classList.add('bg-surface-container-low', 'shadow-md');
+        badge.classList.remove('hidden');
+      } else {
+        card.classList.remove('bg-surface-container-low', 'shadow-md');
+        card.classList.add('bg-surface-container-lowest', 'shadow-sm');
+        badge.classList.add('hidden');
+      }
+    });
+
+    // Update Step 2 dynamic elements
+    document.getElementById('current-size-display').innerText = data.label;
+    document.getElementById('boarding-card-title').innerText = `Luxury Cage-Free Overnight Boarding (${data.label.split(' ')[0]} Rate)`;
+    document.getElementById('boarding-live-price').innerText = `₹${data.boarding}`;
+    document.getElementById('boarding-strike-price').innerText = `₹${data.boardingStrike}`;
+
+    document.getElementById('groom-p1-price').innerText = `₹${data.furryFresh}`;
+    document.getElementById('groom-p1-strike').innerText = `₹${data.furryFreshStrike}`;
+
+    document.getElementById('groom-p2-price').innerText = `₹${data.specialPkg}`;
+    document.getElementById('groom-p2-strike').innerText = `₹${data.specialPkgStrike}`;
+  }
+
+  function filterByBreedChip(breed) {
+    if (breed === 'beagle' || breed === 'indie' || breed === 'cocker') {
+      selectPetSize('medium');
+    } else if (breed === 'retriever' || breed === 'labrador' || breed === 'shepherd') {
+      selectPetSize('large');
+    } else {
+      selectPetSize('small');
+    }
+
+    // Update chip styling
+    const chips = document.querySelectorAll('.breed-chip');
+    chips.forEach(chip => {
+      chip.className = 'breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container-low text-on-surface hover:bg-surface-container transition-colors';
+    });
+    if (event && event.currentTarget) {
+      event.currentTarget.className = 'breed-chip px-space-md py-1.5 rounded-full font-label-sm text-label-sm whitespace-nowrap bg-primary-container text-on-primary font-bold shadow-sm';
+    }
+  }
+
+  function switchService(service) {
+    const boardingBtn = document.getElementById('toggle-boarding-btn');
+    const groomingBtn = document.getElementById('toggle-grooming-btn');
+    const boardingAnchor = document.getElementById('boarding-section-anchor');
+    const groomingAnchor = document.getElementById('grooming-section-anchor');
+
+    if (service === 'boarding') {
+      boardingBtn.className = 'flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm font-bold';
+      groomingBtn.className = 'flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface hover:text-primary font-semibold';
+      boardingAnchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      groomingBtn.className = 'flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 bg-primary-container text-on-primary shadow-sm font-bold';
+      boardingBtn.className = 'flex-1 py-3 px-space-md rounded-full font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-all duration-200 text-on-surface hover:text-primary font-semibold';
+      groomingAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function addToCart(serviceName, basePrice, type) {
+    let finalPrice = basePrice;
+    if (type === 'boarding') {
+      finalPrice = pricingData[currentSize].boarding;
+    } else if (serviceName.includes('Furry Fresh')) {
+      finalPrice = pricingData[currentSize].furryFresh;
+    } else if (serviceName.includes('Special Package')) {
+      finalPrice = pricingData[currentSize].specialPkg;
+    }
+
+    cartItem = {
+      name: serviceName,
+      price: finalPrice,
+      size: pricingData[currentSize].label,
+      type: type
+    };
+
+    document.getElementById('cart-item-name').innerText = serviceName;
+    document.getElementById('cart-total-price').innerText = `₹${finalPrice}`;
+    document.getElementById('cart-item-size').innerText = pricingData[currentSize].label.split(' ')[0];
+
+    // Brief pop animation on floating cart
+    const bar = document.getElementById('floating-cart-bar');
+    bar.classList.add('scale-105');
+    setTimeout(() => bar.classList.remove('scale-105'), 200);
+  }
+
+  function quickBook(serviceName, basePrice) {
+    addToCart(serviceName, basePrice);
+    handleCheckoutClick();
+  }
+
+  function handleCheckoutClick() {
+    document.getElementById('modal-service-name').innerText = cartItem.name;
+    document.getElementById('modal-service-price').innerText = `₹${cartItem.price}`;
+    document.getElementById('modal-service-details').innerText = `Configured for: ${cartItem.size}`;
+    document.getElementById('quick-checkout-modal').classList.remove('hidden');
+  }
+
+  function closeCheckoutModal() {
+    document.getElementById('quick-checkout-modal').classList.add('hidden');
+  }
+
+  function confirmBooking() {
+    alert(`Thank you! Your booking for ${cartItem.name} (₹${cartItem.price}) has been received. Our concierge on Kanakapura Main Road will reach out on WhatsApp promptly.`);
+    closeCheckoutModal();
+  }
+</script></main><footer class="w-full bg-surface-container-low mt-space-xl shadow-[0_-2px_12px_rgba(20,43,32,0.02)]"><div class="w-full px-gutter-md lg:px-gutter-lg py-space-xl"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-lg mb-space-xl"><div class="flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">pets</span></div><span class="font-headline-sm text-headline-sm text-primary font-bold">Snip &amp; Style</span></div><p class="font-body-md text-body-md text-on-surface-variant">Bangalore's luxury pet resort &amp; master grooming studio. Tailored botanical spa baths, temperature-regulated kennel retreats, and certified master stylists.</p><div class="flex items-center gap-space-xs mt-space-xs"><span class="material-symbols-outlined text-secondary text-[16px]">verified</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">4.9 Star Rating from over 500+ happy pet parents</span></div></div><div class="flex flex-col gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Studio Location</span><div class="flex items-start gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px] mt-0.5">pin_drop</span><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface font-semibold">Flagship Retreat</span><p class="font-body-md text-body-md text-on-surface-variant">Survey No. 42/1, Off Kanakapura Main Road, Judicial Layout Phase 2, Bangalore, Karnataka 560062</p></div></div><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-primary text-[16px]">navigation</span><span class="font-body-sm text-body-sm">Landmark: 800m before Silk Institute Metro</span></div></div><div class="flex flex-col gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Hours &amp; Contact</span><div class="flex items-start gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px] mt-0.5">schedule</span><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface font-semibold">9:00 AM – 8:00 PM</span><span class="font-body-sm text-body-sm text-on-surface-variant">Open Daily (Monday – Sunday)</span></div></div><div class="flex items-start gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px] mt-0.5">call</span><div class="flex flex-col"><span class="font-body-md text-body-md text-on-surface font-semibold">+91 98450 12345</span><span class="font-body-sm text-body-sm text-on-surface-variant">concierge@snipandstyle.in</span></div></div></div><div class="flex flex-col gap-space-md"><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Quick Assistance</span><p class="font-body-md text-body-md text-on-surface-variant">Have a question about special coat treatments or dietary arrangements?</p><a class="inline-flex items-center justify-center gap-space-sm bg-primary text-on-primary px-space-lg py-space-sm rounded-full font-label-lg text-label-lg hover:bg-primary-container transition-colors shadow-sm" href="#"><span class="material-symbols-outlined text-[18px]">chat</span><span>WhatsApp Concierge</span></a></div></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container px-space-lg py-space-md rounded-xl"><span class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Snip &amp; Style Pet Resort &amp; Grooming Studio LLP. All rights reserved.</span><div class="flex items-center gap-space-lg"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface" data-path="faq" href="#">Safety Guidelines</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface" data-path="faq" href="#">Vaccination Policy</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface" data-path="faq" href="#">Terms &amp; Cancellation</a></div></div></div></footer></body></html>

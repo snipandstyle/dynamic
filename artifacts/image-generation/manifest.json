@@ -1,0 +1,42 @@
+[
+  {
+    "asset": "public/images/generated/pet-happy-place.webp",
+    "bytes": 199666,
+    "mode": "built-in image_gen",
+    "useCase": "photorealistic-natural",
+    "promptSummary": "Warm editorial hero: Shih Tzu in forest-green bandana, golden retriever and Persian cat on cream cushions in a sage and oak lounge. Natural light, realistic anatomy, no text or logos.",
+    "constraints": "Illustrative marketing photography, not documentation of the actual premises. No text, UI, logos, labels, or watermarks."
+  },
+  {
+    "asset": "public/images/generated/gentle-bath.webp",
+    "bytes": 87658,
+    "mode": "built-in image_gen",
+    "useCase": "photorealistic-natural",
+    "promptSummary": "A calm white-and-tan Shih Tzu having a gentle shampoo bath with an Indian groomer in a warm ivory salon. Natural light, realistic fur, no text or logos.",
+    "constraints": "Illustrative marketing photography, not documentation of the actual premises. No text, UI, logos, labels, or watermarks."
+  },
+  {
+    "asset": "public/images/generated/cosy-boarding.webp",
+    "bytes": 138464,
+    "mode": "built-in image_gen",
+    "useCase": "photorealistic-natural",
+    "promptSummary": "Relaxed beagle on an oat-coloured bed in a bright private cage-free suite with sage walls and oak details. Soft afternoon sunlight, no text or signs.",
+    "constraints": "Illustrative marketing photography, not documentation of the actual premises. No text, UI, logos, labels, or watermarks."
+  },
+  {
+    "asset": "public/images/generated/fresh-style.webp",
+    "bytes": 70224,
+    "mode": "built-in image_gen",
+    "useCase": "photorealistic-natural",
+    "promptSummary": "Freshly groomed apricot toy poodle being gently brushed on a sage table in an ivory and oak salon. Realistic anatomy, natural daylight, no text or logos.",
+    "constraints": "Illustrative marketing photography, not documentation of the actual premises. No text, UI, logos, labels, or watermarks."
+  },
+  {
+    "asset": "public/images/generated/cat-care.webp",
+    "bytes": 90062,
+    "mode": "built-in image_gen",
+    "useCase": "photorealistic-natural",
+    "promptSummary": "Fluffy silver Persian cat gently combed by an Indian groomer in a sage apron. Calm posture, ivory salon, natural light, no text or logos.",
+    "constraints": "Illustrative marketing photography, not documentation of the actual premises. No text, UI, logos, labels, or watermarks."
+  }
+]

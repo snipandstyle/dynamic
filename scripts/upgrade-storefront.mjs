@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+const file='components/booking/ReferenceStorefront.tsx';
+let source=fs.readFileSync(file,'utf8');
+source=source.replace('import { referenceImages } from "../../data/reference-assets";', 'import LandingHero from "./LandingHero";\nimport StayStory from "./StayStory";');
+const start=source.indexOf('      <section className="ref-hero">');
+const end=source.indexOf('      <section className="ref-container ref-size-panel"',start);
+if(start<0||end<0) throw new Error('Hero anchors missing');
+source=source.slice(0,start)+'      <LandingHero mode={mode} onMode={setMode} page={page} />\n\n'+source.slice(end);
+source=source.replace('      <section className="ref-container ref-support">','      <StayStory />\n      <section className="ref-container ref-support">');
+source=source.replaceAll('"/images/luxury_dog_grooming.jpg"','"/images/generated/gentle-bath.webp"').replaceAll('"/images/stylish_pet_haircut.jpg"','"/images/generated/fresh-style.webp"').replaceAll('"/images/clean_dog_boarding.jpg"','"/images/generated/cosy-boarding.webp"');
+source=source.replace('src={cardImages[index]}','src={species === "cat" ? "/images/generated/cat-care.webp" : cardImages[index]}');
+source=source.replace('            style={{ backgroundImage: `url(\'${referenceImages.map}\')` }}','');
+source=source.replace('            <span>\n              <Icon name="pin" size={16} />\n              Kanakapura Road Studio', '            <div className="studio-map-art" aria-hidden="true"><Icon name="pin" size={38} /><strong>Snip &amp; Style</strong><small>Beside Shani Mahatma Temple</small></div>\n            <span>\n              <Icon name="pin" size={16} />\n              Kanakapura Road Studio');
+source=source.replace('      {notice && (', '      <p className="ref-image-note ref-container">Pet imagery is illustrative. We’d love to show you around the studio in person.</p>\n      {notice && (');
+fs.writeFileSync(file,source);

@@ -1,0 +1,1038 @@
+/* Playful storefront details. Booking controls keep their predictable layout. */
+.pet-site {
+  --green: #173f32;
+  --ink: #173d31;
+  --cream: #fffaf1;
+  --line: #e6e5d8;
+}
+.pet-announcement {
+  background: #153e30;
+  color: #fff2d5;
+  font-size: 11px;
+  letter-spacing: 0.1px;
+}
+.pet-header {
+  background: #fffdf5f5;
+  backdrop-filter: blur(16px);
+}
+.pet-brand-mark {
+  background: #e7aa45;
+  color: #173d31;
+  border-radius: 45% 48% 41% 46%;
+  box-shadow: 3px 3px 0 #214936;
+}
+.pet-brand-amp {
+  color: #b27524;
+}
+.pet-hero {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 90% 25%, #eedba7aa, transparent 47%),
+    radial-gradient(ellipse at 4% 96%, #e8efda, transparent 36%), #fffaf1;
+  padding-top: 66px;
+  padding-bottom: 70px;
+}
+.pet-hero:after {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  right: -80px;
+  bottom: -65px;
+  border: 1px solid #cbd5b9;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 18px #eaf0da,
+    0 0 0 19px #d5debf;
+  pointer-events: none;
+}
+.pet-hero-grid {
+  position: relative;
+  z-index: 1;
+  gap: 85px;
+}
+.pet-hero-copy {
+  animation: pet-arrive 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pet-hero h1 {
+  font-weight: 650;
+  letter-spacing: -3.4px;
+  font-size: clamp(48px, 5.1vw, 73px);
+  line-height: 1.08;
+}
+.pet-hero h1 em {
+  font-weight: 700;
+  color: #35624a;
+}
+.pet-gold-dot {
+  color: #ca8e2a;
+}
+.pet-location-chip {
+  background: #edf2df;
+  border: 1px solid #d5dfbe;
+  border-radius: 30px;
+  padding: 7px 12px;
+  letter-spacing: 1px;
+  color: #526741;
+  font-size: 8px;
+}
+.pet-location-chip > span {
+  background: #789b46;
+  box-shadow: 0 0 0 4px #dce7c8;
+}
+.pet-hero-copy > p {
+  font-size: 14px;
+  max-width: 395px;
+  line-height: 1.9;
+  color: #61725d;
+}
+.pet-button {
+  border-radius: 10px;
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.pet-button > svg {
+  transition: transform 0.2s;
+}
+.pet-button:hover > svg {
+  transform: translateX(3px);
+}
+.pet-hero-buttons > .pet-button {
+  background: #e8ad48;
+  border: 1px solid #d99b35;
+  color: #203f2c !important;
+  box-shadow: 0 4px 0 #c59032;
+  font-weight: 800;
+  min-height: 52px;
+}
+.pet-hero-buttons > .pet-button:hover {
+  background: #f0bc61;
+  box-shadow: 0 6px 0 #c59032;
+  transform: translateY(-2px);
+}
+.pet-hero-buttons > .pet-button:active {
+  box-shadow: 0 1px 0 #c59032;
+  transform: translateY(3px);
+}
+.pet-hero-visual {
+  isolation: isolate;
+  animation: pet-arrive 0.9s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pet-hero-photo-outline {
+  position: absolute;
+  z-index: -1;
+  inset: -13px 12px 33px -13px;
+  border: 2px solid #c9984b;
+  border-radius: 47% 47% 20px 20px;
+  transform: rotate(-4deg);
+}
+.pet-hero-image {
+  border: 6px solid #fffcf2;
+  box-shadow: 0 15px 40px #35472e15;
+  border-radius: 46% 46% 19px 19px;
+}
+.pet-hero-stamp {
+  background: #f1bc54;
+  color: #26452b;
+  right: -25px;
+  top: 4px;
+  width: 108px;
+  height: 108px;
+  box-shadow: 0 5px 12px #5a4c1712;
+  animation: pet-stamp-sway 7s ease-in-out infinite;
+}
+.pet-floating-note {
+  border: 1px solid #dbdfca;
+  box-shadow: 0 12px 30px #23472f12;
+  border-radius: 14px;
+  animation: pet-float 6s ease-in-out infinite;
+}
+.pet-floating-icon {
+  background: #f3e0b5;
+}
+.pet-floating-note > svg {
+  color: #d39a33;
+}
+.pet-visual-scribble {
+  color: #8d733d;
+  font-size: 11px;
+}
+.pet-hero-proof {
+  margin-top: 31px;
+}
+.pet-proof-icon {
+  background: #e7efd6;
+  border: 1px dashed #94aa73;
+  transform: rotate(-8deg);
+}
+.pet-doodle {
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+  color: #50704a;
+  width: 100px;
+  height: 100px;
+}
+.pet-hero-doodles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pet-doodle-bone {
+  position: absolute;
+  top: 28px;
+  left: 42%;
+  width: 49px;
+  height: 49px;
+  transform: rotate(21deg);
+  opacity: 0.55;
+  animation: pet-wiggle 8s ease-in-out infinite;
+}
+.pet-doodle-flower {
+  position: absolute;
+  bottom: 36px;
+  left: 42%;
+  width: 58px;
+  height: 58px;
+  color: #bb9149;
+  opacity: 0.7;
+  animation: pet-flower-turn 24s linear infinite;
+}
+.pet-doodle-spark {
+  position: absolute;
+  font-family: Georgia, serif;
+  color: #c19442;
+  animation: pet-twinkle 4s ease-in-out infinite;
+}
+.pet-spark-one {
+  left: 3%;
+  top: 50px;
+  font-size: 43px;
+}
+.pet-spark-two {
+  left: 49%;
+  bottom: 70px;
+  font-size: 30px;
+  animation-delay: -2s;
+}
+.pet-hero-dog {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  left: -53px;
+  bottom: 80px;
+  transform: rotate(-15deg);
+  padding: 8px;
+  background: #f8e9c5;
+  border: 1px solid #d6c693;
+  border-radius: 44% 48% 43% 42%;
+  box-shadow: 0 6px 20px #3f4c1e0d;
+  animation: pet-dog-hello 6s ease-in-out infinite;
+  color: #516a3c;
+}
+.pet-hero-cat {
+  position: absolute;
+  width: 69px;
+  height: 69px;
+  right: 1px;
+  bottom: 104px;
+  color: #fdf5de;
+  filter: drop-shadow(0 1px 2px #112b25);
+  transform: rotate(12deg);
+}
+.pet-bath-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 45% 45% 20px 20px;
+}
+.pet-bath-bubbles i {
+  display: block;
+  position: absolute;
+  bottom: 20%;
+  left: 15%;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #ffffffb3;
+  box-shadow: inset 3px 3px 4px #ffffff57;
+  border-radius: 50%;
+  background: #ffffff12;
+  animation: pet-bubbles 9s linear infinite;
+}
+.pet-bath-bubbles i:nth-child(2) {
+  left: 82%;
+  bottom: 12%;
+  width: 27px;
+  height: 27px;
+  animation-delay: -4s;
+  animation-duration: 11s;
+}
+.pet-bath-bubbles i:nth-child(3) {
+  left: 25%;
+  bottom: 30%;
+  width: 10px;
+  height: 10px;
+  animation-delay: -7s;
+  animation-duration: 8s;
+}
+.pet-bath-bubbles i:nth-child(4) {
+  left: 73%;
+  bottom: 40%;
+  width: 14px;
+  height: 14px;
+  animation-delay: -2s;
+  animation-duration: 12s;
+}
+.pet-trust-strip {
+  background: #f0f2df;
+  border-color: #e0e5ca;
+}
+.pet-trust-strip .pet-container > div {
+  font-size: 11px;
+}
+.pet-trust-strip svg {
+  color: #698551;
+}
+.pet-happy-ribbon {
+  background: #eab65c;
+  padding: 11px 0;
+  overflow: hidden;
+  color: #3f502e;
+  border-block: 1px solid #d8a64d;
+  transform: rotate(-0.6deg);
+  position: relative;
+  z-index: 2;
+  margin-top: -1px;
+}
+.pet-happy-ribbon > div {
+  display: flex;
+  width: max-content;
+  animation: pet-ribbon-travel 48s linear infinite;
+}
+.pet-happy-ribbon span {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding-right: 25px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+.pet-section-heading h2 {
+  font-weight: 600;
+  letter-spacing: -1.1px;
+}
+.pet-eyebrow {
+  color: #8e7440;
+}
+.pet-handwritten {
+  color: #a37a37;
+}
+.pet-menu-section {
+  background: #fffdf6;
+  position: relative;
+}
+.pet-menu-section:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#b6bd941a 0.8px, transparent 0.8px);
+  background-size: 15px 15px;
+  mask-image: linear-gradient(transparent, #000 60%, transparent);
+}
+.pet-menu-section > .pet-container {
+  position: relative;
+}
+.pet-pet-selector {
+  border-radius: 15px;
+  background: #edf1df;
+  border-color: #d7e0c5;
+  box-shadow: 0 4px 0 #e3e8d7;
+}
+.pet-segment {
+  background: #e0e8d1;
+  border-color: #d5dfc2;
+}
+.pet-segment button[aria-pressed="true"] {
+  background: #214c38;
+  color: #fff;
+  box-shadow: 0 3px 7px #2845261a;
+}
+.pet-service-grid {
+  gap: 24px;
+}
+.pet-service-card {
+  border-radius: 17px;
+  border-color: #e0e3d2;
+  background: linear-gradient(160deg, #fffdf6 0%, #fff 55%);
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s,
+    border-color 0.25s;
+  overflow: hidden;
+  box-shadow: 0 5px 0 #e7eadc80;
+}
+.pet-service-card:before {
+  content: "";
+  position: absolute;
+  top: -35px;
+  right: -35px;
+  width: 115px;
+  height: 115px;
+  border: 1px dashed #c9d5b6;
+  border-radius: 50%;
+  opacity: 0.45;
+  pointer-events: none;
+}
+.pet-service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px #334d2810;
+  border-color: #a3b58d;
+}
+.pet-service-card:nth-child(3n + 1) {
+  background: linear-gradient(150deg, #fff4e0, #fff 46%);
+}
+.pet-service-card:nth-child(3n) {
+  background: linear-gradient(150deg, #f3f0fa, #fff 46%);
+}
+.pet-service-card.pet-featured {
+  border-color: #648052;
+  background: linear-gradient(150deg, #eaf1dc, #fcfdf8 70%);
+  box-shadow: 0 5px 0 #d2ddc3;
+}
+.pet-service-icon {
+  border-radius: 14px;
+  transform: rotate(-5deg);
+  transition: transform 0.3s;
+  box-shadow: 2px 3px 0 #283d2110;
+}
+.pet-service-card:hover .pet-service-icon {
+  transform: rotate(5deg) scale(1.08);
+}
+.pet-card-tag {
+  background: #f2c26b;
+  border-color: #dfab50;
+  color: #51401c;
+  box-shadow: 0 2px 0 #d9a85333;
+  font-size: 9px;
+  padding: 5px 10px;
+  transform: rotate(2deg);
+}
+.pet-service-title h3 {
+  font-weight: 750;
+  font-size: 21px;
+}
+.pet-service-title > span {
+  font-size: 10px;
+}
+.pet-service-title > p {
+  font-size: 12px;
+}
+.pet-service-price strong {
+  font-weight: 750;
+  font-size: 32px;
+}
+.pet-inclusions li {
+  font-size: 11px;
+}
+.pet-service-card > .pet-button {
+  border-radius: 9px;
+  min-height: 46px;
+}
+.pet-service-card.pet-featured > .pet-button {
+  background: #214b36;
+  box-shadow: 0 3px 0 #142f23;
+}
+.pet-festival-section {
+  padding: 65px 0;
+  background: #163f32;
+  color: #fffae9;
+  position: relative;
+  overflow: hidden;
+}
+.pet-festival-section:before {
+  content: "✧";
+  position: absolute;
+  right: 3%;
+  top: 1%;
+  font-size: 200px;
+  color: #ddb15e10;
+  line-height: 1;
+  pointer-events: none;
+}
+.pet-festival-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 58px;
+  align-items: center;
+}
+.pet-festival-art {
+  position: relative;
+  transform: rotate(-2deg);
+  padding: 7px;
+  background: #f5e5b2;
+  border-radius: 17px;
+  box-shadow: 7px 9px 0 #0e3028;
+}
+.pet-festival-art img {
+  aspect-ratio: 1.6;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.pet-festival-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: #fff8dfed;
+  color: #35513a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px;
+  font-size: 10px;
+  border-radius: 7px;
+}
+.pet-festival-copy .pet-eyebrow {
+  color: #e8bd6b;
+  font-size: 8px;
+}
+.pet-festival-copy h2 {
+  font-size: 35px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+.pet-festival-copy h2 em {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: #ebbf6d;
+  font-weight: 600;
+  font-size: 40px;
+}
+.pet-festival-copy > p {
+  font-size: 12px;
+  color: #d2decb;
+  line-height: 1.9;
+  max-width: 380px;
+  margin-top: 16px;
+}
+.pet-perk-tickets {
+  display: grid;
+  gap: 12px;
+  margin-top: 23px;
+}
+.pet-perk-tickets > a {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: #ffffff0a;
+  border: 1px dashed #b6c4a966;
+  border-radius: 10px;
+  padding: 13px 16px;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+.pet-perk-tickets > a:hover {
+  background: #ffffff13;
+  transform: translateX(4px);
+}
+.pet-ticket-icon {
+  display: grid;
+  place-items: center;
+  height: 38px;
+  width: 38px;
+  background: #e4b76b;
+  color: #1b432f;
+  border-radius: 50%;
+}
+.pet-perk-tickets strong {
+  font-size: 16px;
+  display: block;
+  font-weight: 750;
+}
+.pet-perk-tickets div > span {
+  font-size: 10px;
+  display: block;
+  color: #c4d2b9;
+}
+.pet-perk-tickets > a > svg {
+  margin-left: auto;
+  color: #e3b76b;
+}
+.pet-festival-handnote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d5d7ac;
+  font-size: 12px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  margin-top: 12px;
+}
+.pet-festival-handnote svg {
+  width: 45px;
+  height: 45px;
+  color: #d5b774;
+  transform: rotate(-110deg);
+}
+.pet-how {
+  background: #eff2df;
+  border-color: #dde4c6;
+}
+.pet-how-card > svg {
+  color: #68824c;
+}
+.pet-step-number {
+  color: #cfdcbc;
+}
+.pet-care-image {
+  transform: rotate(-1.5deg);
+  border: 7px solid white;
+  border-radius: 17px 90px 17px 17px;
+  box-shadow: 7px 8px 0 #e9e0bf;
+}
+.pet-care-copy .pet-text-link {
+  border-bottom: 1px dashed #a2ad8a;
+  padding-bottom: 5px;
+}
+.pet-visit {
+  background: #e7edcf;
+}
+.pet-visit-icon {
+  background: #d7e2b6;
+  border: 1px dashed #9eb080;
+}
+.pet-footer {
+  background: #fffdf5;
+}
+.pet-flow-heading h1 {
+  font-weight: 600;
+}
+.pet-flow-heading {
+  position: relative;
+}
+.pet-heading-dot {
+  color: #d69e38;
+}
+.pet-empty {
+  background: #eff3df;
+  border-color: #c4d1ac;
+}
+.pet-empty-icon {
+  background: #e6d6ad;
+  transform: rotate(-6deg);
+}
+.pet-cart-card,
+.pet-form-card,
+.pet-summary {
+  border-radius: 16px;
+}
+.pet-summary {
+  border-color: #d7dfc6;
+  box-shadow: 0 5px 0 #e6ead9;
+}
+.pet-summary-heading > svg {
+  color: #a98034;
+}
+.pet-savings {
+  background: #eaf1da;
+  border: 1px dashed #cad8ae;
+}
+.pet-checkout-progress .pet-step-active button > span {
+  box-shadow: 0 3px 0 #d9e0cd;
+}
+.pet-confirmation-check {
+  background: #f0d69d;
+  box-shadow: 6px 6px 0 #e4eacb;
+}
+@keyframes pet-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pet-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+@keyframes pet-stamp-sway {
+  0%,
+  100% {
+    transform: rotate(9deg);
+  }
+  50% {
+    transform: rotate(17deg);
+  }
+}
+@keyframes pet-dog-hello {
+  0%,
+  70%,
+  100% {
+    transform: rotate(-13deg) translateY(0);
+  }
+  78% {
+    transform: rotate(-5deg) translateY(-5px);
+  }
+  86% {
+    transform: rotate(-17deg) translateY(-3px);
+  }
+}
+@keyframes pet-wiggle {
+  0%,
+  100% {
+    transform: rotate(21deg);
+  }
+  50% {
+    transform: rotate(35deg) translateY(-5px);
+  }
+}
+@keyframes pet-flower-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pet-twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+@keyframes pet-bubbles {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) translateX(0);
+  }
+  15% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) translateX(20px);
+  }
+}
+@keyframes pet-ribbon-travel {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 1050px) {
+  .pet-hero-grid {
+    gap: 55px;
+  }
+  .pet-hero h1 {
+    font-size: 59px;
+  }
+  .pet-hero-dog {
+    width: 75px;
+    height: 75px;
+    left: -30px;
+    bottom: 95px;
+  }
+  .pet-hero-cat {
+    width: 57px;
+    height: 57px;
+  }
+  .pet-festival-grid {
+    gap: 35px;
+  }
+  .pet-festival-copy h2 {
+    font-size: 30px;
+  }
+  .pet-festival-copy h2 em {
+    font-size: 34px;
+  }
+}
+@media (max-width: 760px) {
+  .pet-announcement {
+    font-size: 10px;
+  }
+  .pet-hero {
+    padding: 32px 0 44px;
+  }
+  .pet-hero-grid {
+    gap: 34px;
+  }
+  .pet-hero h1 {
+    font-size: 54px;
+    letter-spacing: -2.7px;
+  }
+  .pet-hero-copy > p {
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .pet-location-chip {
+    font-size: 7px;
+    letter-spacing: 0.6px;
+    padding: 7px 10px;
+  }
+  .pet-hero-buttons {
+    gap: 17px;
+  }
+  .pet-hero-buttons > .pet-button {
+    font-size: 11px;
+    padding: 13px 18px;
+  }
+  .pet-hero-visual {
+    padding-inline: 14px;
+  }
+  .pet-hero-image {
+    height: 350px;
+    border-width: 5px;
+  }
+  .pet-hero-photo-outline {
+    inset: -9px 22px 33px 4px;
+    border-radius: 47% 47% 20px 20px;
+    transform: rotate(-3deg);
+  }
+  .pet-hero-stamp {
+    width: 88px;
+    height: 88px;
+    right: 4px;
+    top: -10px;
+  }
+  .pet-hero-dog {
+    width: 68px;
+    height: 68px;
+    left: 0;
+    bottom: 90px;
+    padding: 6px;
+  }
+  .pet-hero-cat {
+    width: 53px;
+    height: 53px;
+    right: 12px;
+    bottom: 105px;
+  }
+  .pet-doodle-bone {
+    top: 20px;
+    left: auto;
+    right: -12px;
+    width: 45px;
+    height: 45px;
+  }
+  .pet-doodle-flower {
+    left: auto;
+    right: 8px;
+    bottom: 475px;
+    width: 35px;
+    height: 35px;
+  }
+  .pet-spark-one {
+    left: auto;
+    right: 28px;
+    top: 255px;
+    font-size: 33px;
+    opacity: 0.5;
+  }
+  .pet-spark-two {
+    left: 20px;
+    bottom: 26px;
+    font-size: 25px;
+  }
+  .pet-hero-proof {
+    margin-top: 26px;
+  }
+  .pet-floating-note {
+    padding: 12px 14px;
+    bottom: 8px;
+    left: 9px;
+    border-radius: 12px;
+  }
+  .pet-floating-note strong {
+    font-size: 10px;
+  }
+  .pet-visual-scribble {
+    font-size: 9px;
+  }
+  .pet-happy-ribbon {
+    padding: 9px 0;
+    transform: rotate(-0.8deg);
+  }
+  .pet-happy-ribbon span {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    gap: 20px;
+    padding-right: 20px;
+  }
+  .pet-trust-strip .pet-container > div {
+    font-size: 10px;
+  }
+  .pet-section-heading h2 {
+    font-size: 27px;
+  }
+  .pet-service-grid {
+    gap: 20px;
+  }
+  .pet-service-card {
+    padding: 25px;
+  }
+  .pet-service-title h3 {
+    font-size: 23px;
+  }
+  .pet-service-title > p {
+    font-size: 12px;
+  }
+  .pet-inclusions li {
+    font-size: 12px;
+  }
+  .pet-card-tag {
+    font-size: 10px;
+  }
+  .pet-festival-section {
+    padding: 40px 0;
+  }
+  .pet-festival-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .pet-festival-art {
+    margin: 3px 5px;
+  }
+  .pet-festival-art img {
+    aspect-ratio: 1.65;
+  }
+  .pet-festival-caption {
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    font-size: 8px;
+    padding: 8px;
+  }
+  .pet-festival-copy h2 {
+    font-size: 32px;
+  }
+  .pet-festival-copy h2 em {
+    font-size: 36px;
+  }
+  .pet-festival-copy > p {
+    font-size: 12px;
+  }
+  .pet-perk-tickets > a {
+    padding: 13px;
+  }
+  .pet-perk-tickets strong {
+    font-size: 16px;
+  }
+  .pet-perk-tickets div > span {
+    font-size: 10px;
+  }
+  .pet-festival-handnote {
+    font-size: 11px;
+  }
+  .pet-menu-section {
+    padding: 45px 0;
+  }
+  .pet-care-image {
+    border-width: 5px;
+  }
+  .pet-announcement-end {
+    display: none;
+  }
+}
+@media (max-width: 360px) {
+  .pet-hero h1 {
+    font-size: 47px;
+  }
+  .pet-hero-buttons {
+    gap: 14px;
+  }
+  .pet-hero-buttons > .pet-button {
+    padding-inline: 13px;
+  }
+  .pet-location-chip {
+    font-size: 6px;
+  }
+  .pet-hero-image {
+    height: 310px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pet-site *,
+  .pet-site *:before,
+  .pet-site *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .pet-hero-copy,
+  .pet-hero-visual {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+.pet-paw-word {
+  display: inline-block;
+  margin-left: 0.08em;
+}
+.pet-brand-mark {
+  background: #fff;
+  box-shadow: 2px 3px 0 #e2ba68;
+  border: 1px solid #eadbb9;
+  overflow: hidden;
+  transform: rotate(-4deg);
+}
+.pet-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+  transform: rotate(4deg);
+}
+
+.pet-hero h1 {
+  word-spacing: 0.04em;
+}
+@media (max-width: 760px) {
+  .pet-hero h1 {
+    font-size: 46px;
+    letter-spacing: -2px;
+    line-height: 1.13;
+    word-spacing: 0.07em;
+  }
+  .pet-hero h1 br:nth-of-type(2) {
+    display: initial;
+  }
+  .pet-hero h1 em {
+    display: inline-block;
+  }
+  .pet-hero .pet-paw-word {
+    margin-left: 0.03em;
+  }
+  .pet-hero-copy > p {
+    margin-top: 21px;
+  }
+  .pet-hero-grid {
+    gap: 30px;
+  }
+}
+@media (max-width: 360px) {
+  .pet-hero h1 {
+    font-size: 42px;
+  }
+}
