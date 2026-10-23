@@ -18,15 +18,8 @@ import PetPicker from "./PetPicker";
 import CompletePriceMenu from "./CompletePriceMenu";
 import { priceSize } from "../../data/pet-selection";
 import { PRIMARY_GROOMING, packageDetails } from "../../data/package-details";
+import { groomingImage } from "../../data/grooming-images";
 
-const images = [
-  "gentle-bath",
-  "fresh-style",
-  "fresh-style",
-  "gentle-bath",
-  "pet-happy-place",
-  "gentle-bath",
-];
 export default function ReferenceStorefront({
   page = "home",
 }: {
@@ -355,10 +348,11 @@ export default function ReferenceStorefront({
                 )}
                 <div className="ref-groom-image">
                   <img
-                    src={`/images/generated/${species === "cat" ? "cat-care" : images[index]}.webp`}
+                    src={groomingImage(service.id, species)}
                     loading="lazy"
-                    width="1200"
-                    height="800"
+                    decoding="async"
+                    width="960"
+                    height="640"
                     alt={`${service.name} for ${species === "cat" ? "cats" : "dogs"}`}
                   />
                   <span>

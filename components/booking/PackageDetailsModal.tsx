@@ -3,6 +3,7 @@ import React from "react";
 import { Icon } from "./BookingUI";
 import { GROOMING, money, PetSize, PetType } from "../../data/catalog";
 import { putBookingItem } from "../../utils/booking-cart";
+import { groomingImage } from "../../data/grooming-images";
 
 interface PackageDetailsModalProps {
   isOpen: boolean;
@@ -64,19 +65,7 @@ export default function PackageDetailsModal({
     onClose();
   };
 
-  const imagesByService: Record<string, string> = {
-    "furry-fresh": "/images/generated/gentle-bath.webp",
-    "special-package": "/images/generated/fresh-style.webp",
-    "style-your-pet": "/images/stylish_pet_haircut.jpg",
-    "full-grooming": "/images/luxury_dog_grooming.jpg",
-    "puppy-kitten-spa": "/images/before_after_grooming.jpg",
-    "medicated-bath": "/images/clean_dog_boarding.jpg",
-  };
-
-  const imageSrc =
-    selectedType === "cat"
-      ? "/images/generated/cat-care.webp"
-      : imagesByService[service.id] || "/images/generated/gentle-bath.webp";
+  const imageSrc = groomingImage(service.id, selectedType);
 
   return (
     <div
@@ -96,6 +85,9 @@ export default function PackageDetailsModal({
             <img
               src={imageSrc}
               alt={service.name}
+              width="960"
+              height="640"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "/images/generated/gentle-bath.webp";
