@@ -174,7 +174,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
       className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-[#FAF8F5] text-left"
     >
       <div className="max-w-6xl mx-auto space-y-12">
-        
+
         {/* Breadcrumb & Header */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-xs font-bold text-sanctuary-dark/60">
@@ -198,7 +198,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
 
         {/* 2-Column Split: Image Showcase & Real Rates */}
         <div className="grid lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left: Studio Photo & Inclusions */}
           <div className="lg:col-span-5 space-y-4">
             {/* Dasara Festive Boarding Feature Card */}
@@ -266,7 +266,7 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
 
           {/* Right: Boarding Rate Cards */}
           <div className="lg:col-span-7 space-y-4">
-            
+
             {/* Rates Switcher Tabs */}
             <div className="flex items-center justify-between pb-1">
               <h3 className="text-lg font-black text-sanctuary-dark">Daily Per-Day Boarding Rates</h3>
