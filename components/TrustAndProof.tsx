@@ -85,8 +85,8 @@ export const TrustAndProof: React.FC = () => {
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">Daily Nature Walks & Playtime</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70">Open green lawn walks and interactive playtime sessions twice a day.</p>
+                    <h4 className="text-xs font-black text-sanctuary-dark">Staff Playtime With Dogs</h4>
+                    <p className="text-[11px] text-sanctuary-dark/70">Our dedicated staff members play with dogs daily, with fun interactive games and personal attention.</p>
                   </div>
                 </div>
 

@@ -1,0 +1,6 @@
+import fs from 'node:fs';import dotenv from 'dotenv';import assert from 'node:assert/strict';
+const root='D:/Website/Snipnstyle/v3-customer-ui';const source={};for(const name of ['.env','.env.local']){const file=root+'/'+name;if(fs.existsSync(file))Object.assign(source,dotenv.parse(fs.readFileSync(file)));}
+assert.ok(source.RAZORPAY_KEY_ID?.startsWith('rzp_live_'),'The source project must contain live payment keys.');
+const current=dotenv.parse(fs.readFileSync('.env'));for(const key of ['RAZORPAY_KEY_ID','RAZORPAY_KEY_SECRET','RAZORPAY_WEBHOOK_SECRET']){assert.ok(source[key],key+' is missing from the source project.');current[key]=source[key];}
+fs.writeFileSync('.env',Object.entries(current).map(([key,value])=>key+'='+JSON.stringify(value)).join('\n')+'\n',{mode:0o600});
+const saved=dotenv.parse(fs.readFileSync('.env'));const report={checkedAt:new Date().toISOString(),mode:'live',source:'v3-customer-ui',keysMatchSource:['RAZORPAY_KEY_ID','RAZORPAY_KEY_SECRET','RAZORPAY_WEBHOOK_SECRET'].every(key=>saved[key]===source[key]),testCredentialsSeparate:true};fs.writeFileSync('artifacts/production/live-payment-config.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

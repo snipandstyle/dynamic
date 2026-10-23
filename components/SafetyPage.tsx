@@ -27,10 +27,10 @@ export const SafetyPage: React.FC<SafetyPageProps> = ({ onOpenBooking, onNavigat
       badge: 'Trained Handlers',
     },
     {
-      icon: 'nature_people',
-      title: 'Daily Meadow Play & Lawn Walks',
-      desc: 'Active outdoor play sessions and nature walks to keep energy balanced, joints healthy, and tails wagging happily during every boarding stay.',
-      badge: 'Daily Romps',
+      icon: 'diversity_1',
+      title: 'Staff Playtime & Personalized Care',
+      desc: 'Our caring staff members actively play with every dog, providing continuous attention, gentle affection, and fun interactive games during their stay.',
+      badge: 'Dedicated Staff',
     },
     {
       icon: 'water_drop',

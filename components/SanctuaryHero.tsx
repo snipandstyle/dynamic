@@ -233,7 +233,7 @@ export const SanctuaryHero: React.FC<SanctuaryHeroProps> = ({
                 <span>BOOK ONLINE & SHOW IN-STORE TO AVAIL DISCOUNT:</span>
               </div>
               <p className="text-[11px] text-amber-900 font-medium leading-relaxed">
-                Reserve your preferred slot online, bring your companion to our studio, and show your booking ID at counter to receive festival offers! (Doorstep pet cab taxi available at extra charge based on distance).
+                Reserve your preferred slot online, bring your companion to our studio, and show your booking ID at counter to receive festival offers! (Doorstep pet cab taxi available for stays of 1 week and above).
               </p>
             </div>
 

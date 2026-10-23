@@ -1,5 +1,6 @@
 import { BookingOrder, readSignedOrder } from "./booking-order";
-import { addDays, quoteCart } from "../data/catalog";
+import { addDays, quoteCart, SUPER_SAVER_BUNDLES } from "../data/catalog";
+import {ensureBundlePasses,bundleExpiry} from "./bundle-passes";
 import { razorpayClient } from "./razorpay";
 import { pool, query } from "./db";
 import { handleCreateBooking } from "./api-handlers";
@@ -14,6 +15,7 @@ export class PaymentBookingError extends Error {
 }
 
 export async function savePaymentSession(orderId: string, token: string) {
+  await ensureBundlePasses();
   // This project has no migration runner. The additive table is initialized before
   // returning any payable order; a schema failure therefore cannot collect money.
   await query(`CREATE TABLE IF NOT EXISTS booking_payment_sessions (
@@ -83,6 +85,7 @@ export async function finalizeBookingPayment(
       total: line.total,
       offer: line.offer,
       perk: line.perk,
+      bundle: line.item.category === "bundle" ? SUPER_SAVER_BUNDLES.find(b=>b.id===line.item.serviceId) : undefined,
       ...order.schedules[line.item.id],
       checkOutDate:
         line.item.category === "boarding"
@@ -133,6 +136,11 @@ export async function finalizeBookingPayment(
       if (result.status !== 201 || !result.body.bookingRef)
         throw new Error("Booking could not be saved.");
       bookingRef = result.body.bookingRef;
+    }
+    for (const service of services) {
+      if (!service.bundle) continue;
+      const months=parseInt(service.bundle.validity,10);
+      await client.query(`INSERT INTO booking_bundle_passes (id,order_id,service_line_id,booking_ref,bundle_id,bundle_name,pet_name,pet_type,coat_type,sessions_total,valid_from,valid_until) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (order_id,service_line_id) DO NOTHING`,[crypto.randomUUID(),orderId,service.id,bookingRef,service.bundle.id,service.bundle.name,service.petName||"Pet",service.petType,service.coatType||service.bundle.coatType||null,service.bundle.sessions*service.quantity,service.date,bundleExpiry(service.date,months)]);
     }
     await client.query("COMMIT");
     return {

@@ -126,9 +126,6 @@ export const SanctuaryFooter: React.FC<SanctuaryFooterProps> = ({
               <p>
                 Phone: <a href="tel:+919739887770" className="text-white font-bold hover:text-sanctuary-gold">+91 9739887770</a>
               </p>
-              <p>
-                Email: <a href="mailto:Snip&style857@gmail.com" className="text-white font-bold hover:text-sanctuary-gold">Snip&amp;style857@gmail.com</a>
-              </p>
             </div>
           </div>
 

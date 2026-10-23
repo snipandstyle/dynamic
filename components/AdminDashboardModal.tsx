@@ -1,3 +1,4 @@
+import AdminSessionPasses from "./booking/AdminSessionPasses";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -10,7 +11,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminIdentifier, setAdminIdentifier] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [activeAdminTab, setActiveAdminTab] = useState<'bookings' | 'abandoned' | 'coupons' | 'users'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'bookings' | 'abandoned' | 'coupons' | 'users' | 'passes'>('bookings');
 
   // Abandoned Checkouts State
   const [abandonedLeads, setAbandonedLeads] = useState<any[]>([]);
@@ -41,7 +42,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'in_care' | 'completed' | 'cancelled'>('all');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'pending'>('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'boarding' | 'grooming'>('all');
   const [copiedPaymentId, setCopiedPaymentId] = useState<string | null>(null);
@@ -530,7 +531,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
   const verifiedPaidCount = bookings.filter((b) => b.payment_status === 'paid').length;
   const pendingPaymentCount = bookings.filter((b) => b.payment_status !== 'paid').length;
   const completedCount = bookings.filter((b) => (b.status || '').toLowerCase() === 'completed').length;
-  const activeCount = bookings.filter((b) => ['confirmed', 'in_progress'].includes((b.status || '').toLowerCase())).length;
+  const activeCount = bookings.filter((b) => ['confirmed', 'in_care'].includes((b.status || '').toLowerCase())).length;
 
   const activeCouponsCount = coupons.filter((c) => c.is_active).length;
   const percentCouponsCount = coupons.filter((c) => c.discount_type === 'percentage').length;
@@ -584,9 +585,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
           </div>
         </div>
 
+        {isAdmin && <button className="exact-admin-passes-link" onClick={()=>setActiveAdminTab('passes')}>Manage grooming session passes →</button>}
         {/* Admin Navigation Tabs */}
         {isAdmin && (
-          <div className="flex items-center gap-1 border-b border-black/10 px-4 sm:px-6 bg-[#FAF8F5] shrink-0">
+          <div className="flex items-center gap-1 overflow-x-auto whitespace-nowrap border-b border-black/10 px-4 sm:px-6 bg-[#FAF8F5] shrink-0">
             <button
               onClick={() => setActiveAdminTab('bookings')}
               className={`py-3 px-4 text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b-2 transition-all ${
@@ -708,7 +710,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                 </button>
               </form>
             </div>
-          ) : activeAdminTab === 'bookings' ? (
+          ) : activeAdminTab === 'passes' ? (<AdminSessionPasses/>) : activeAdminTab === 'bookings' ? (
             /* TAB 1: Live Bookings Console */
             <div className="space-y-4">
               {/* Top Metrics Row */}
@@ -782,7 +784,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
                   {/* Status Tabs */}
                   <div className="flex flex-wrap items-center gap-1 bg-sanctuary-sand p-1 rounded-xl text-xs font-bold">
-                    {(['all', 'confirmed', 'in_progress', 'completed', 'cancelled'] as const).map((st) => (
+                    {(['all', 'confirmed', 'in_care', 'completed', 'cancelled'] as const).map((st) => (
                       <button
                         key={st}
                         onClick={() => setStatusFilter(st)}
@@ -827,6 +829,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                 <div className="space-y-3">
                   {filteredBookings.map((b) => {
                     const servicesList = Array.isArray(b.services_json) ? b.services_json : [];
+                    let customerNotes = b.special_instructions || '';
+                    try { const stored = JSON.parse(customerNotes); if (stored && typeof stored === 'object') customerNotes = stored.customerNotes || ''; } catch { /* Keep legacy plain-text notes. */ }
                     const isUpdating = actionLoadingId === b.id;
 
                     return (
@@ -856,7 +860,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                               className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                                 b.status === 'completed'
                                   ? 'bg-purple-100 text-purple-800'
-                                  : b.status === 'in_progress'
+                                  : b.status === 'in_care'
                                   ? 'bg-blue-100 text-blue-800'
                                   : b.status === 'cancelled'
                                   ? 'bg-red-100 text-red-800'
@@ -961,15 +965,15 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                                   }`}
                                 >
                                   {srv.isFreePerk && '🎁 '}
-                                  {srv.name} (₹{srv.price})
+                                  {srv.name} (₹{Number(srv.total ?? srv.price ?? 0).toLocaleString('en-IN')}){srv.petName ? ` · ${srv.petName}` : ''}{srv.date ? ` · ${srv.date}` : ''}{srv.perk ? ` · ${srv.perk}` : ''}
                                 </span>
                               ))}
                             </div>
                           )}
 
-                          {b.special_instructions && (
+                          {customerNotes && (
                             <div className="text-[11px] text-amber-900 bg-amber-50 p-2 rounded-lg border border-amber-200/60 font-medium">
-                              <strong>Note:</strong> {b.special_instructions}
+                              <strong>Note:</strong> {customerNotes}
                             </div>
                           )}
                         </div>
@@ -1008,7 +1012,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                                 <p className="text-[10px] text-sanctuary-dark/60 font-medium">
                                   {b.payment_status === 'paid'
                                     ? (b.razorpay_signature
-                                        ? 'Cryptographically authenticated with Razorpay Live HMAC-SHA256 signature'
+                                        ? 'Authenticated with Razorpay HMAC-SHA256 signature'
                                         : 'Confirmed in Neon PostgreSQL')
                                     : 'Customer has not yet completed online payment via Razorpay'}
                                 </p>
@@ -1125,10 +1129,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-black/5">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {/* In Progress */}
-                            {b.status !== 'in_progress' && b.status !== 'completed' && (
+                            {b.status !== 'in_care' && b.status !== 'completed' && (
                               <button
                                 disabled={isUpdating}
-                                onClick={() => updateBookingStatus(b.id, 'in_progress')}
+                                onClick={() => updateBookingStatus(b.id, 'in_care')}
                                 className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50"
                               >
                                 In Studio

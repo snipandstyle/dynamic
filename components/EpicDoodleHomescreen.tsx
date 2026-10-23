@@ -74,18 +74,25 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
 
   // Unlocked boarding perks
   const getBoardingPerk = () => {
-    if (boardNights >= 6) {
+    if (boardNights >= 15) {
       return {
-        badge: '🎉 1 DAY 100% FREE',
-        code: 'STAY6FREE1',
-        desc: 'Book 6+ days & get 1 full day complimentary!',
+        badge: '👑 FREE FULL GROOMING (₹2,199)',
+        code: 'FREEFULL',
+        desc: '15+ days stay: FREE Full Package Grooming Treatment with medicated bath!',
+      };
+    }
+    if (boardNights >= 8) {
+      return {
+        badge: '⭐ FREE SPECIAL PACKAGE',
+        code: 'FREESPECIAL',
+        desc: '8+ days stay: FREE Special Package Grooming with dental & paw care!',
       };
     }
     if (boardNights >= 4) {
       return {
-        badge: '✨ FREE SPARKLE BATH',
+        badge: '✨ FREE FURRY FRESH REFRESH',
         code: 'FREESPA',
-        desc: 'Complimentary Furry Fresh bath on check-out day!',
+        desc: '4+ days stay: FREE Furry Fresh Grooming Refresh before checkout!',
       };
     }
     return null;
@@ -93,108 +100,85 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
 
   const activePerk = getBoardingPerk();
 
-  // All 6 Grooming packages
+  // All Grooming packages
   const groomingPackages = [
     {
       id: 'furry-fresh',
-      title: 'Furry Fresh',
+      title: 'Furry Fresh (Basic Hygiene Care)',
       badge: 'HYGIENE CARE',
       badgeBg: 'bg-emerald-100 text-emerald-800',
       popular: false,
-      desc: 'Deep cleansing bubble hydrobath, ear wax cleansing, blow-dry & refreshing deodorizing spritz.',
+      desc: 'Essential regular hygiene maintenance focused on deep cleansing without full body styling. Perfect for active dogs needing a refresh.',
       pricing: { small: 499, medium: 699, large: 849, cat: 749 },
       orig: { small: 649, medium: 899, large: 1099, cat: 999 },
       inclusions: [
-        'Warm Bubble Hydrobath',
-        'Organic Shampoo & Conditioner',
-        'High-Velocity Fluff Blow Dry',
-        'Ear Cleaning & Eye Wipes',
-        'Deodorizing Cologne Spritz',
+        'Bath with Shampoo & Conditioner',
+        'Professional Blow Dry',
+        'Combing & Brushing',
+        'Ear Cleaning',
+        'Eye Cleaning',
       ],
     },
     {
       id: 'special',
-      title: 'Special Package',
+      title: 'Special Package (Enhanced Care & Dental)',
       badge: '⭐ MOST POPULAR',
       badgeBg: 'bg-amber-400 text-sanctuary-dark font-black',
       popular: true,
-      desc: 'Hygiene bath plus essential oral teeth brushing, plaque cleanse, mouth spray & paw pad balm.',
+      desc: 'A step up from basic hygiene adding essential dental and paw care to keep breath fresh and paws neat and protected.',
       pricing: { small: 899, medium: 949, large: 999, cat: 874 },
       orig: { small: 1124, medium: 1199, large: 1249, cat: 1199 },
       inclusions: [
-        'Everything in Furry Fresh Bath',
-        'Teeth Brushing & Plaque Cleanse',
-        'Freshening Mouth Spray',
-        'Paw Pad Trimming & Herbal Balm',
-        'De-tangling Coat Brushing',
+        'Bath with Shampoo & Conditioner',
+        'Professional Blow Dry',
+        'Combing & Brushing',
+        'Ear Cleaning',
+        'Eye Cleaning',
+        'Mouth Spray',
+        'Teeth Brushing',
+        'Paws Trimming',
+        'Nail Clipping',
       ],
     },
     {
       id: 'style',
-      title: 'Style Your Pet',
+      title: 'Style Your Pet (Full Body Styling & Trimming)',
       badge: 'BREED STYLING',
       badgeBg: 'bg-purple-100 text-purple-900',
       popular: false,
-      desc: 'Precision breed standard styling, custom scissor haircut, face shaping, and sanitary trim.',
+      desc: 'Signature breed styling package. Includes a full body trim tailored to breed standards or custom preferences, plus meticulous face trimming.',
       pricing: { small: 1799, medium: 1799, large: 1799, cat: 1799 },
       orig: { small: 2249, medium: 2249, large: 2249, cat: 2249 },
       inclusions: [
-        'Full Body Breed Haircut & Trim',
-        'Face Shaping & Beard Styling',
-        'Sanitary Area Hygienic Trim',
-        'Nail Clipping & Paw Buffing',
-        'Bubble Hydrobath Included',
+        'Full Body Trimming',
+        'Face Trimming',
+        'Sanitary Trimmer (Free)',
+        'Nail Clipping (Free)',
+        'Ear Cleaning (Free)',
+        'Eye Cleaning (Free)',
+        'Combing & Brushing (Free)',
+        'Mouth Spray (Free)',
       ],
     },
     {
       id: 'full',
-      title: 'Full Grooming & Spa',
+      title: 'Full Grooming (Ultimate Head-to-Tail Experience)',
       badge: '👑 ROYAL SPA',
       badgeBg: 'bg-sanctuary-forest text-white',
       popular: false,
-      desc: 'The ultimate royal head-to-tail pampering with therapeutic skin bath, full haircut & massage.',
+      desc: 'Comprehensive head-to-tail pampering featuring a therapeutic medicated bath to protect skin health alongside full grooming luxury.',
       pricing: { small: 2199, medium: 2199, large: 2199, cat: 2199 },
       orig: { small: 3249, medium: 3249, large: 3249, cat: 3249 },
       inclusions: [
-        'Therapeutic Medicated Skin Bath',
-        'Full Body Haircut & Scissor Finish',
-        'Deep Deshedding Undercoat Treatment',
-        'Nail Clipping + Ear & Eye Clean',
-        'Relaxing Paw & Coat Massage',
-      ],
-    },
-    {
-      id: 'puppy-spa',
-      title: 'Puppy / Kitten Gentle Spa',
-      badge: '🐾 UNDER 6 MONTHS',
-      badgeBg: 'bg-sky-100 text-sky-900',
-      popular: false,
-      desc: 'Tearless, low-noise gentle wash and cuddle session to make grooming fun for baby pets.',
-      pricing: { small: 449, medium: 549, large: 649, cat: 549 },
-      orig: { small: 599, medium: 749, large: 849, cat: 749 },
-      inclusions: [
-        'Gentle Tearless Organic Wash',
-        'Low-Noise Warm Fluff Dry',
-        'Baby Cuddle & Desensitization',
-        'Paw Pad Soothing Moisturizer',
-        'Gentle Ear Hygiene Wipe',
-      ],
-    },
-    {
-      id: 'medicated-bath',
-      title: 'Medicated Anti-Tick Bath',
-      badge: '🛡️ SKIN DEFENSE',
-      badgeBg: 'bg-rose-100 text-rose-900',
-      popular: false,
-      desc: 'Clinical therapeutic bath with anti-flea, anti-tick, and anti-fungal soothing formulation.',
-      pricing: { small: 699, medium: 899, large: 1099, cat: 899 },
-      orig: { small: 899, medium: 1149, large: 1399, cat: 1149 },
-      inclusions: [
-        'Medicated Anti-Tick & Flea Wash',
-        'Anti-Dandruff / Anti-Fungal Soak',
-        'Dead Hair Removal & Brushing',
-        'Sanitary Gentle Cleansing',
-        'High-Velocity Warm Blow Dry',
+        'Bath with Shampoo & Conditioner',
+        'Medicated Bath',
+        'Hair Styling/Trimming',
+        'Sanitary Trimmer',
+        'Nail Clipping',
+        'Ear Cleaning',
+        'Eye Cleaning',
+        'Combing & Brushing',
+        'Deshedding Treatment',
       ],
     },
   ];
@@ -207,16 +191,19 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
     groomPet === 'cat' ? currentGroomPkg.orig.cat : currentGroomPkg.orig[groomSize];
   const currentGroomSavings = currentGroomOrig - currentGroomPrice;
 
-  // Standalone Add-ons
+  // Standalone Add-ons (Dogs & Cats)
   const addOns = [
-    { name: 'Teeth Brushing', price: 186, icon: '🦷' },
-    { name: 'Ear & Eye Clean', price: 124, icon: '👁️' },
-    { name: 'Paw Pad Balm', price: 124, icon: '🐾' },
-    { name: 'Medicated Dip', price: 299, icon: '🫧' },
-    { name: 'Full Body Massage', price: 499, icon: '💆' },
-    { name: 'Dematting Care', price: 499, icon: '✂️' },
+    { name: 'Sanitary & Waterless Bath', price: 499, icon: '🫧' },
+    { name: 'Waterless Bath (Dry Bath)', price: 499, icon: '🚿' },
+    { name: 'Medicated Bath', price: 299, icon: '🧴' },
+    { name: 'Body Massage', price: 499, icon: '💆' },
     { name: 'Deshedding Treatment', price: 624, icon: '🐕' },
-    { name: 'Waterless Bath', price: 499, icon: '🚿' },
+    { name: 'Dematting', price: 499, icon: '✂️' },
+    { name: 'Teeth Brushing', price: 186, icon: '🦷' },
+    { name: 'Ear & Eye Cleaning', price: 124, icon: '👁️' },
+    { name: 'Paw Relaxation', price: 124, icon: '🐾' },
+    { name: 'Face Trim (Quick Service)', price: 499, icon: '✂️' },
+    { name: 'Waterless Bath Express', price: 749, icon: '✨' },
   ];
 
   return (
@@ -260,25 +247,26 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
           {/* Cute Trust Badge with Doodles */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100/90 text-emerald-900 border border-emerald-300/80 text-xs font-black shadow-xs">
             <DoodlePaw className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Bangalore's #1 Zero-Cage Pet Sanctuary</span>
+            <span>Zero Cages • Kanakapura Main Road</span>
             <span className="text-amber-500">★ 4.9 (500+ Google Reviews)</span>
           </div>
 
           {/* Epic Main Headline with Hand-Drawn Doodle Underline */}
           <div className="relative inline-block">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-[1.12]">
-              Where Bangalore Pets <br />
-              <span className="relative inline-block text-sanctuary-forest">
-                Feel Like Family.
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-[1.12] uppercase">
+              Bengaluru’s #1 <br />
+              <span className="text-sanctuary-forest">Pet Grooming &amp;</span> <br />
+              <span className="relative inline-block text-sanctuary-gold">
+                Cage-Free Boarding Sanctuary
                 <div className="absolute -bottom-2.5 left-0 right-0 flex justify-center pointer-events-none">
-                  <DoodleWavyLine className="w-full h-3 text-sanctuary-gold" />
+                  <DoodleWavyLine className="w-full h-3 text-sanctuary-forest" />
                 </div>
               </span>
             </h1>
           </div>
 
           <p className="text-sm sm:text-base text-sanctuary-dark/80 font-medium max-w-2xl mx-auto leading-relaxed pt-1">
-            Zero metal cages! Private soundproof suites, 3 daily lawn nature walks, and stress-free organic hydrobaths on <strong>Kanakapura Main Road</strong> (Beside Shani Mahatma Temple).
+            Zero metal cages! Private soundproof suites, staff members play with dogs daily, and stress-free organic hydrobaths on <strong>Kanakapura Main Road</strong> (Beside Shani Mahatma Temple).
           </p>
 
           {/* ============================================================ */}
@@ -344,7 +332,7 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
                     <DoodleArrow className="w-5 h-5 text-sanctuary-gold hidden sm:inline" />
                   </h3>
                   <p className="text-xs text-sanctuary-dark/70 font-medium">
-                    All overnight stays include 3 daily lawn nature walks, private suite & live WhatsApp video updates.
+                    All overnight stays include 2 daily customized nature walks, private suite & live WhatsApp video updates.
                   </p>
                 </div>
 
@@ -907,15 +895,15 @@ export const EpicDoodleHomescreen: React.FC<EpicDoodleHomescreenProps> = ({
             },
             {
               icon: <DoodleBone className="w-8 h-8 text-sky-500" />,
-              title: '3 Lawn Nature Walks',
-              desc: 'Sniffing, running on green grass & playing ball with certified caretakers.',
-              badge: 'Real Lawn Exercise',
+              title: 'Staff Playtime With Dogs',
+              desc: 'Our caring staff members actively play, cuddle & engage your dogs with fun interactive games.',
+              badge: 'Personal Attention',
             },
             {
               icon: <DoodleShield className="w-8 h-8 text-purple-600" />,
               title: 'Doorstep AC Pet Cab',
-              desc: 'Convenient taxi pickup & drop across Kanakapura Road, JP Nagar & South BLR.',
-              badge: 'Stress-Free Commute',
+              desc: 'Convenient taxi pickup & drop across Bangalore for stays of 1 week and above.',
+              badge: '1 Week & Above',
             },
           ].map((card, i) => (
             <div

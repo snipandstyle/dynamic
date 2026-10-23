@@ -13,7 +13,7 @@ if (!KEY_ID || !KEY_SECRET) {
 
 // Initialize official Razorpay SDK client
 export const razorpayClient = new Razorpay({
-  key_id: KEY_ID,
+  key_id: KEY_ID || 'payments_not_configured',
   key_secret: KEY_SECRET,
 });
 
@@ -120,7 +120,7 @@ export function verifyRazorpayWebhookSignature(
   signatureHeader?: string | null,
   webhookSecret?: string
 ): boolean {
-  const secret = webhookSecret || process.env.RAZORPAY_WEBHOOK_SECRET || 'snipnstyle_rzp_webhook_secret_2026';
+  const secret = webhookSecret || process.env.RAZORPAY_WEBHOOK_SECRET || '';
   if (!rawBody || !signatureHeader || !secret) {
     return false;
   }

@@ -42,6 +42,28 @@ function load(relative, mocks = {}, cache = new Map()) {
   return module.exports;
 }
 const catalog = load("data/catalog.ts");
+test("all supplied bundle prices, including long-coat cats, remain exact", () => {
+  const expected = [[4874,6374,7999],[8999,11999,14999],[13999,18749,23374],[6874,9124,11249],[7499,9874,12124],[6374,7999,8749],[11999,14999,16499],[18749,23374,25749],[9124,11249,12499],[9874,12124,13499],[4874,6374],[8999,11999],[13999,20999],[6874,9124]];
+  catalog.SUPER_SAVER_BUNDLES.forEach((b,index)=>{
+    (b.petType === 'cat' ? ['short','long'] : ['small','medium','large']).forEach((tier,i)=>{
+      const q=catalog.quoteItem({id:'bundle',serviceId:b.id,category:'bundle',petType:b.petType,petSize:b.petType==='cat'?'small':tier,coatType:b.petType==='cat'?tier:b.coatType,nights:1,quantity:1,addons:[]});
+      assert.equal(q.total,expected[index][i]);
+      assert.equal(q.discount,0);
+    });
+  });
+});
+test("breed choices use the supplied grooming tiers and separate boarding weights",()=>{
+  const base={id:'breed',serviceId:'furry-fresh',category:'grooming',petType:'dog',petSize:'small',selectionMode:'breed',nights:1,quantity:1,addons:[]};
+  assert.equal(catalog.quoteItem({...base,breed:'Labrador'}).total,699);
+  assert.equal(catalog.quoteItem({...base,breed:'Beagle',petSize:'large'}).total,499);
+  assert.equal(catalog.quoteItem({...base,breed:'Husky'}).total,849);
+  assert.equal(catalog.quoteItem({...base,breed:'Labrador',category:'boarding',serviceId:'boarding'}).total,875);
+});
+test("bundle expiry respects calendar months",()=>{
+  const {bundleExpiry}=load('lib/bundle-passes.ts',{'./db':{}});
+  assert.equal(bundleExpiry('2027-01-31',1),'2027-02-28');
+  assert.equal(bundleExpiry('2026-10-23',16),'2028-02-23');
+});
 const authMocks = {
   "./db": { query: async () => ({ rows: [] }) },
   "./auth": {
@@ -161,7 +183,7 @@ test("public legacy booking endpoint cannot fabricate a paid booking", async () 
 });
 const item = (overrides = {}) => ({
   id: "pet-1",
-  serviceId: "puppy-kitten-spa",
+  serviceId: overrides.category === "boarding" ? "boarding" : "puppy-kitten-spa",
   category: "grooming",
   petType: "dog",
   petSize: "small",
@@ -199,7 +221,7 @@ test("every grooming package uses advertised species and size rates", () => {
       assert.equal(q.base, service.prices[tier]);
       assert.equal(
         q.total,
-        q.base - (q.base > 999 ? Math.round(q.base * 0.1) : 0),
+        q.base,
       );
     }
   assert.equal(catalog.quoteItem(item()).total, 449);
@@ -208,7 +230,7 @@ test("every grooming package uses advertised species and size rates", () => {
     699,
   );
 });
-test("offer eligibility excludes ₹999 and includes ₹1,099", () => {
+test("listed grooming prices are final with no automatic extra discount", () => {
   assert.equal(
     catalog.quoteItem(item({ serviceId: "special-package", petSize: "large" }))
       .discount,
@@ -217,7 +239,7 @@ test("offer eligibility excludes ₹999 and includes ₹1,099", () => {
   assert.equal(
     catalog.quoteItem(item({ serviceId: "medicated-bath", petSize: "large" }))
       .discount,
-    110,
+    0,
   );
 });
 test("all boarding weight and cat rates, six-night discount, and departure perks", () => {
@@ -270,7 +292,7 @@ test("cart includes every line, every pet, and selected extras", () => {
     item({ quantity: 2, addons: ["teeth-brushing"] }),
     item({ id: "pet-2", serviceId: "full-grooming" }),
   ]);
-  assert.equal(q.total, (449 + 186) * 2 + 1979);
+  assert.equal(q.total, (449 + 186) * 2 + 2199);
   assert.equal(q.count, 3);
   assert.equal(q.lines.length, 2);
 });
@@ -370,7 +392,7 @@ test("order endpoint ignores client prices and charges the full canonical cart",
   ]);
   const res = await route.POST({ json: async () => raw });
   assert.equal(res.status, 200);
-  assert.equal(charged, 242800);
+  assert.equal(charged, 264800);
   assert.equal(
     signing.readSignedOrder(res.body.token, "order_test").items.length,
     2,

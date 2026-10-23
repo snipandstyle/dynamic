@@ -147,7 +147,7 @@ export function BookingShell({
       <div className="pet-announcement">
         <Icon name="sparkle" size={14} />
         <span>
-          A little festive love: 10% off grooming above ₹999 · 1 night free on
+          Upfront grooming prices · 1 night free on
           6+ night stays
         </span>
         <span className="pet-announcement-end">
@@ -157,19 +157,7 @@ export function BookingShell({
       <header className="pet-header">
         <div className="pet-container pet-header-inner">
           <Link href="/" className="pet-brand" aria-label="Snip and Style home">
-            <img
-              src="/logo.png"
-              alt="Snip & Style Pet Resort & Grooming"
-              className="pet-brand-logo-img"
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = "/images/logo.png";
-              }}
-            />
-            <span className="pet-brand-title">
-              Snip &amp; Style
-              <small>RESORT &amp; GROOMING</small>
-            </span>
+            <span className="exact-brand-seal"><Icon name="paw" size={17}/></span><span className="exact-brand-name">snip<span>&amp;</span>style<small>GOOD CARE. HAPPY PAWS.</small></span>
           </Link>
           {!minimal && (
             <Link className="ref-header-review" href="/reviews">
@@ -182,17 +170,20 @@ export function BookingShell({
               {[
                 ["/boarding", "Boarding"],
                 ["/grooming", "Grooming"],
-                ["/bundles", "Bundles"],
-                ["/offers", "Offers"],
-                ["/reviews", "Reviews"],
-                ["/contact", "Studio Location"],
+                ["/#offers", "Offers"],
+                ["/#studio-location", "Studio Location"],
                 ["/#faq", "FAQ"],
               ].map(([url, label]) => (
                 <Link
                   key={url}
                   href={url}
                   onClick={(e) => {
-                    if (url.startsWith("/#") && typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "")) {
+                    if (
+                      url.startsWith("/#") &&
+                      typeof window !== "undefined" &&
+                      (window.location.pathname === "/" ||
+                        window.location.pathname === "")
+                    ) {
                       const id = url.replace("/#", "");
                       const el = document.getElementById(id);
                       if (el) {
@@ -212,7 +203,7 @@ export function BookingShell({
               ))}
             </nav>
           )}
-          <div className="pet-header-actions">
+          <div className="pet-header-actions"><a className="exact-call-now" href="tel:+919739887770"><Icon name="phone" size={15}/><span>Call now</span></a>
             {!minimal && (
               <Link className="ref-header-location" href="/contact">
                 <Icon name="pin" size={16} />
@@ -254,8 +245,8 @@ export function BookingShell({
             {[
               ["/boarding", "Boarding Sanctuary"],
               ["/grooming", "Grooming Packages"],
-              ["/bundles", "Super Saver Bundles"],
-              ["/offers", "Festival Offers"],
+              ["/#bundles", "Super Saver Bundles"],
+              ["/#offers", "Offers & Stay Rewards"],
               ["/reviews", "Customer Reviews"],
               ["/contact", "Visit Our Studio"],
               ["/about", "Our Story"],
@@ -266,7 +257,12 @@ export function BookingShell({
                 key={url}
                 onClick={(e) => {
                   setMenu(false);
-                  if (url.startsWith("/#") && typeof window !== "undefined" && (window.location.pathname === "/" || window.location.pathname === "")) {
+                  if (
+                    url.startsWith("/#") &&
+                    typeof window !== "undefined" &&
+                    (window.location.pathname === "/" ||
+                      window.location.pathname === "")
+                  ) {
                     const id = url.replace("/#", "");
                     const el = document.getElementById(id);
                     if (el) {
@@ -315,9 +311,18 @@ export function BookingShell({
               <br />
               Beside Shani Mahatma Temple, Bengaluru 560082
               <br />
-              <small style={{ opacity: 0.8 }}>Ample dedicated parking outside</small>
+              <small style={{ opacity: 0.8 }}>
+                Ample dedicated parking outside
+              </small>
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+                marginTop: "6px",
+              }}
+            >
               <a
                 href="https://maps.app.goo.gl/MqFTrZiLPbttv3eD6"
                 target="_blank"
@@ -339,7 +344,9 @@ export function BookingShell({
             <p>09:30 AM – 08:30 PM · 7 Days a Week</p>
             <a href="tel:+919739887770">+91 9739887770</a>
             <br />
-            <a href="mailto:Snip&style857@gmail.com">Snip&amp;style857@gmail.com</a>
+            <a href="mailto:Snip&style857@gmail.com">
+              Snip&amp;style857@gmail.com
+            </a>
             <br />
             <a
               href="https://wa.me/919739887770"
@@ -390,7 +397,7 @@ export function OrderSummary({
               <small>
                 {line.item.petType === "cat"
                   ? "Cat"
-                  : SIZE_LABELS[line.item.petSize]}
+                  : line.item.category === "boarding" ? SIZE_LABELS[line.item.petSize] : `${line.item.petSize} breed`}
                 {line.item.category === "boarding"
                   ? ` · ${line.item.nights} nights`
                   : ""}

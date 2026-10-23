@@ -7,10 +7,18 @@ node_modules
 dist
 build
 .next
+.next-dev
 .next-sandbox
 
 # Environment variables
 .env
+.env.*
+!.env.example
+.sandbox-qa.json
+.sandbox-customer.json
+.sandbox-*.json
+artifacts/
+tsconfig.tsbuildinfo
 .env*.local
 .env.development.local
 .env.test.local

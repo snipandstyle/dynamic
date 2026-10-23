@@ -85,10 +85,10 @@ export const LocationAndContact: React.FC = () => {
               <div className="p-2.5 bg-white rounded-xl border border-black/5 space-y-0.5">
                 <div className="text-xs font-black text-sanctuary-dark flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-sm text-amber-600">local_taxi</span>
-                  <span>Doorstep Pet Taxi (Extra Charge based on distance)</span>
+                  <span>Doorstep Pet Taxi (1 Week &amp; Above Stays)</span>
                 </div>
                 <p className="text-[11px] text-sanctuary-dark/70 font-medium">
-                  Covering JP Nagar, Jayanagar, Banashankari, Kanakapura Rd, Bannerghatta Rd, RR Nagar (Paid add-on).
+                  Available for boarding stays of 1 week and above across JP Nagar, Jayanagar, Banashankari, Kanakapura Rd &amp; Bangalore.
                 </p>
               </div>
             </div>

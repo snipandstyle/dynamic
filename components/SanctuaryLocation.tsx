@@ -11,7 +11,7 @@ export const SanctuaryLocation: React.FC = () => {
     },
     {
       q: 'How often will I get photo/video updates?',
-      a: 'Twice daily on WhatsApp! Video clips and candid photos after morning lawn play/breakfast and in the evening. You can also text the caretaker anytime.'
+      a: 'Twice daily on WhatsApp! Video clips and candid photos after morning staff playtime/breakfast and in the evening. You can also text the caretaker anytime.'
     },
     {
       q: 'Are pets kept in cages at any point?',

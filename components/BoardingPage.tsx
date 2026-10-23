@@ -1,126 +1,118 @@
-'use client';
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { putBookingItem } from '../utils/booking-cart';
-import { BookingItem, money } from '../data/catalog';
 
 interface BoardingPageProps {
-  onOpenBooking?: (details?: any) => void;
-  onNavigate?: (page: string) => void;
+  onOpenBooking: (details?: any) => void;
+  onNavigate: (page: string) => void;
 }
 
 export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNavigate }) => {
   const [pet, setPet] = useState<'dog' | 'cat'>('dog');
-  const [dogSize, setDogSize] = useState<'small' | 'medium' | 'large'>('small');
+  const [dogSize, setDogSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [catType, setCatType] = useState<'neutered' | 'non-neutered'>('neutered');
   const [nights, setNights] = useState<number>(4);
   const [toyBundle, setToyBundle] = useState<boolean>(false);
   const [medCare, setMedCare] = useState<boolean>(false);
-  const [activePhoto, setActivePhoto] = useState<number>(0);
-  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
-    message: '',
-    visible: false,
-  });
 
-  const showToast = (message: string) => {
-    setToast({ message, visible: true });
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 4000);
-  };
-
-  // Real Authentic Photos for Dogs and Cats
-  const dogPhotos = [
-    {
-      src: '/images/generated/luxury-cage-free-suite.jpg',
-      title: '100% Cage-Free Suites',
-      sub: 'Sanitized orthopaedic bedding, climate-controlled comfort on Kanakapura Rd.',
-    },
-    {
-      src: '/images/generated/cosy-boarding.webp',
-      title: 'Cozy Overnight Haven',
-      sub: 'Stress-free environment with loving 24/7 on-site caretakers.',
-    },
-    {
-      src: '/images/generated/pet-happy-place.webp',
-      title: 'Spacious Green Play Lawns',
-      sub: '2 daily outdoor nature walks and supervised social play in open grounds.',
-    },
-  ];
-
-  const catPhotos = [
-    {
-      src: '/images/generated/cat-care.webp',
-      title: 'Private Quiet Feline Haven',
-      sub: 'Sound-isolated haven away from dogs with comfortable climbing and resting perches.',
-    },
-    {
-      src: '/images/generated/cosy-boarding.webp',
-      title: 'Sanitized Cozy Suites',
-      sub: 'Individual suites with daily freshened litter, soft bedding & custom feeding schedules.',
-    },
-    {
-      src: '/images/generated/pet-happy-place.webp',
-      title: 'Loving 24/7 Supervision',
-      sub: 'Gentle stress-free care with daily WhatsApp photo & video updates for parents.',
-    },
-  ];
-
-  const currentPhotos = pet === 'cat' ? catPhotos : dogPhotos;
-
-  // Exact Official Rates by Weight & Pet Type
+  // Exact Official Rates by Weight
   const dogRates = [
     {
-      id: 'small' as const,
+      id: 'small',
       title: 'Small Dogs (< 10 kg)',
       sub: 'Shih Tzu, Pug, Maltese, Beagle, Frenchie (< 10 kg)',
       price: 625,
       orig: 750,
       save: 125,
-      emoji: '🐶',
+      popular: false,
     },
     {
-      id: 'medium' as const,
+      id: 'medium',
       title: 'Medium Dogs (10 – 25 kg)',
-      sub: 'Cocker Spaniel, Indies, Boxer, Corgi (10 – 25 kg)',
+      sub: 'Cocker Spaniel, Indies, Boxer (10 – 25 kg)',
       price: 750,
       orig: 899,
       save: 149,
-      emoji: '🐕',
+      popular: true,
     },
     {
-      id: 'large' as const,
+      id: 'large',
       title: 'Large Dogs (> 25 kg)',
       sub: 'Labrador, Golden Retriever, German Shepherd, Husky (> 25 kg)',
       price: 875,
       orig: 1050,
       save: 175,
-      emoji: '🦮',
+      popular: false,
     },
   ];
 
   const catRates = [
     {
-      id: 'neutered' as const,
+      id: 'neutered',
       title: 'Neutered / Spayed Cats',
       sub: 'Quiet private cabin with peaceful individual haven',
       price: 625,
       orig: 750,
       save: 125,
-      emoji: '🐱',
+      popular: true,
     },
     {
-      id: 'non-neutered' as const,
+      id: 'non-neutered',
       title: 'Non-Neutered Cats',
-      sub: 'Dedicated peaceful private enclosure with individual care',
+      sub: 'Dedicated peaceful private space with individual care',
       price: 750,
       orig: 899,
       save: 149,
-      emoji: '🐈',
+      popular: false,
     },
   ];
 
-  // Pricing calculations
+  // Boarding Add-ons
+  const boardingAddons = [
+    {
+      id: 'toy-bundle',
+      title: 'Active Toy Bundle',
+      price: 186,
+      desc: 'Interactive toys, plushies, and chew toys for active mental stimulation.',
+      icon: 'toys',
+    },
+    {
+      id: 'med-care',
+      title: 'Medication Care',
+      price: 374,
+      desc: 'Timed medical routines, oral medicine administration, and health tracking.',
+      icon: 'medication',
+    },
+  ];
+
+  // Milestone Rewards
+  const milestones = [
+    {
+      nights: 4,
+      days: '4+ Days Stay',
+      reward: 'FREE Furry Fresh Grooming Refresh',
+      value: '₹499–₹749 Value',
+      desc: 'Complimentary bath with shampoo & conditioner, blow dry, combing, ear & eye cleaning before checkout.',
+      badgeBg: 'bg-emerald-100 text-emerald-800',
+    },
+    {
+      nights: 8,
+      days: '8+ Days Stay',
+      reward: 'FREE Special Package Treatment',
+      value: '₹899–₹999 Value',
+      desc: 'Includes fresh spa bath, teeth brushing, freshening mouth spray, and neat paw pad trimming.',
+      badgeBg: 'bg-amber-100 text-amber-900',
+    },
+    {
+      nights: 15,
+      days: '15+ Days Stay',
+      reward: 'FREE Full Package Grooming Treatment',
+      value: '₹2,199 Value',
+      desc: 'Ultimate head-to-tail pampering featuring therapeutic medicated bath, full body styling, and deshedding.',
+      badgeBg: 'bg-purple-100 text-purple-900',
+    },
+  ];
+
+  // Calculator computation
   const getDailyRate = () => {
     if (pet === 'cat') {
       return catType === 'neutered' ? 625 : 750;
@@ -146,127 +138,15 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
   const addonsCost = (toyBundle ? 186 : 0) + (medCare ? 374 : 0);
   const total = baseTotal + addonsCost;
   const origTotal = baseOrigTotal + addonsCost;
-  const totalSavings = origTotal - total;
 
-  // Dynamic 1-More-Night Nudge
-  const getNudge = (currentNights: number) => {
-    if (currentNights < 4) {
-      const diff = 4 - currentNights;
-      return {
-        targetNights: 4,
-        diff,
-        message: diff === 1
-          ? 'Add 1 more night to get FREE Furry Fresh Grooming Refresh (₹749 value)!'
-          : `Add ${diff} more nights to get FREE Furry Fresh Grooming Refresh (₹749 value)!`,
-        actionText: diff === 1 ? '+ Add 1 Night' : `+ Add ${diff} Nights`,
-        badge: '🎁 FREE GROOMING UNLOCK',
-        color: 'gold',
-      };
-    } else if (currentNights === 5) {
-      return {
-        targetNights: 6,
-        diff: 1,
-        message: 'Add 1 more night to get 1 Full Day 100% FREE with code STAY6FREE1!',
-        actionText: '+ Add 1 Night',
-        badge: '🎉 1 DAY FREE',
-        color: 'green',
-      };
-    } else if (currentNights >= 4 && currentNights < 8) {
-      const diff = 8 - currentNights;
-      return {
-        targetNights: 8,
-        diff,
-        message: diff === 1
-          ? 'Add 1 more night to get FREE Special Package Grooming Treatment (₹999 value)!'
-          : `Add ${diff} more nights to get FREE Special Package Grooming Treatment (₹999 value)!`,
-        actionText: diff === 1 ? '+ Add 1 Night' : `+ Add ${diff} Nights`,
-        badge: '💎 UPGRADE REWARD',
-        color: 'gold',
-      };
-    } else if (currentNights >= 8 && currentNights < 15) {
-      const diff = 15 - currentNights;
-      return {
-        targetNights: 15,
-        diff,
-        message: diff === 1
-          ? 'Add 1 more night to get FREE Full Package Grooming Treatment (₹2,199 value)!'
-          : `Add ${diff} more nights to get FREE Full Package Grooming Treatment (₹2,199 value)!`,
-        actionText: diff === 1 ? '+ Add 1 Night' : `+ Add ${diff} Nights`,
-        badge: '👑 ULTIMATE REWARD',
-        color: 'gold',
-      };
-    }
-    return {
-      targetNights: 15,
-      diff: 0,
-      message: 'Ultimate Extended Stay Perks Unlocked: FREE Full Package Grooming (₹2,199 Value)!',
-      actionText: '',
-      badge: '✨ VIP PERKS ACTIVE',
-      color: 'gold',
-    };
+  const currentMilestonePerk = () => {
+    if (nights >= 15) return { title: 'FREE Full Package Grooming Treatment', value: '₹2,199 Value FREE' };
+    if (nights >= 8) return { title: 'FREE Special Package Grooming Treatment', value: '₹999 Value FREE' };
+    if (nights >= 4) return { title: 'FREE Furry Fresh Grooming Refresh', value: '₹749 Value FREE' };
+    return null;
   };
 
-  const nudge = getNudge(nights);
-
-  // Milestone Perks
-  const milestones = [
-    {
-      nights: 4,
-      days: '4+ Days Stay',
-      reward: 'FREE Furry Fresh Grooming Refresh',
-      value: '₹499–₹749 Value',
-      desc: 'Complimentary bath with shampoo & conditioner, blow dry, combing, ear & eye cleaning before checkout.',
-      badgeBg: 'bg-emerald-100 text-emerald-800',
-    },
-    {
-      nights: 6,
-      days: '6+ Days Stay',
-      reward: '1 Day 100% FREE (Code: STAY6FREE1)',
-      value: 'Save 1 Full Night',
-      desc: 'Stay 6 or more nights and get 1 complete overnight stay completely complimentary.',
-      badgeBg: 'bg-emerald-600 text-white font-black',
-    },
-    {
-      nights: 8,
-      days: '8+ Days Stay',
-      reward: 'FREE Special Package Treatment',
-      value: '₹899–₹999 Value',
-      desc: 'Includes fresh spa bath, teeth brushing, freshening mouth spray, and neat paw pad trimming.',
-      badgeBg: 'bg-amber-100 text-amber-900',
-    },
-    {
-      nights: 15,
-      days: '15+ Days Stay',
-      reward: 'FREE Full Package Grooming Treatment',
-      value: '₹2,199 Value',
-      desc: 'Ultimate head-to-tail pampering featuring therapeutic medicated bath, full body styling, and deshedding.',
-      badgeBg: 'bg-purple-100 text-purple-900',
-    },
-  ];
-
-  // Primary Add to Cart Action
-  const handleAddToCart = () => {
-    const addonsList: string[] = [];
-    if (toyBundle) addonsList.push('toy-bundle');
-    if (medCare) addonsList.push('med-care');
-
-    const item: BookingItem = {
-      id: `boarding-${Date.now()}`,
-      serviceId: 'boarding',
-      category: 'boarding',
-      petType: pet,
-      petSize: pet === 'dog' ? dogSize : 'small',
-      catType: pet === 'cat' ? catType : undefined,
-      nights,
-      quantity: 1,
-      addons: addonsList,
-      petName: `${pet === 'dog' ? dogSize.toUpperCase() + ' Dog' : 'Cat'}`,
-      breed: pet === 'dog' ? `${dogSize} dog` : catType === 'neutered' ? 'Neutered cat' : 'Non-neutered cat',
-    };
-
-    putBookingItem(item);
-    showToast(`✓ Added ${nights} Nights Boarding (${money(total)}) to Cart!`);
-  };
+  const milestone = currentMilestonePerk();
 
   const timeline = [
     { time: '07:30 AM', title: 'Morning Nature Walk & Stretch', desc: 'Gentle outdoor nature walk and bathroom break in green, open grounds.' },
@@ -281,359 +161,243 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
 
   const checklist = [
     { icon: 'vaccines', title: 'Vaccination Proof', desc: 'Anti-Rabies & DHPPi (dogs) or FVRCP (cats) records.' },
-    { icon: 'restaurant', title: 'Regular Diet / Food', desc: 'Enough dry kibble or wet food for your pet’s stay duration.' },
-    { icon: 'medication', title: 'Medications (if any)', desc: 'Clear dosage instructions for our trained caretakers.' },
-    { icon: 'favorite', title: 'Favorite Blanket or Toy', desc: 'Helps your companion settle in with familiar home comfort.' },
+    { icon: 'restaurant', title: 'Regular Diet / Food', desc: 'Enough dry kibble or wet food for your pet’s stay.' },
+    { icon: 'medication', title: 'Medications (if any)', desc: 'Clear dosage instructions for our caregivers.' },
+    { icon: 'favorite', title: 'Favorite Blanket or Toy', desc: 'Helps your companion settle in with familiar home scent.' },
   ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-[#FAF8F5] text-left"
+      className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-[#FAF8F5] text-left"
     >
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-12">
         
         {/* Breadcrumb & Header */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center gap-2 text-xs font-bold text-sanctuary-dark/60">
-            {onNavigate ? (
-              <button onClick={() => onNavigate('home')} className="hover:text-sanctuary-gold">Home</button>
-            ) : (
-              <Link href="/" className="hover:text-sanctuary-gold">Home</Link>
-            )}
+            <button onClick={() => onNavigate('home')} className="hover:text-sanctuary-gold">Home</button>
             <span>/</span>
             <span className="text-sanctuary-gold">Cage-Free Boarding</span>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-forest bg-emerald-100 px-2.5 py-0.5 rounded-full inline-block mb-1">
-                Bengaluru&apos;s #1 Cage-Free Pet Resort • Kanakapura Main Road
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-black text-sanctuary-dark tracking-tight">
-                Zero Wire Cages. <span className="text-sanctuary-gold">Total Freedom.</span>
-              </h1>
-            </div>
-
-            {/* Companion Toggle */}
-            <div className="flex items-center p-1 bg-white rounded-xl border border-black/10 shadow-xs self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  setPet('dog');
-                  setActivePhoto(0);
-                }}
-                className={`py-1.5 px-4 rounded-lg text-xs font-black transition-all ${
-                  pet === 'dog' ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70 hover:text-black'
-                }`}
-              >
-                🐕 Dogs
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPet('cat');
-                  setActivePhoto(0);
-                }}
-                className={`py-1.5 px-4 rounded-lg text-xs font-black transition-all ${
-                  pet === 'cat' ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70 hover:text-black'
-                }`}
-              >
-                🐈 Cats
-              </button>
-            </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sanctuary-moss/10 text-sanctuary-moss text-[11px] font-black uppercase tracking-wider">
+            <span>Kanakapura Highway (NH 948) • Easy Drop-Off On Vacation Route</span>
           </div>
 
-          <p className="text-xs sm:text-sm text-sanctuary-dark/75 font-medium max-w-3xl leading-relaxed">
-            <strong>Book online &amp; drop off at our Kanakapura Main Road studio:</strong> Site no. 61, beside Shani Mahatma Temple, Bengaluru 560082. Clean, climate-controlled suites with orthopaedic bedding, 2 daily nature walks, loving caretakers, and daily WhatsApp photo &amp; video updates while you travel.
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-sanctuary-dark tracking-tight leading-tight">
+            Clean Cage-Free <span className="text-sanctuary-gold">Pet Boarding.</span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-sanctuary-dark/75 font-medium max-w-2xl leading-relaxed">
+            <strong>Book online & drop off your companion at our Kanakapura Main Road studio:</strong> Zero wire cages, zero loneliness. A clean, cage-free boarding floor with private orthopaedic bedding, nature walks, city stress relief, and daily WhatsApp updates while you travel.
           </p>
         </div>
 
-        {/* ========================================================
-            UNIFIED BOARDING BOOKING CARD (Photos + Live Rate + Stepper)
-            ======================================================== */}
-        <div className="bg-white rounded-3xl border border-black/10 shadow-md overflow-hidden">
-          <div className="grid lg:grid-cols-12 items-stretch">
-            
-            {/* Left: Interactive Real Photo Gallery */}
-            <div className="lg:col-span-5 relative bg-[#142b20] min-h-[340px] sm:min-h-[400px] flex flex-col justify-between p-5 text-white overflow-hidden">
-              <img
-                src={currentPhotos[activePhoto]?.src || '/images/clean_dog_boarding.jpg'}
-                alt={currentPhotos[activePhoto]?.title || 'Boarding facility'}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/images/clean_dog_boarding.jpg';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/30 pointer-events-none" />
-
-              {/* Badges on Top */}
-              <div className="relative z-10 space-y-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 text-sanctuary-dark text-[11px] font-black shadow-md">
-                  <span>✨</span>
-                  <span>100% Zero Wire Cages</span>
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-bold bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/25">✓ 24/7 Caretaker</span>
-                  <span className="text-[10px] font-bold bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/25">✓ 2 Daily Walks</span>
-                  <span className="text-[10px] font-bold bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/25">✓ WhatsApp Videos</span>
+        {/* 2-Column Split: Image Showcase & Real Rates */}
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left: Studio Photo & Inclusions */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Dasara Festive Boarding Feature Card */}
+            {/* Dasara Festive Boarding Feature Card */}
+            <div
+              onClick={() => onOpenBooking({
+                type: 'boarding',
+                serviceName: 'Cage-Free Boarding Floor (6+ Days)',
+                basePrice: 625,
+                origPrice: 750,
+                nights: 6,
+                appliedCouponCode: 'STAY6FREE1',
+              })}
+              className="rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-500/80 group cursor-pointer bg-black text-white"
+            >
+              {/* Uncropped Flyer Artwork */}
+              <div className="relative w-full aspect-[4/3] sm:aspect-[3/4] max-h-[380px] overflow-hidden bg-black">
+                <img
+                  src="/images/flyer_dasara_boarding_nature.jpg"
+                  alt="Dasara Holiday Boarding Nature Resort"
+                  className="w-full h-full object-cover object-top group-hover:scale-103 transition-transform duration-700"
+                />
+                <div className="absolute top-2.5 left-2.5">
+                  <span className="bg-emerald-500 text-black text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+                    🎉 DASARA DEAL: 1 DAY FREE
+                  </span>
                 </div>
               </div>
 
-              {/* Bottom Caption & Thumbnail Switcher */}
-              <div className="relative z-10 space-y-3 pt-12">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
-                    {currentPhotos[activePhoto]?.title}
-                  </h3>
-                  <p className="text-xs text-white/80 font-medium leading-snug mt-1">
-                    {currentPhotos[activePhoto]?.sub}
-                  </p>
+              {/* Action Bar UNDER the flyer - Artwork completely visible */}
+              <div className="p-3.5 bg-gradient-to-r from-sanctuary-forest to-[#1A3326] text-white flex items-center justify-between gap-2 border-t border-emerald-500/40">
+                <div className="text-left">
+                  <div className="text-xs font-black text-white">
+                    Code: STAY6FREE1 (6+ Days)
+                  </div>
+                  <div className="text-[10px] text-white/80 font-medium">
+                    1 Day 100% Free • Cage-Free Stay
+                  </div>
                 </div>
-
-                {/* Thumbnails */}
-                <div className="flex items-center gap-2 pt-1">
-                  {currentPhotos.map((p, idx) => (
-                    <button
-                      key={p.src}
-                      type="button"
-                      onClick={() => setActivePhoto(idx)}
-                      aria-label={`View photo ${idx + 1}`}
-                      className={`size-10 sm:size-11 rounded-xl overflow-hidden border-2 transition-all ${
-                        activePhoto === idx ? 'border-sanctuary-gold scale-105 shadow-md' : 'border-white/50 opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={p.src} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
+                <div className="py-1.5 px-3 bg-sanctuary-gold text-sanctuary-dark rounded-xl text-xs font-black uppercase tracking-wider shrink-0 flex items-center gap-1 shadow-sm">
+                  <span>Book Stay</span>
+                  <span className="material-symbols-outlined text-xs font-bold">arrow_forward</span>
                 </div>
               </div>
             </div>
 
-            {/* Right: Booking Configurator & Live Price */}
-            <div className="lg:col-span-7 p-5 sm:p-7 flex flex-col justify-between space-y-5">
-              
-              {/* Pet Size / Type Selection */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-black uppercase tracking-wider text-sanctuary-dark/70">
-                    {pet === 'dog' ? 'Select Breed Weight (Live Rates):' : 'Select Cat Type:'}
-                  </label>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                    Save up to ₹175/day
-                  </span>
-                </div>
-
-                {pet === 'dog' ? (
-                  <div className="grid grid-cols-3 gap-2">
-                    {dogRates.map((option) => (
-                      <button
-                        key={option.id}
-                        type="button"
-                        onClick={() => setDogSize(option.id)}
-                        className={`p-3 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
-                          dogSize === option.id
-                            ? 'border-sanctuary-forest bg-emerald-50/50 ring-1 ring-sanctuary-forest shadow-xs'
-                            : 'border-black/10 hover:border-black/20 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg">{option.emoji}</span>
-                          {dogSize === option.id && (
-                            <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">
-                              Selected
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-2">
-                          <h4 className="text-xs font-black text-sanctuary-dark leading-tight">{option.title}</h4>
-                          <div className="flex items-baseline gap-1 mt-1">
-                            <span className="text-base font-black text-sanctuary-dark">₹{option.price}</span>
-                            <span className="text-[10px] text-sanctuary-dark/60 font-semibold">/day</span>
-                          </div>
-                          <del className="text-[10px] text-red-500 font-bold block">₹{option.orig}</del>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {catRates.map((option) => (
-                      <button
-                        key={option.id}
-                        type="button"
-                        onClick={() => setCatType(option.id)}
-                        className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
-                          catType === option.id
-                            ? 'border-sanctuary-forest bg-emerald-50/50 ring-1 ring-sanctuary-forest shadow-xs'
-                            : 'border-black/10 hover:border-black/20 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xl">{option.emoji}</span>
-                          {catType === option.id && (
-                            <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded">
-                              Selected
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-2">
-                          <h4 className="text-xs font-black text-sanctuary-dark leading-tight">{option.title}</h4>
-                          <p className="text-[10px] text-sanctuary-dark/60 font-medium leading-tight mt-0.5">{option.sub}</p>
-                          <div className="flex items-baseline gap-1 mt-1.5">
-                            <span className="text-lg font-black text-sanctuary-dark">₹{option.price}</span>
-                            <span className="text-[10px] text-sanctuary-dark/60 font-semibold">/day</span>
-                            <del className="text-[10px] text-red-500 font-bold ml-1">₹{option.orig}</del>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* Standard Inclusions Card */}
+            <div className="p-4 bg-white rounded-2xl border border-black/10 shadow-xs space-y-2.5">
+              <div className="text-xs font-black uppercase tracking-wider text-sanctuary-forest flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-base text-sanctuary-gold">verified</span>
+                <span>Included in Every Stay</span>
               </div>
+              <ul className="text-xs text-sanctuary-dark/80 space-y-1.5 font-medium">
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-600 font-black">✓</span>
+                  <span><strong>Dog Stays:</strong> Private climate-controlled cabin, premium meals, treats, 2 customized walks daily, staff members play with dogs, 24/7 supervision, and daily WhatsApp photo updates.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-600 font-black">✓</span>
+                  <span><strong>Cat Stays:</strong> Private quiet cabin, cozy haven, custom feeding schedules, and daily photo updates.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
 
-              {/* Length of Stay Stepper & Live Calculation */}
-              <div className="p-3.5 bg-sanctuary-sand/60 rounded-2xl border border-black/5 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60 block">
-                    Daily Rate Applied:
-                  </span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-black text-sanctuary-dark">₹{dailyRate}</span>
-                    <span className="text-xs text-sanctuary-dark/60 font-semibold">/ day</span>
-                    <del className="text-xs text-red-500 font-bold ml-1">₹{dailyOrig}</del>
-                  </div>
-                </div>
-
-                {/* Stepper */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-sanctuary-dark">Length of Stay:</span>
-                  <div className="flex items-center bg-white rounded-xl border border-black/10 shadow-xs overflow-hidden">
-                    <button
-                      type="button"
-                      disabled={nights <= 1}
-                      onClick={() => setNights((n) => Math.max(1, n - 1))}
-                      className="size-8 flex items-center justify-center font-black text-base hover:bg-sanctuary-sand transition-colors disabled:opacity-40"
-                    >
-                      −
-                    </button>
-                    <span className="px-3 font-mono font-black text-sm text-sanctuary-dark">
-                      {nights} {nights === 1 ? 'Night' : 'Nights'}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={nights >= 60}
-                      onClick={() => setNights((n) => Math.min(60, n + 1))}
-                      className="size-8 flex items-center justify-center font-black text-base hover:bg-sanctuary-sand transition-colors disabled:opacity-40"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dynamic 1-More-Night Milestone Nudge */}
-              <div className={`p-3 rounded-2xl border flex items-center justify-between gap-3 ${
-                nudge.color === 'green' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-white shadow-xs">
-                    {nudge.badge}
-                  </span>
-                  <span className="text-xs font-bold leading-tight">
-                    {nudge.message}
-                  </span>
-                </div>
-                {nudge.actionText && (
-                  <button
-                    type="button"
-                    onClick={() => setNights(nudge.targetNights)}
-                    className="py-1 px-3 bg-sanctuary-dark hover:bg-black text-[#fed65b] rounded-xl text-xs font-black shrink-0 transition-all shadow-xs"
-                  >
-                    {nudge.actionText}
-                  </button>
-                )}
-              </div>
-
-              {/* Optional Add-ons Checkboxes */}
-              <div className="flex flex-wrap items-center gap-4 text-xs font-bold">
-                <span className="text-sanctuary-dark/70 uppercase text-[10px] font-black">Optional Care:</span>
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={toyBundle}
-                    onChange={(e) => setToyBundle(e.target.checked)}
-                    className="accent-sanctuary-forest rounded size-4"
-                  />
-                  <span>Active Toy Bundle (+₹186)</span>
-                </label>
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={medCare}
-                    onChange={(e) => setMedCare(e.target.checked)}
-                    className="accent-sanctuary-forest rounded size-4"
-                  />
-                  <span>Medication Routine Care (+₹374)</span>
-                </label>
-              </div>
-
-              {/* Primary 1-Click Action Button */}
-              <div className="pt-2 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-wider text-sanctuary-dark/60">
-                    Total for {nights} {nights === 1 ? 'Night' : 'Nights'}:
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-sanctuary-dark leading-none">₹{total}</span>
-                    <del className="text-xs text-red-500 font-bold">₹{origTotal}</del>
-                    <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                      You Save ₹{totalSavings}
-                    </span>
-                  </div>
-                </div>
-
+          {/* Right: Boarding Rate Cards */}
+          <div className="lg:col-span-7 space-y-4">
+            
+            {/* Rates Switcher Tabs */}
+            <div className="flex items-center justify-between pb-1">
+              <h3 className="text-lg font-black text-sanctuary-dark">Daily Per-Day Boarding Rates</h3>
+              <div className="flex bg-sanctuary-sand p-1 rounded-xl gap-1">
                 <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="w-full sm:w-auto py-3 px-6 bg-sanctuary-forest hover:bg-black text-[#fed65b] rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  onClick={() => setPet('dog')}
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                    pet === 'dog' ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70'
+                  }`}
                 >
-                  <span>🛍️ Add Boarding to Cart • ₹{total}</span>
+                  Dog Rates
+                </button>
+                <button
+                  onClick={() => setPet('cat')}
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                    pet === 'cat' ? 'bg-sanctuary-forest text-white shadow-xs' : 'text-sanctuary-dark/70'
+                  }`}
+                >
+                  Cat Rates
                 </button>
               </div>
-
             </div>
+
+            {/* Dynamic Cards Grid */}
+            <div className="grid sm:grid-cols-2 gap-3.5">
+              {(pet === 'dog' ? dogRates : catRates).map((r) => (
+                <div
+                  key={r.id}
+                  className={`bg-white rounded-2xl p-4 sm:p-5 border flex flex-col justify-between space-y-3 shadow-xs hover:shadow-md transition-all relative ${
+                    r.popular ? 'border-sanctuary-gold ring-1 ring-sanctuary-gold' : 'border-black/10'
+                  }`}
+                >
+                  {r.popular && (
+                    <span className="absolute -top-2.5 right-4 bg-sanctuary-gold text-sanctuary-dark text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Most Popular
+                    </span>
+                  )}
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-base font-black text-sanctuary-dark">{r.title}</h3>
+                        <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                          Save ₹{r.save}/day
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs line-through text-red-500 font-bold decoration-red-500 block">
+                          ₹{r.orig}
+                        </span>
+                        <span className="text-xl font-black text-sanctuary-dark leading-none">
+                          ₹{r.price}
+                        </span>
+                        <span className="text-[9px] font-bold text-emerald-700">/day</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-sanctuary-dark/65 font-semibold pt-1">{r.sub}</p>
+                  </div>
+
+                  <div className="pt-2 border-t border-black/5">
+                    <button
+                      onClick={() =>
+                        onOpenBooking({
+                          type: 'boarding',
+                          serviceName: `${r.title} Boarding`,
+                          basePrice: r.price,
+                          origPrice: r.orig,
+                          petType: 'dog',
+                          petSize: r.id as any,
+                          nights: 4,
+                        })
+                      }
+                      className="w-full py-2 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <span>Book This Rate</span>
+                      <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
+                    </button>
+                    <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                      📍 Book online & drop off at Kanakapura Studio
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Boarding Add-ons */}
+            <div className="pt-2">
+              <div className="text-xs font-black uppercase tracking-wider text-sanctuary-gold mb-2">
+                Optional Boarding Add-ons
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {boardingAddons.map((addon) => (
+                  <div key={addon.id} className="p-3 bg-white rounded-xl border border-black/10 flex items-start gap-2.5">
+                    <div className="size-8 rounded-lg bg-sanctuary-sand text-sanctuary-forest flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-base">{addon.icon}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black text-sanctuary-dark">{addon.title}</h4>
+                        <span className="text-xs font-black text-emerald-800">+₹{addon.price}</span>
+                      </div>
+                      <p className="text-[10px] text-sanctuary-dark/65 font-medium leading-tight mt-0.5">{addon.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* ========================================================
-            SECTION 2: MILESTONE PERKS GRID
-            ======================================================== */}
-        <section className="space-y-4">
+        {/* Free Milestone Rewards on Stays */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-gold">
-                Complimentary Extended Stay Rewards
+                Complimentary Milestone Perks
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-sanctuary-dark">
-                Free Grooming Treatments on Every Stay
-              </h2>
+              <h3 className="text-xl sm:text-2xl font-black text-sanctuary-dark">
+                Free Grooming Treatments on Every Extended Stay
+              </h3>
             </div>
             <span className="hidden sm:inline-block text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-              Automatically Applied at Checkout
+              Automatically Applied
             </span>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="grid sm:grid-cols-3 gap-3.5">
             {milestones.map((m, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl p-4 border border-black/10 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-md transition-all"
-              >
-                <div className="space-y-1.5">
+              <div key={i} className="p-4 bg-white rounded-2xl border border-black/10 shadow-xs flex flex-col justify-between space-y-2 hover:shadow-md transition-all">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${m.badgeBg}`}>
                       {m.days}
@@ -642,39 +406,241 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
                       {m.value}
                     </span>
                   </div>
-                  <h3 className="text-sm font-black text-sanctuary-dark pt-1">{m.reward}</h3>
+                  <h4 className="text-sm font-black text-sanctuary-dark pt-1">{m.reward}</h4>
                   <p className="text-[11px] text-sanctuary-dark/70 font-medium leading-relaxed">{m.desc}</p>
                 </div>
-
                 <button
-                  type="button"
-                  onClick={() => {
-                    setNights(m.nights);
-                    window.scrollTo({ top: 120, behavior: 'smooth' });
-                  }}
-                  className="w-full py-2 bg-sanctuary-sand hover:bg-sanctuary-forest hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors text-center"
+                  onClick={() =>
+                    onOpenBooking({
+                      type: 'boarding',
+                      serviceName: 'Cage-Free Boarding Floor',
+                      basePrice: 625,
+                      nights: m.nights,
+                      appliedCouponCode: m.nights >= 6 ? 'STAY6FREE1' : m.nights >= 4 ? 'FREESPA' : undefined,
+                    })
+                  }
+                  className="w-full py-1.5 bg-sanctuary-sand hover:bg-sanctuary-forest hover:text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors text-center"
                 >
-                  Select {m.nights} Nights Stay →
+                  Book Stay & Claim
                 </button>
+                <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold pt-1">
+                  📍 Book online & drop off at Kanakapura Studio
+                </p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* ========================================================
-            SECTION 3: DAILY ROUTINE TIMELINE
-            ======================================================== */}
-        <section className="space-y-4">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-gold">
-              Predictable, Stress-Free Daily Life
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-sanctuary-dark mt-0.5">
-              Daily Schedule on Our Boarding Floor
-            </h2>
+        {/* Interactive Instant Nights Calculator */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-black/10 shadow-lg space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/5 pb-3">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-gold">
+                Live Pricing Calculator
+              </span>
+              <h3 className="text-xl font-black text-sanctuary-dark">Estimate Your Pet's Boarding Total</h3>
+            </div>
+            <span className="text-xs text-sanctuary-dark/60 font-semibold">Special Direct Pricing with Free Milestones</span>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Pet Type */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-sanctuary-dark/70">Companion</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setPet('dog')}
+                  className={`py-2 rounded-xl text-xs font-bold border transition-all ${
+                    pet === 'dog' ? 'bg-sanctuary-forest text-white border-sanctuary-forest' : 'border-black/10'
+                  }`}
+                >
+                  Dog
+                </button>
+                <button
+                  onClick={() => setPet('cat')}
+                  className={`py-2 rounded-xl text-xs font-bold border transition-all ${
+                    pet === 'cat' ? 'bg-sanctuary-forest text-white border-sanctuary-forest' : 'border-black/10'
+                  }`}
+                >
+                  Cat
+                </button>
+              </div>
+            </div>
+
+            {/* Size for Dog or Cat Type */}
+            {pet === 'dog' ? (
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-sanctuary-dark/70">Dog Breed Weight</label>
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { id: 'small', label: '< 10 kg' },
+                    { id: 'medium', label: '10–25 kg' },
+                    { id: 'large', label: '> 25 kg' },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setDogSize(s.id as any)}
+                      className={`py-2 rounded-xl text-xs font-bold border transition-all ${
+                        dogSize === s.id ? 'bg-sanctuary-forest text-white border-sanctuary-forest' : 'border-black/10'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-sanctuary-dark/70">Cat Type</label>
+                <div className="grid grid-cols-2 gap-1">
+                  <button
+                    onClick={() => setCatType('neutered')}
+                    className={`py-2 rounded-xl text-[11px] font-bold border transition-all ${
+                      catType === 'neutered' ? 'bg-sanctuary-forest text-white border-sanctuary-forest' : 'border-black/10'
+                    }`}
+                  >
+                    Neutered (₹625)
+                  </button>
+                  <button
+                    onClick={() => setCatType('non-neutered')}
+                    className={`py-2 rounded-xl text-[11px] font-bold border transition-all ${
+                      catType === 'non-neutered' ? 'bg-sanctuary-forest text-white border-sanctuary-forest' : 'border-black/10'
+                    }`}
+                  >
+                    Non-Neut (₹750)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Duration Slider & Presets */}
+            <div className="sm:col-span-2 space-y-1">
+              <div className="flex justify-between items-center text-xs font-bold">
+                <span>Duration:</span>
+                <span className="text-sanctuary-gold font-black bg-sanctuary-gold/15 px-2 py-0.5 rounded-full">
+                  {nights} Nights
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1 pb-1">
+                {[
+                  { n: 2, label: '2 N', perk: 'Standard' },
+                  { n: 4, label: '4 N', perk: 'FREE REFRESH' },
+                  { n: 8, label: '8 N', perk: 'FREE SPECIAL' },
+                  { n: 15, label: '15 N', perk: 'FREE FULL PKG' },
+                ].map((item) => (
+                  <button
+                    key={item.n}
+                    type="button"
+                    onClick={() => setNights(item.n)}
+                    className={`py-1 px-1 rounded-lg border text-center transition-all ${
+                      nights === item.n
+                        ? 'bg-sanctuary-forest text-white border-sanctuary-forest font-bold'
+                        : 'bg-sanctuary-sand/40 text-sanctuary-dark border-black/10'
+                    }`}
+                  >
+                    <div className="text-[10px] font-black">{item.label}</div>
+                    <div className={`text-[8px] font-extrabold ${nights === item.n ? 'text-amber-300' : 'text-emerald-700'}`}>
+                      {item.perk}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="30"
+                value={nights}
+                onChange={(e) => setNights(Number(e.target.value))}
+                className="w-full accent-sanctuary-gold cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Add-ons Toggles */}
+          <div className="p-3 bg-sanctuary-sand/50 rounded-2xl flex flex-wrap items-center gap-4">
+            <span className="text-xs font-black text-sanctuary-dark">Include Add-ons:</span>
+            <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
+              <input
+                type="checkbox"
+                checked={toyBundle}
+                onChange={(e) => setToyBundle(e.target.checked)}
+                className="rounded accent-sanctuary-forest size-4"
+              />
+              <span>Active Toy Bundle (+₹186)</span>
+            </label>
+            <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
+              <input
+                type="checkbox"
+                checked={medCare}
+                onChange={(e) => setMedCare(e.target.checked)}
+                className="rounded accent-sanctuary-forest size-4"
+              />
+              <span>Medication Care (+₹374)</span>
+            </label>
+          </div>
+
+          {/* Calculator Output & Action */}
+          <div className="p-4 bg-sanctuary-sand rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-black/5">
+            <div>
+              <div className="text-xs text-sanctuary-dark/70 font-semibold">
+                Estimated Total for {nights} Night{nights > 1 ? 's' : ''}:
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs line-through text-red-500 font-bold decoration-red-500">
+                  ₹{origTotal}
+                </span>
+                <span className="text-2xl font-black text-sanctuary-dark">
+                  ₹{total}
+                </span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                  You Save ₹{origTotal - total}
+                </span>
+              </div>
+              {milestone && (
+                <div className="text-[11px] font-bold text-emerald-800 mt-1 flex items-center gap-1">
+                  <span>UNLOCKED: {milestone.title} ({milestone.value})</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col items-center gap-1 w-full sm:w-auto">
+              <button
+                onClick={() =>
+                  onOpenBooking({
+                    type: 'boarding',
+                    serviceName: `${pet === 'cat' ? (catType === 'neutered' ? 'Neutered Cat' : 'Non-Neutered Cat') : `${dogSize.toUpperCase()} Dog`} Boarding`,
+                    basePrice: dailyRate,
+                    origPrice: dailyOrig,
+                    petType: pet,
+                    petSize: pet === 'dog' ? dogSize : undefined,
+                    catType: pet === 'cat' ? catType : undefined,
+                    nights: nights,
+                    appliedCouponCode: nights >= 6 ? 'STAY6FREE1' : nights >= 4 ? 'FREESPA' : undefined,
+                  })
+                }
+                className="w-full sm:w-auto py-3 px-6 bg-sanctuary-forest hover:bg-black text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shrink-0"
+              >
+                Book with Milestone Rewards
+              </button>
+              <p className="text-[9px] text-center text-sanctuary-dark/65 font-semibold">
+                📍 Book online & drop off at Kanakapura Studio
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Daily Life Timeline */}
+        <div className="space-y-4">
+          <div className="text-left">
+            <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-gold">
+              Predictable, Stress-Free Schedule
+            </span>
+            <h3 className="text-2xl font-black text-sanctuary-dark mt-0.5">
+              Daily Schedule on Our Boarding Floor
+            </h3>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {timeline.map((t, i) => (
               <div
                 key={i}
@@ -683,83 +649,32 @@ export const BoardingPage: React.FC<BoardingPageProps> = ({ onOpenBooking, onNav
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-sanctuary-sand text-sanctuary-forest inline-block">
                   {t.time}
                 </span>
-                <h3 className="text-xs font-black text-sanctuary-dark">{t.title}</h3>
+                <h4 className="text-xs font-black text-sanctuary-dark">{t.title}</h4>
                 <p className="text-[11px] text-sanctuary-dark/70 font-medium leading-relaxed">{t.desc}</p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* ========================================================
-            SECTION 4: WHAT TO BRING CHECKLIST & STUDIO ADDRESS
-            ======================================================== */}
-        <div className="grid sm:grid-cols-2 gap-4">
-          {/* Checklist */}
-          <div className="bg-white rounded-3xl p-6 border border-black/10 shadow-xs space-y-3">
-            <h3 className="text-lg font-black text-sanctuary-dark">What to Bring on Check-in Day</h3>
-            <div className="space-y-2.5">
-              {checklist.map((item, i) => (
-                <div key={i} className="flex gap-2.5 items-start">
-                  <div className="size-7 rounded-lg bg-sanctuary-sand text-sanctuary-forest flex items-center justify-center font-black shrink-0 text-xs">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black text-sanctuary-dark">{item.title}</h4>
-                    <p className="text-[11px] text-sanctuary-dark/70 font-medium leading-snug">{item.desc}</p>
-                  </div>
+        {/* Intake Checklist */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-black/10 shadow-sm space-y-4">
+          <h3 className="text-xl font-black text-sanctuary-dark">What to Bring on Check-in Day</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {checklist.map((item, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="size-10 rounded-xl bg-sanctuary-sand text-sanctuary-forest flex items-center justify-center font-black shrink-0">
+                  <span className="material-symbols-outlined text-xl">{item.icon}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Location & Studio Drop-off */}
-          <div className="bg-white rounded-3xl p-6 border border-black/10 shadow-xs space-y-3 flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-sanctuary-forest bg-emerald-100 px-2 py-0.5 rounded-full inline-block mb-1.5">
-                Drop-Off &amp; Pick-Up Studio
-              </span>
-              <h3 className="text-lg font-black text-sanctuary-dark">Snip &amp; Style Pet Sanctuary</h3>
-              <p className="text-xs text-sanctuary-dark/75 font-medium leading-relaxed mt-1">
-                Site no. 61, Beside Shani Mahatma Temple, Kanakapura Main Road, Bengaluru, Karnataka 560082.
-              </p>
-              <ul className="text-xs text-sanctuary-dark/80 font-medium space-y-1 mt-3">
-                <li>• Safe double-gated entry for zero accidental escapes.</li>
-                <li>• Easy curbside parking on vacation departure route (NH 948).</li>
-                <li>• 24/7 on-site caretaker and emergency vet on call.</li>
-              </ul>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href="https://maps.google.com/?q=Site+no.+61+Kanakapura+Main+Road+Bengaluru"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-black text-sanctuary-forest hover:text-sanctuary-gold underline"
-              >
-                <span>View Google Maps Directions →</span>
-              </a>
-            </div>
+                <div>
+                  <h4 className="text-xs font-black text-sanctuary-dark">{item.title}</h4>
+                  <p className="text-[11px] text-sanctuary-dark/70 font-medium leading-snug mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
       </div>
-
-      {/* Floating Added-to-Cart Toast */}
-      {toast.visible && (
-        <aside
-          role="status"
-          aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 bg-[#142b20] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-[#fed65b]/40 animate-bounce"
-        >
-          <span className="text-xs font-bold text-[#fed65b]">{toast.message}</span>
-          <Link
-            href="/cart"
-            className="py-1 px-3 bg-[#fed65b] text-[#142b20] rounded-xl text-xs font-black uppercase tracking-wider hover:bg-white transition-colors"
-          >
-            View Cart →
-          </Link>
-        </aside>
-      )}
     </motion.div>
   );
 };

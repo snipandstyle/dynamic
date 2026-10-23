@@ -25,7 +25,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
       inclusions: [
         'Private individual suite with soundproof walls',
         'Anti-bacterial memory foam orthopaedic bedding',
-        '2 daily green lawn walks & interactive play',
+        '2 daily walks & staff members play with dogs',
         'Twice-daily WhatsApp video updates',
         'Freshly prepared home meals to your schedule',
       ],
@@ -45,7 +45,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
       inclusions: [
         'Spacious walk-in private suite with glass view door',
         'Hypoallergenic orthopaedic bolster mattress',
-        '3 daily active fetch & exercise romps on turf',
+        '2 customized daily walks & interactive play on turf',
         'Daily WhatsApp video reels with assigned caretaker',
         'FREE Furry Fresh Spa refresh on 4+ nights',
       ],
@@ -66,7 +66,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
         'King-size orthopaedic bed with high-density foam',
         'High-energy agility runs & muscle stretch walks',
         '24/7 dedicated senior caretaker companionship',
-        'Doorstep Pet Pickup available (+₹299)',
+        'Doorstep AC Pet Cab available for 1 week and above stays',
       ],
     },
   ];
@@ -186,7 +186,7 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
                 Dasara Boarding Deal: Book 6+ Days & Get 1 Full Day Free
               </p>
               <p className="text-[10px] text-emerald-200 font-medium hidden sm:block">
-                Use code <span className="font-bold text-yellow-300">STAY6FREE1</span> • 100% Cage-Free & Lawn Nature Walks
+                Use code <span className="font-bold text-yellow-300">STAY6FREE1</span> • 100% Cage-Free &amp; Dedicated Staff Playtime
               </p>
             </div>
           </div>
@@ -592,24 +592,24 @@ export const BoardingSection: React.FC<BoardingSectionProps> = ({ onOpenBooking 
             </div>
           </div>
           <div className="p-2.5 bg-white rounded-xl border border-black/5 flex items-center gap-2 shadow-xs">
-            <span className="material-symbols-outlined text-sanctuary-forest text-lg">forest</span>
+            <span className="material-symbols-outlined text-sanctuary-forest text-lg">pets</span>
             <div>
-              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">2 Daily Walks</div>
-              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Green Lawn Romp</div>
+              <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Staff Playtime</div>
+              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Staff plays with dogs daily</div>
             </div>
           </div>
           <div className="p-2.5 bg-white rounded-xl border border-black/5 flex items-center gap-2 shadow-xs">
             <span className="material-symbols-outlined text-sanctuary-forest text-lg">videocam</span>
             <div>
               <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Daily WhatsApp Updates</div>
-              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Photo & Video Journal</div>
+              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Photo &amp; Video Journal</div>
             </div>
           </div>
           <div className="p-2.5 bg-white rounded-xl border border-black/5 flex items-center gap-2 shadow-xs">
             <span className="material-symbols-outlined text-sanctuary-forest text-lg">local_taxi</span>
             <div>
               <div className="text-[11px] font-black text-sanctuary-dark leading-tight">Doorstep Pet Taxi</div>
-              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">Paid transit based on distance</div>
+              <div className="text-[9px] text-sanctuary-dark/60 font-semibold">1 week &amp; above stays</div>
             </div>
           </div>
         </div>

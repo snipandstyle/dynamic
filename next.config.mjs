@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: process.env.BOOKING_SANDBOX === '1' ? '.next-sandbox' : '.next',
+  distDir: process.env.BOOKING_SANDBOX === '1' ? '.next-sandbox' : process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {

@@ -30,10 +30,6 @@ export default function LandingHero({
   return (
     <section className="landing-hero ref-container">
       <div className="landing-copy">
-        <div className="landing-eyebrow">
-          <span />
-          <span>BENGALURU’S #1 PET GROOMING &amp; CAGE-FREE BOARDING SANCTUARY</span>
-        </div>
         <h1>
           {page === "grooming" ? (
             <>
@@ -55,25 +51,25 @@ export default function LandingHero({
             </>
           )}
         </h1>
+        <p className="exact-hero-subtitle">Bangalore’s #1 cage-free boarding &amp; pet grooming studio</p>
         <p>
-          Book online in seconds, visit our Kanakapura Main Road studio, and
-          treat your companion to luxury cage-free boarding, gentle artisan
-          grooming, and daily WhatsApp photo & video updates.
+          Good hair days. Cosy sleepovers. A whole lot of love. Book online,
+          visit our Kanakapura Main Road studio, and let the happy tails begin.
         </p>
 
         {/* Studio Visit 3-Step Pill */}
         <div className="landing-workflow-pill">
-          <span>1. Book Online</span>
+          <span>Book online</span>
           <em>→</em>
-          <span>2. Visit Studio</span>
+          <span>Visit the studio</span>
           <em>→</em>
-          <span>3. Pampered Pet!</span>
+          <span>Happy, pampered pet</span>
         </div>
 
         <div className="landing-actions">
           <button className="ref-button" onClick={scrollToGrooming}>
             <Icon name="scissors" size={18} />
-            Explore Grooming Packages
+            Book a grooming
             <Icon name="arrow" size={17} />
           </button>
           <button
@@ -81,7 +77,7 @@ export default function LandingHero({
             onClick={scrollToBoarding}
           >
             <Icon name="home" size={18} />
-            Book Cage-Free Boarding
+            Plan a stay
           </button>
         </div>
 
@@ -96,7 +92,7 @@ export default function LandingHero({
           </span>
           <span>
             <Icon name="check" size={15} />
-            4.9★ Google Rating
+            Upfront offer prices
           </span>
           <span>
             <Icon name="check" size={15} />
@@ -108,7 +104,9 @@ export default function LandingHero({
           href="#offers"
           onClick={(e) => {
             e.preventDefault();
-            document.getElementById("offers")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("offers")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
           className="landing-offer"
         >
@@ -116,9 +114,10 @@ export default function LandingHero({
             <Icon name="sparkle" size={18} />
           </span>
           <div>
-            <strong>Verified Festival Privileges & Vouchers</strong>
+            <strong>A little extra pampering, on us.</strong>
             <p>
-              10% extra off grooming (GROOM10) · 1 night free on 6+ nights (STAY6FREE1) · Free Spa Bath (FREESPA)
+              Exact upfront grooming prices · 1 night free on 6+ nights
+              (STAY6FREE1) · Free Spa Bath (FREESPA)
             </p>
           </div>
           <Icon name="arrow" size={18} />
@@ -187,17 +186,11 @@ export default function LandingHero({
           Beside Shani Mahatma Temple, Kanakapura Main Road
         </span>
         <div role="group" aria-label="Choose boarding or grooming">
-          <button
-            aria-pressed={mode === "boarding"}
-            onClick={scrollToBoarding}
-          >
+          <button aria-pressed={mode === "boarding"} onClick={scrollToBoarding}>
             <Icon name="home" size={16} />
             Boarding
           </button>
-          <button
-            aria-pressed={mode === "grooming"}
-            onClick={scrollToGrooming}
-          >
+          <button aria-pressed={mode === "grooming"} onClick={scrollToGrooming}>
             <Icon name="scissors" size={16} />
             Grooming
           </button>

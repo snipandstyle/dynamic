@@ -22,14 +22,25 @@ export const SanctuaryMobileBar: React.FC<SanctuaryMobileBarProps> = ({ onOpenBo
           </span>
         </div>
 
-        {/* ONLY Book Now Button - No Phone, No WhatsApp */}
-        <button
-          onClick={onOpenBooking}
-          className="py-2.5 px-6 bg-sanctuary-gold hover:bg-white text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
-        >
-          <span>Book Studio Visit</span>
-          <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
-        </button>
+        {/* Actions: Direct Call & Book Visit */}
+        <div className="flex items-center gap-2">
+          <a
+            href="tel:+919739887770"
+            className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1 shadow-md active:scale-95 transition-all"
+            aria-label="Direct Phone Assistance: 9739887770"
+          >
+            <span className="material-symbols-outlined text-sm">call</span>
+            <span>Call</span>
+          </a>
+
+          <button
+            onClick={onOpenBooking}
+            className="py-2.5 px-4 bg-sanctuary-gold hover:bg-white text-sanctuary-dark rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
+          >
+            <span>Book Visit</span>
+            <span className="material-symbols-outlined text-sm font-bold">arrow_forward</span>
+          </button>
+        </div>
 
       </div>
     </div>

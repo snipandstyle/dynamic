@@ -9,16 +9,15 @@ import {
   quoteCart,
   SIZE_LABELS,
   includedAddonIds,
+  SUPER_SAVER_BUNDLES,
 } from "../../data/catalog";
 import { writeBookingCart } from "../../utils/booking-cart";
 import { BookingShell, Icon, OrderSummary, useBookingCart } from "./BookingUI";
-import BreedConfirmModal from "./BreedConfirmModal";
 
 export default function CartPage() {
   const router = useRouter();
   const { items, ready } = useBookingCart();
   const [error, setError] = useState("");
-  const [showBreedModal, setShowBreedModal] = useState(false);
   function update(id: string, changes: Partial<BookingItem>) {
     try {
       writeBookingCart(
@@ -98,18 +97,19 @@ export default function CartPage() {
                     </div>
                     <div className="pet-cart-line-price">
                       <strong>{money(line.total)}</strong>
-                      <del>
+                      {line.savings > 0 && <del>
                         {money(
                           line.original * line.item.quantity +
                             line.extras * line.item.quantity,
                         )}
-                      </del>
+                      </del>}
                     </div>
                   </div>
                   <div className="pet-cart-edit-grid">
                     <label>
                       Pet
                       <select
+                        disabled={line.item.category === "bundle"}
                         value={line.item.petType}
                         onChange={(e) =>
                           update(line.item.id, {
@@ -123,18 +123,19 @@ export default function CartPage() {
                     </label>
                     {line.item.petType === "dog" ? (
                       <label>
-                        Weight
+                        {line.item.category === "boarding" ? "Weight" : "Size category"}
                         <select
                           value={line.item.petSize}
                           onChange={(e) =>
                             update(line.item.id, {
                               petSize: e.target.value as BookingItem["petSize"],
+                              selectionMode: "size", breed: "",
                             })
                           }
                         >
                           {Object.entries(SIZE_LABELS).map(([key, label]) => (
                             <option key={key} value={key}>
-                              {label}
+                              {line.item.category === "boarding" ? label : key[0].toUpperCase()+key.slice(1)+" breed"}
                             </option>
                           ))}
                         </select>
@@ -177,11 +178,12 @@ export default function CartPage() {
                       </label>
                     )}
                   </div>
+                  {line.item.category === "bundle" && <div className="exact-bundle-badge">{SUPER_SAVER_BUNDLES.find(b=>b.id===line.item.serviceId)?.sessions} studio sessions · valid {SUPER_SAVER_BUNDLES.find(b=>b.id===line.item.serviceId)?.validity}{line.item.petType === "cat" && <label className="restore-field">Coat type<select value={line.item.coatType||"short"} onChange={e=>update(line.item.id,{coatType:e.target.value as "short"|"long"})}><option value="short">Short coat</option><option value="long">Long coat</option></select></label>}</div>}
                   {line.discount > 0 && (
                     <p className="pet-perk">
                       <Icon name="sparkle" size={16} />
-                      {line.offer === "GROOM10"
-                        ? "10% festival offer"
+                      {line.offer === "LISTED_PRICE"
+                        ? "Listed package price"
                         : "1 night free"}{" "}
                       · saving {money(line.discount * line.item.quantity)}
                     </p>
@@ -192,7 +194,7 @@ export default function CartPage() {
                       {line.perk}
                     </p>
                   )}
-                  {line.item.category === "grooming" && (
+                  {(line.item.category === "grooming" || line.item.category === "boarding") && (
                     <details className="pet-cart-extras">
                       <summary>
                         Make it their own <span>Optional extras +</span>
@@ -202,7 +204,7 @@ export default function CartPage() {
                         Prices are per pet.
                       </p>
                       <div>
-                        {ADDONS.map((addon) => (
+                        {ADDONS.filter(addon => line.item.category === "boarding" ? ["active-toy-bundle","medication-care"].includes(addon.id) : !["active-toy-bundle","medication-care"].includes(addon.id)).map((addon) => (
                           <label key={addon.id} className="pet-extra-check">
                             <input
                               type="checkbox"
@@ -300,7 +302,7 @@ export default function CartPage() {
             <OrderSummary items={items}>
               <button
                 type="button"
-                onClick={() => setShowBreedModal(true)}
+                onClick={() => router.push("/checkout")}
                 className="pet-button pet-full"
               >
                 Continue to checkout
@@ -320,7 +322,7 @@ export default function CartPage() {
             </div>
             <button
               type="button"
-              onClick={() => setShowBreedModal(true)}
+              onClick={() => router.push("/checkout")}
               className="pet-button"
             >
               Checkout
@@ -330,19 +332,6 @@ export default function CartPage() {
         )}
       </div>
 
-      {/* Breed & Size Confirmation Modal before proceeding to checkout */}
-      {showBreedModal && (
-        <BreedConfirmModal
-          isOpen={showBreedModal}
-          onClose={() => setShowBreedModal(false)}
-          items={items}
-          onConfirm={(confirmedItems) => {
-            writeBookingCart(confirmedItems);
-            setShowBreedModal(false);
-            router.push("/checkout");
-          }}
-        />
-      )}
     </BookingShell>
   );
 }

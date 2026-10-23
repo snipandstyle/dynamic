@@ -419,6 +419,9 @@ export async function handleUpdateAdminBooking(
     return { status: 403, body: { error: 'Unauthorized: Admin role required.' } };
   }
 
+  if (data.status === 'in_progress') data = { ...data, status: 'in_care' };
+  if (data.status && !['pending','confirmed','in_care','completed','cancelled'].includes(data.status)) return {status:400,body:{error:'Invalid booking status.'}};
+  if (data.paymentStatus && !['pending','paid','advance_paid','refunded'].includes(data.paymentStatus)) return {status:400,body:{error:'Invalid payment status.'}};
   const updates: string[] = [];
   const values: any[] = [];
   let idx = 1;
@@ -1000,8 +1003,8 @@ export async function handleUpdateProfile(
     if (!isCurrentValid) {
       return { status: 400, body: { error: 'Current password does not match.' } };
     }
-    if (data.newPassword.length < 6) {
-      return { status: 400, body: { error: 'New password must be at least 6 characters.' } };
+    if (data.newPassword.length < 8) {
+      return { status: 400, body: { error: 'New password must be at least 8 characters.' } };
     }
     const newHash = await hashPassword(data.newPassword);
     await query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [newHash, payload.userId]);

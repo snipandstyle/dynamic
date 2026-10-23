@@ -70,6 +70,10 @@ export default function BookingCheckout() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null");
       if (saved?.pets && saved?.schedules) setDetails(saved);
+      else {
+        const user = JSON.parse(localStorage.getItem("snip_user") || "null");
+        if (user) setDetails(d => ({...d,name:user.fullName || user.full_name || "",phone:String(user.phone || user.phone_number || "").replace(/\D/g, "").slice(-10)}));
+      }
       const payment = JSON.parse(sessionStorage.getItem(PAYMENT_KEY) || "null");
       if (payment?.token && payment?.payment_id && payment?.signature)
         setPending(payment);
@@ -97,6 +101,9 @@ export default function BookingCheckout() {
       date: indiaDate(1),
       slot: ARRIVAL_WINDOWS[0],
     };
+  function changeSchedule(item: BookingItem, changes: Partial<Schedule>) {
+    setDetails(current => ({...current,schedules:{...current.schedules,[item.id]:{date:indiaDate(1),slot:ARRIVAL_WINDOWS[0],...current.schedules[item.id],...changes}}}));
+  }
   function go(next: number) {
     setStep(next);
     setError("");
@@ -578,18 +585,8 @@ export default function BookingCheckout() {
                               max={addDays(indiaDate(), 365)}
                               required
                               value={schedule(item).date}
-                              onChange={(e) =>
-                                setDetails({
-                                  ...details,
-                                  schedules: {
-                                    ...details.schedules,
-                                    [item.id]: {
-                                      ...schedule(item),
-                                      date: e.target.value,
-                                    },
-                                  },
-                                })
-                              }
+                              onInput={(e) => changeSchedule(item,{date:e.currentTarget.value})}
+                              onChange={(e) => changeSchedule(item,{date:e.currentTarget.value})}
                             />
                           </label>
                           {item.category === "boarding" && (

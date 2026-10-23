@@ -1,12 +1,12 @@
 {
-  "name": "snipnstylefinal",
+  "name": "snip-style-restored",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "test:booking": "node --test scripts/booking.test.cjs",
     "lint:booking": "eslint --config eslint.booking.config.mjs App.tsx components/booking components/CheckoutModal.tsx data/catalog.ts utils/booking-cart.ts lib/auth.ts lib/db.ts lib/booking-order.ts lib/booking-payment.ts app/layout.tsx app/robots.ts app/sitemap.ts app/api/booking app/cart/page.tsx app/checkout/page.tsx app/account/page.tsx scripts/booking.test.cjs --max-warnings 0",
-    "dev": "next dev --port 3002",
+    "dev": "next dev --port 3010",
     "build": "next build",
     "start": "next start",
     "preview": "next start",

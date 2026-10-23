@@ -201,7 +201,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 <input
                   type="tel"
                   required
-                  placeholder="e.g. 9739887770"
+                  placeholder="e.g. 9845012345"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold font-mono font-bold"
@@ -256,7 +256,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({
                 <input
                   type="tel"
                   required
-                  placeholder="e.g. 9739887770"
+                  placeholder="e.g. 9845012345"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold font-mono font-bold"

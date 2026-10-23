@@ -145,8 +145,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
         if (!currentPassword) {
           throw new Error('Please enter your current password to set a new password.');
         }
-        if (newPassword.length < 6) {
-          throw new Error('New password must be at least 6 characters.');
+        if (newPassword.length < 8) {
+          throw new Error('New password must be at least 8 characters.');
         }
         payload.currentPassword = currentPassword;
         payload.newPassword = newPassword;
@@ -174,7 +174,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
         window.dispatchEvent(new CustomEvent('snip_auth_change'));
       }
 
-      setEditSuccess('Profile and password updated successfully in database!');
+      setEditSuccess('Your changes have been saved.');
       setCurrentPassword('');
       setNewPassword('');
       setTimeout(() => {
@@ -268,7 +268,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                   <input
                     type="tel"
                     required
-                    placeholder="e.g. 9739887770"
+                    placeholder="e.g. 9845012345"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full p-3 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold font-mono font-bold"
@@ -320,7 +320,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                   <input
                     type="tel"
                     required
-                    placeholder="e.g. 9739887770"
+                    placeholder="e.g. 9845012345"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full p-3 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold font-mono font-bold"
@@ -334,7 +334,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                   <input
                     type="password"
                     required
-                    placeholder="Minimum 6 characters"
+                    minLength={8}
+                    placeholder="Minimum 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full p-3 rounded-xl border border-black/15 text-xs font-medium focus:outline-none focus:border-sanctuary-gold"
@@ -486,7 +487,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                               className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                                 b.status === 'completed'
                                   ? 'bg-purple-100 text-purple-900'
-                                  : b.status === 'in_progress'
+                                  : b.status === 'in_care'
                                   ? 'bg-blue-100 text-blue-900'
                                   : b.status === 'cancelled'
                                   ? 'bg-red-100 text-red-900'
@@ -553,7 +554,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
                             <div className="flex flex-wrap gap-1.5">
                               {servicesList.map((item: any, idx: number) => (
                                 <span key={idx} className="text-[10px] font-bold bg-white px-2 py-0.5 rounded-md border border-black/10 text-sanctuary-dark">
-                                  {item.title} (₹{item.price})
+                                  {item.name || item.title} (₹{Number(item.total ?? item.price ?? 0).toLocaleString('en-IN')}){item.petName ? ` · ${item.petName}` : ''}{item.date ? ` · ${item.date}` : ''}
                                 </span>
                               ))}
                             </div>
@@ -676,7 +677,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ onNavigateHome, onOpen
 
                 <div>
                   <label className="text-[11px] font-black uppercase tracking-wider text-sanctuary-dark/70 block mb-1">
-                    New Password (Min 6 characters)
+                    New Password (Min 8 characters)
                   </label>
                   <input
                     type="password"

@@ -1,8 +1,2 @@
-'use client';
-
-import React from 'react';
-import App from '../../App';
-
-export default function OffersPage() {
-  return <App initialPage="offers" />;
-}
+import { redirect } from "next/navigation";
+export default function OffersPage() { redirect("/#offers"); }

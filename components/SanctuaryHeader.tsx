@@ -93,6 +93,17 @@ export const SanctuaryHeader: React.FC<SanctuaryHeaderProps> = ({
 
         {/* Actions Group */}
         <div className="flex items-center gap-2">
+          {/* Sticky Call Now Button */}
+          <a
+            href="tel:+919739887770"
+            className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl transition-all shadow-xs flex items-center gap-1.5 shrink-0"
+            title="Direct Phone Call: 9739887770"
+          >
+            <span className="material-symbols-outlined text-sm">call</span>
+            <span className="hidden sm:inline">Call Now: 9739887770</span>
+            <span className="sm:hidden">Call Now</span>
+          </a>
+
           {onOpenAuth && (
             <button
               onClick={onOpenAuth}
@@ -150,7 +161,14 @@ export const SanctuaryHeader: React.FC<SanctuaryHeaderProps> = ({
               {link.label}
             </button>
           ))}
-          <div className="pt-2 border-t border-black/5 flex items-center justify-between">
+          <div className="pt-2 border-t border-black/5 flex flex-col gap-2">
+            <a
+              href="tel:+919739887770"
+              className="py-2 px-3 bg-emerald-600 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-xs"
+            >
+              <span className="material-symbols-outlined text-sm">call</span>
+              <span>Call Now: +91 9739887770</span>
+            </a>
             {onOpenAuth && (
               <button
                 onClick={() => { onOpenAuth(); setMobileMenuOpen(false); }}

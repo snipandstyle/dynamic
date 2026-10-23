@@ -1,0 +1,4 @@
+import dotenv from 'dotenv';import pg from 'pg';import dns from 'node:dns';dns.setDefaultResultOrder('ipv4first');dotenv.config({quiet:true});
+const url=new URL(process.env.DIRECT_DATABASE_URL||process.env.DATABASE_URL);for(const key of ['sslmode','sslcert','sslkey','sslrootcert'])url.searchParams.delete(key);
+const client=new pg.Client({connectionString:url.toString(),ssl:{rejectUnauthorized:true}});
+try{await client.connect();console.log((await client.query("SELECT table_name,column_name,data_type FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('organizations','users') AND is_nullable='NO' AND column_default IS NULL")).rows);console.log('Existing admin accounts:',(await client.query("SELECT count(*)::int AS count FROM users WHERE role='admin'")).rows[0].count);}finally{await client.end();}

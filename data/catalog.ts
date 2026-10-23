@@ -1,3 +1,4 @@
+import { priceSize } from "./pet-selection";
 export type PetType = "dog" | "cat";
 export type PetSize = "small" | "medium" | "large";
 export type PriceTier = PetSize | "cat";
@@ -190,6 +191,7 @@ export const ADDONS = [
     id: "face-trim",
     name: "Face Trim (Quick Service)",
     price: 499,
+    homePrice: 625,
     originalPrice: 699,
     description: "Neatens facial hair around eyes, muzzle, and beard shaping.",
   },
@@ -197,6 +199,7 @@ export const ADDONS = [
     id: "waterless-bath-express",
     name: "Waterless Bath Express",
     price: 749,
+    homePrice: 938,
     originalPrice: 999,
     description: "Waterless bath, deep brush-out, and coat deodorizing spray.",
   },
@@ -396,6 +399,8 @@ export interface BookingItem {
   addons: string[];
   petName?: string;
   breed?: string;
+  coatType?: "short" | "long";
+  selectionMode?: "breed" | "size";
 }
 
 export function includedAddonIds(serviceId: string): readonly string[] {
@@ -427,6 +432,12 @@ export function validateItem(raw: BookingItem): BookingItem {
     throw new Error(
       "This grooming package is unavailable. Please choose a package again.",
     );
+  if (raw.category === "boarding" && raw.serviceId !== "boarding") throw new Error("Invalid boarding service.");
+  if (raw.category === "bundle") {
+    const bundle = SUPER_SAVER_BUNDLES.find(b => b.id === raw.serviceId);
+    if (!bundle || bundle.petType !== raw.petType) throw new Error("Please select a valid bundle for your pet.");
+    if (raw.petType === "cat" && !["short", "long"].includes(raw.coatType || "")) throw new Error("Select your cat’s coat type.");
+  }
   if (
     raw.category === "addon" &&
     !ADDONS.some((a) => a.id === raw.serviceId)
@@ -457,6 +468,7 @@ export function validateItem(raw: BookingItem): BookingItem {
     );
   return {
     ...raw,
+    petSize: raw.petType === "dog" && raw.selectionMode === "breed" ? priceSize(String(raw.breed || ""), raw.category, raw.petSize) : raw.petSize,
     petName: String(raw.petName || "")
       .trim()
       .slice(0, 80),
@@ -483,9 +495,9 @@ export function quoteItem(raw: BookingItem) {
   const oldNightly =
     item.petType === "cat"
       ? item.catType === "non-neutered"
-        ? 899
-        : 750
-      : { small: 750, medium: 899, large: 1050 }[item.petSize];
+        ? 750
+        : 625
+      : { small: 750, medium: 750, large: 875 }[item.petSize];
 
   let base = 0;
   let original = 0;
@@ -497,11 +509,11 @@ export function quoteItem(raw: BookingItem) {
     name = "Cage-Free Boarding";
   } else if (item.category === "bundle" && bundle) {
     if (bundle.petType === "cat") {
-      base = bundle.prices.short || 4874;
-      original = Math.round(base * 1.3);
+      base = bundle.prices[item.coatType === "long" ? "long" : "short"]!;
+      original = base;
     } else {
       base = bundle.prices[item.petSize] || 4874;
-      original = Math.round(base * 1.3);
+      original = base;
     }
     name = bundle.name;
   } else if (item.category === "addon" && addon) {
@@ -519,9 +531,7 @@ export function quoteItem(raw: BookingItem) {
       ? item.nights >= 6
         ? nightly
         : 0
-      : base > 999
-        ? Math.round(base * 0.1)
-        : 0;
+      : 0;
 
   const extras = item.addons.reduce(
     (sum, id) => sum + (ADDONS.find((a) => a.id === id)?.price || 0),
@@ -550,7 +560,7 @@ export function quoteItem(raw: BookingItem) {
     offer: discount
       ? item.category === "boarding"
         ? "STAY6FREE1"
-        : "GROOM10"
+        : ""
       : "",
     perk,
     nightly,

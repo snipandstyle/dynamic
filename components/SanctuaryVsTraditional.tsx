@@ -131,7 +131,7 @@ export const SanctuaryVsTraditional: React.FC = () => {
             <div className="p-3.5 rounded-2xl bg-sanctuary-forest text-white flex items-center justify-between gap-3 shadow-md">
               <div className="space-y-0.5">
                 <div className="text-xs font-black text-sanctuary-gold">Free 30-Min Trial Visit</div>
-                <div className="text-[10px] text-white/70">Bring your companion to tour our suites & sniff our lawn for free!</div>
+                <div className="text-[10px] text-white/70">Bring your companion to tour our suites &amp; meet our caring staff for free!</div>
               </div>
               <a
                 href="https://wa.me/919739887770?text=Hi%2C%20I%20would%20like%20to%20schedule%20a%20free%20trial%20visit%20at%20Snip%20%26%20Style!"

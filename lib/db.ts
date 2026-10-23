@@ -8,6 +8,9 @@ try {
 
 import pg from "pg";
 const { Pool } = pg;
+// Calendar dates must remain dates; converting midnight IST into a JS Date
+// shifts the JSON date into the previous UTC day.
+pg.types.setTypeParser(1082, (value: string) => value);
 
 const poolerUrl = process.env.DATABASE_URL || "";
 
@@ -28,7 +31,7 @@ function connection(url: string) {
 const databaseSchema = process.env.BOOKING_SANDBOX === '1' ? 'sns_checkout_test' : 'public';
 
 // Primary pooler connection pool
-export const pool = new Pool({
+const primaryPool = new Pool({
   ...(process.env.BOOKING_SANDBOX === '1' ? { options: `-c search_path=${databaseSchema}` } : {}),
   ...connection(poolerUrl),
   max: 10,
@@ -44,6 +47,17 @@ export const directPool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
+
+export const pool = {
+  query: <T = any>(text: string, params?: any[]) => primaryPool.query<T>(text, params),
+  connect: async () => {
+    try { return await primaryPool.connect(); }
+    catch (error: any) {
+      if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') return directPool.connect();
+      throw error;
+    }
+  },
+};
 
 export async function query<T = any>(
   text: string,
@@ -73,7 +87,7 @@ export async function query<T = any>(
       const fallbackRes = await directPool.query<T>(text, params);
       return fallbackRes;
     }
-    console.error("[DB Query Error]", { text, error });
+    console.error("[DB Query Error]", { code: error.code || "DATABASE_ERROR" });
     throw error;
   }
 }

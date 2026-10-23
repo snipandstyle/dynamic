@@ -10,16 +10,16 @@ export const SanctuarySuites: React.FC = () => {
       badge: 'Best for Small Breeds',
       sizeTarget: 'Puppies & Small Dogs (<10kg)',
       dims: '45 sq. ft. Private Room',
-      origPrice: 625,
-      price: 562,
+      origPrice: 750,
+      price: 625,
       camName: 'Meadow Suite 01 (Puppy Lounge)',
       image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=900',
       highlights: [
         'Individual quiet private room with soundproof walls',
         'Plush orthopaedic memory foam anti-bacterial bedding',
-        '3 daily outdoor lawn romps on green turf',
+        '2 daily walks & staff members play with dogs',
         'Daily WhatsApp photo & video updates',
-        'Hand-fed meals according to parent instructions',
+        'Fresh premium meals & treats included',
       ],
     },
     {
@@ -28,16 +28,16 @@ export const SanctuarySuites: React.FC = () => {
       badge: 'Most Popular',
       sizeTarget: 'Medium Dogs (10–25kg) & Active Breeds',
       dims: '75 sq. ft. Walk-in Villa',
-      origPrice: 750,
-      price: 675,
+      origPrice: 899,
+      price: 750,
       camName: 'Garden Villa 04 (Executive Suite)',
       image: 'https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=900',
       highlights: [
         'Spacious walk-in private suite with glass view door',
         'Hypoallergenic medical-grade plush mattress',
-        '4 daily outdoor agility & fetch sessions on turf',
-        'Daily WhatsApp video reels with assigned handler',
-        'Complimentary ₹800 Furry Fresh Spa on 4+ nights',
+        '2 daily walks & dedicated staff members play with dogs',
+        'Daily WhatsApp video reels with assigned caretaker',
+        'FREE Furry Fresh Grooming Refresh on 4+ nights',
       ],
     },
     {
@@ -46,33 +46,33 @@ export const SanctuarySuites: React.FC = () => {
       badge: 'Ultimate Space',
       sizeTarget: 'Large Dogs (>25kg) & Pet Siblings',
       dims: '120 sq. ft. Master Villa',
-      origPrice: 875,
-      price: 787,
-      camName: 'Presidential 01 (Master Lawn Suite)',
+      origPrice: 1050,
+      price: 875,
+      camName: 'Presidential 01 (Master Suite)',
       image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=80&w=900',
       highlights: [
         'Double-size master suite for Goldens, Labs & Huskies',
         'King-size orthopaedic bed with bolster pillows',
-        'Dedicated senior handler & private cuddle time',
-        'Doorstep Pet Taxi available (Extra charge based on distance)',
-        'Complimentary ultrasonic dental care & paw spa',
+        'Dedicated senior caretaker & 24/7 supervision',
+        'Doorstep AC Pet Cab available for 1 week and above stays',
+        'FREE Special Package Grooming on 8+ nights stay',
       ],
     },
     {
       id: 'cat-loft',
-      name: 'The Feline Cloud Loft',
+      name: 'The Feline Quiet Cabin',
       badge: '100% Cat Sanctuary',
-      sizeTarget: 'Cats of All Personalities',
-      dims: 'Soundproofed Multi-Level Loft',
-      origPrice: 625,
-      price: 562,
-      camName: 'Feline Sanctuary Loft 02',
+      sizeTarget: 'Neutered (₹625) & Non-Neutered (₹750)',
+      dims: 'Soundproofed Private Cabin',
+      origPrice: 750,
+      price: 625,
+      camName: 'Feline Sanctuary Cabin 02',
       image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=900',
       highlights: [
-        'Completely soundproofed away from dog barking',
-        'Multi-tiered vertical climbing towers & sisal posts',
+        'Completely soundproofed private quiet cabin away from barking',
+        'Multi-tiered climbing towers & cozy haven',
         'Private sanitized litter box refreshed 3x daily',
-        'Soothing Feliway pheromone scent diffusion',
+        'Custom feeding schedules & daily photo updates',
         'Daily laser games, catnip stimulation & grooming',
       ],
     }
@@ -99,7 +99,7 @@ export const SanctuarySuites: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs text-sanctuary-dark/70 font-medium max-w-sm">
-            Zero wire cages. Each companion enjoys individual private suites, sanitized bedding, and daily green lawn romps.
+            Zero wire cages. Each companion enjoys individual private suites, sanitized bedding, and staff members playing with them daily.
           </p>
         </div>
 
