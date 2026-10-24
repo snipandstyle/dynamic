@@ -1,5 +1,5 @@
 import AdminSessionPasses from "./booking/AdminSessionPasses";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminDashboardModalProps {
@@ -38,6 +38,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
   // Bookings State
   const [bookings, setBookings] = useState<any[]>([]);
+  const [bookingsError, setBookingsError] = useState('');
+  const [lastBookingsSync, setLastBookingsSync] = useState<Date | null>(null);
+  const bookingsRequestActive = useRef(false);
   const [loading, setLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -232,22 +235,52 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
     }
   };
 
-  const fetchAdminBookings = async (token: string) => {
-    setLoading(true);
+  const fetchAdminBookings = useCallback(async (token: string, background = false) => {
+    if (bookingsRequestActive.current) return;
+    bookingsRequestActive.current = true;
+    if (!background) setLoading(true);
     try {
       const res = await fetch('/api/admin/bookings', {
         headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(15000),
       });
-      const data = await res.json();
-      if (data.bookings) {
-        setBookings(data.bookings);
+      if (res.status === 401 || res.status === 403) {
+        setIsAdmin(false);
+        setError('Your admin session has expired. Please sign in again to view current orders.');
+        return;
       }
+      const data = await res.json();
+      if (!res.ok || !Array.isArray(data.bookings))
+        throw new Error('Orders could not be loaded from the server. Please retry.');
+      setBookings(data.bookings);
+      setBookingsError('');
+      setLastBookingsSync(new Date());
     } catch (err) {
-      console.error('Error fetching admin bookings', err);
+      setBookingsError(err instanceof Error ? err.message : 'Orders could not be loaded. Please retry.');
     } finally {
-      setLoading(false);
+      bookingsRequestActive.current = false;
+      if (!background) setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !isAdmin || activeAdminTab !== 'bookings') return;
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      const token = localStorage.getItem('snip_auth_token');
+      if (token) void fetchAdminBookings(token, true);
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 20000);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [isOpen, isAdmin, activeAdminTab, fetchAdminBookings]);
 
   const fetchAdminCoupons = async (token?: string) => {
     const t = token || localStorage.getItem('snip_auth_token');
@@ -713,6 +746,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
           ) : activeAdminTab === 'passes' ? (<AdminSessionPasses/>) : activeAdminTab === 'bookings' ? (
             /* TAB 1: Live Bookings Console */
             <div className="space-y-4">
+              <p className="text-xs text-sanctuary-dark/70" role="status">
+                {lastBookingsSync ? `Last updated ${lastBookingsSync.toLocaleTimeString('en-IN')}. ` : ''}
+                Orders refresh automatically every 20 seconds while this tab is open.
+              </p>
+              {bookingsError && (
+                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <p>{bookingsError}</p>
+                  {lastBookingsSync && <p>Showing the last successfully loaded orders.</p>}
+                  <button type="button" className="mt-2 font-bold underline" onClick={() => {
+                    const token = localStorage.getItem('snip_auth_token');
+                    if (token) void fetchAdminBookings(token);
+                  }}>Retry loading orders</button>
+                </div>
+              )}
               {/* Top Metrics Row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 bg-sanctuary-sand/40 rounded-2xl border border-black/5">
@@ -817,12 +864,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                   <div className="size-6 border-2 border-sanctuary-forest border-t-transparent rounded-full animate-spin mx-auto" />
                   <p className="text-xs font-bold text-sanctuary-dark/60">Fetching live bookings from Neon PostgreSQL...</p>
                 </div>
-              ) : filteredBookings.length === 0 ? (
+              ) : bookingsError && !lastBookingsSync ? null : filteredBookings.length === 0 ? (
                 <div className="py-16 text-center space-y-1 bg-[#FAF8F5] rounded-3xl border border-black/10">
                   <span className="material-symbols-outlined text-3xl text-gray-400">inbox</span>
                   <p className="text-sm font-black text-sanctuary-dark">No bookings found</p>
                   <p className="text-xs text-sanctuary-dark/60">
-                    {searchTerm ? 'No results matched your search query.' : 'New bookings placed on the website will appear here in real-time.'}
+                    {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all' || serviceFilter !== 'all' ? 'No orders match the current search and filters. Clear them to see all orders.' : 'No saved bookings yet. Completed bookings will appear here automatically.'}
                   </p>
                 </div>
               ) : (

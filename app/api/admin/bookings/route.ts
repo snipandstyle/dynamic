@@ -5,7 +5,10 @@ export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get('authorization');
     const result = await handleGetAdminBookings(authHeader);
-    return NextResponse.json(result.body, { status: result.status });
+    return NextResponse.json(result.body, {
+      status: result.status,
+      headers: { 'Cache-Control': 'private, no-store' },
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
