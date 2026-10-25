@@ -375,9 +375,11 @@ export function BookingShell({
 export function OrderSummary({
   items,
   children,
+  coupon,
 }: {
   items: BookingItem[];
   children?: React.ReactNode;
+  coupon?: { code: string; discount: number; benefit?: string };
 }) {
   const quote = quoteCart(items);
   return (
@@ -425,15 +427,16 @@ export function OrderSummary({
             <span>−{money(quote.discount)}</span>
           </div>
         )}
+        {coupon && <div className="pet-green"><span>{coupon.code}</span><span>{coupon.discount ? `−${money(coupon.discount)}` : coupon.benefit || 'Included'}</span></div>}
         <div className="pet-grand-total">
           <strong>Total to pay</strong>
-          <strong>{money(quote.total)}</strong>
+          <strong>{money(Math.round((quote.total - (coupon?.discount || 0)) * 100) / 100)}</strong>
         </div>
       </div>
       {quote.savings > 0 && (
         <div className="pet-savings">
           <Icon name="sparkle" size={17} />
-          You’re saving {money(quote.savings)} on advertised rates
+          You’re saving {money(quote.savings + (coupon?.discount || 0))} on advertised rates
         </div>
       )}
       {children}

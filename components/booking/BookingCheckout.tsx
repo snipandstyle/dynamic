@@ -12,6 +12,8 @@ import {
 } from "../../data/catalog";
 import { writeBookingCart } from "../../utils/booking-cart";
 import { BookingShell, Icon, OrderSummary, useBookingCart } from "./BookingUI";
+import CheckoutCoupons from './CheckoutCoupons';
+import { CouponResult } from '../../data/coupons';
 
 type Schedule = { date: string; slot: string };
 type Details = {
@@ -56,6 +58,8 @@ export default function BookingCheckout() {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [coupon, setCoupon] = useState<CouponResult>();
+  const total = Math.round((quoteCart(items).total - (coupon?.discount || 0)) * 100) / 100;
   const [pending, setPending] = useState<PendingPayment | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -194,6 +198,7 @@ export default function BookingCheckout() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          couponCode: coupon?.code,
           items: items.map((item) => ({
             ...item,
             petName: pet(item).name,
@@ -715,7 +720,7 @@ export default function BookingCheckout() {
                         <Icon name="shield" />
                         <p>
                           Your total is{" "}
-                          <strong>{money(quoteCart(items).total)}</strong>.
+                          <strong>{money(total)}</strong>.
                           You’ll pay through Razorpay using UPI, cards, or
                           another available method. Your booking is confirmed
                           after payment verification and saving your booking.
@@ -783,7 +788,7 @@ export default function BookingCheckout() {
                         {busy
                           ? "Opening secure Razorpay payment…"
                           : step === 2
-                            ? `Pay ${money(quoteCart(items).total)} with Razorpay`
+                            ? `Pay ${money(total)} with Razorpay`
                             : step === 0
                               ? "Choose date & arrival"
                               : "Review your booking"}
@@ -797,7 +802,9 @@ export default function BookingCheckout() {
                 </form>
               </section>
             </div>
-            <OrderSummary items={items} />
+            <OrderSummary items={items} coupon={coupon}>
+              <CheckoutCoupons items={items} applied={coupon} onApply={setCoupon} disabled={busy || !!pending} />
+            </OrderSummary>
           </div>
         )}
       </div>

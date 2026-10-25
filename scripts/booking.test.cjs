@@ -42,6 +42,28 @@ function load(relative, mocks = {}, cache = new Map()) {
   return module.exports;
 }
 const catalog = load("data/catalog.ts");
+const { evaluateCoupon } = load('data/coupons.ts');
+
+test('coupon eligibility respects category, minimum spend, expiry and caps', () => {
+  const grooming = item({ serviceId: 'full-grooming' });
+  const offer = { code: 'GROOM10', title: 'Grooming offer', is_active: true, discount_type: 'percentage', discount_percent: 10, min_order_amount: 1000, applicable_category: 'grooming' };
+  assert.equal(evaluateCoupon(offer, [grooming]).discount, 219.9);
+  assert.equal(evaluateCoupon(offer, [item()]).eligible, false);
+  assert.equal(evaluateCoupon({ ...offer, is_active: false }, [grooming]).eligible, false);
+  assert.equal(evaluateCoupon({ ...offer, valid_until: '2020-01-01' }, [grooming]).eligible, false);
+  assert.equal(evaluateCoupon({ ...offer, max_discount_amount: 100 }, [grooming]).discount, 100);
+  assert.equal(evaluateCoupon({ ...offer, applicable_category: 'boarding' }, [grooming]).eligible, false);
+  assert.equal(evaluateCoupon({ ...offer, discount_type: 'flat', discount_amount: 9999 }, [grooming]).discount, 2199);
+});
+
+test('automatic boarding rewards cannot be discounted twice', () => {
+  const stay = item({ category: 'boarding', serviceId: 'boarding', nights: 6 });
+  const offer = { code: 'STAY6FREE1', title: 'Free night', is_active: true, discount_type: 'flat', discount_amount: 625, min_nights: 6, applicable_category: 'boarding' };
+  assert.equal(evaluateCoupon(offer, [stay]).automatic, true);
+  assert.equal(evaluateCoupon(offer, [stay]).discount, 0);
+  assert.equal(evaluateCoupon(offer, [{ ...stay, nights: 5 }]).eligible, false);
+  assert.equal(evaluateCoupon({ ...offer, code: 'FREESPA', min_nights: 4, discount_type: 'free_package' }, [stay]).automatic, true);
+});
 test("all supplied bundle prices, including long-coat cats, remain exact", () => {
   const expected = [[4874,6374,7999],[8999,11999,14999],[13999,18749,23374],[6874,9124,11249],[7499,9874,12124],[6374,7999,8749],[11999,14999,16499],[18749,23374,25749],[9124,11249,12499],[9874,12124,13499],[4874,6374],[8999,11999],[13999,20999],[6874,9124]];
   catalog.SUPER_SAVER_BUNDLES.forEach((b,index)=>{
@@ -362,6 +384,30 @@ test("signed payment snapshot is bound to its order and cannot be altered", () =
   );
 });
 
+test('client supplied coupon discounts are discarded; signed snapshots preserve verified discounts', () => {
+  const raw = { ...order(), couponCode: ' groom10 ', coupon: { code: 'FORGED', discount: 999999 } };
+  const validated = signing.validateOrder(raw);
+  assert.equal(validated.coupon, undefined);
+  assert.equal(validated.couponCode, 'GROOM10');
+  const verified = { ...validated, coupon: { code: 'GROOM10', discount: 44.9 } };
+  const recovered = signing.readSignedOrder(signing.signOrder(verified, 'order_coupon'), 'order_coupon');
+  assert.equal(signing.quoteBookingOrder(recovered).total, 404.1);
+});
+
+test('order creation applies the database coupon and charges its discounted amount in paise', async () => {
+  let charged;
+  const route = load('app/api/booking/order/route.ts', {
+    ...nextMock,
+    '../../../../lib/db': { query: async () => ({ rows: [] }) },
+    '../../../../lib/booking-coupons': { checkoutCoupons: async () => ({ applied: { code: 'GROOM10', discount: 219.9 } }) },
+    '../../../../lib/razorpay': { createRazorpayOrder: async input => { charged = input.amountPaise; return { order_id: 'order_coupon', amount: charged }; } },
+  });
+  const response = await route.POST({ json: async () => ({ ...order([item({ serviceId: 'full-grooming' })]), couponCode: 'GROOM10' }) });
+  assert.equal(response.status, 200);
+  assert.equal(charged, 197910);
+  assert.equal(signing.readSignedOrder(response.body.token, 'order_coupon').coupon.discount, 219.9);
+});
+
 const nextMock = {
   "../../../../lib/api-handlers": {
     handleCreateBooking: async () => {
@@ -554,6 +600,19 @@ test("webhook recovery saves the complete booking without a browser callback", a
   assert.equal(result.bookingRef, "SNS-TEST");
   assert.equal(c.saves(), 1);
   assert.equal(c.payload().totalAmount, 449);
+});
+
+test('discounted payments and webhook recovery retain the coupon and exact paid total', async () => {
+  const raw = { ...order([item({ serviceId: 'full-grooming' })]), coupon: { code: 'GROOM10', discount: 219.9 } };
+  const signed = signing.signOrder(raw, 'order_test');
+  const c = confirmRoute({ amount: 197910, sessionToken: signed });
+  const result = await c.payment.recoverCapturedPayment('order_test', 'pay_test');
+  assert.equal(result.total, 1979.1);
+  assert.equal(c.payload().totalAmount, 1979.1);
+  assert.equal(c.payload().discountAmount, 219.9);
+  assert.equal(c.payload().appliedOfferCode, 'GROOM10');
+  const wrong = confirmRoute({ amount: 219900 });
+  assert.equal((await wrong.route.POST(paymentRequest(raw))).status, 400);
 });
 test("webhook recovery leaves legacy orders to their existing handler", async () => {
   const c = confirmRoute();

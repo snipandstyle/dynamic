@@ -1,5 +1,5 @@
-import { BookingOrder, readSignedOrder } from "./booking-order";
-import { addDays, quoteCart, SUPER_SAVER_BUNDLES } from "../data/catalog";
+import { BookingOrder, readSignedOrder, quoteBookingOrder } from "./booking-order";
+import { addDays, SUPER_SAVER_BUNDLES } from "../data/catalog";
 import {ensureBundlePasses,bundleExpiry} from "./bundle-passes";
 import { razorpayClient } from "./razorpay";
 import { pool, query } from "./db";
@@ -52,11 +52,11 @@ export async function finalizeBookingPayment(
   paymentId: string,
   signature?: string,
 ) {
-  const quote = quoteCart(order.items);
+  const quote = quoteBookingOrder(order);
   const payment = await razorpayClient.payments.fetch(paymentId);
   if (
     payment.order_id !== orderId ||
-    Number(payment.amount) !== quote.total * 100 ||
+    Number(payment.amount) !== Math.round(quote.total * 100) ||
     payment.currency !== "INR"
   )
     throw new PaymentBookingError(
@@ -119,13 +119,14 @@ export async function finalizeBookingPayment(
         paymentStatus: "paid",
         paymentMethod: "razorpay_gateway",
         appliedOfferCode:
-          [...new Set(quote.lines.map((l) => l.offer).filter(Boolean))].join(
+          [...new Set([...quote.lines.map((l) => l.offer), order.coupon?.code].filter(Boolean))].join(
             "+",
           ) || null,
         departureGroomingWash: quote.lines.some((l) => !!l.perk),
         emergencyContact: order.customer.phone,
         specialInstructions: JSON.stringify({
-          customerNotes: order.customer.notes,
+          customerNotes: [order.customer.notes, order.coupon?.benefit ? `Coupon ${order.coupon.code}: ${order.coupon.benefit}` : ''].filter(Boolean).join('\n'),
+          couponBenefit: order.coupon?.benefit,
           services,
         }),
         services_json: services,

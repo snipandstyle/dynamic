@@ -2,3 +2,17 @@
 .exact-admin-passes-link{display:block;text-align:left;background:#e9efdf;padding:12px 24px;font-size:11px;font-weight:800;border:0;color:#3a603c;cursor:pointer}
 .grooming-selection-photo{display:block;width:100%;height:150px;object-fit:cover;object-position:center 45%;border-radius:12px;margin-bottom:16px;background:#eef1e5}
 @media(max-width:600px){.grooming-selection-photo{height:112px;margin-bottom:12px}}
+/* Checkout offers stay compact and readable on small screens. */
+.pet-coupons { margin-top: 20px; padding-top: 18px; border-top: 1px solid #dce2d5; }
+.pet-coupons h3 { margin: 0 0 8px; font-size: 18px; }
+.pet-coupon-entry { display: flex; gap: 8px; margin: 14px 0; }
+.pet-coupon-entry input { width: 0; min-width: 0; flex: 1; border: 1px solid #ccd7c5; border-radius: 10px; padding: 10px; font: inherit; }
+.pet-coupon-card { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px dashed #ccd7c5; }
+.pet-coupon-card > div { flex: 1; min-width: 0; }
+.pet-coupon-card strong { color: #214f42; font-size: 12px; letter-spacing: .05em; }
+.pet-coupon-card h4 { font-size: 13px; margin: 5px 0; }
+.pet-coupon-card p, .pet-coupon-card small { font-size: 12px; line-height: 1.5; margin: 5px 0; display: block; }
+.pet-coupon-card button, .pet-coupon-applied button { background: #214f42; color: white; padding: 8px 10px; border-radius: 8px; border: 0; cursor: pointer; }
+.pet-coupon-card button:disabled { opacity: .55; cursor: default; }
+.pet-coupon-applied { border-radius: 10px; background: #edf4e5; padding: 12px; font-size: 12px; line-height: 1.6; }
+.pet-coupon-applied button { display: block; margin-top: 8px; }

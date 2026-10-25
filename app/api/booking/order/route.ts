@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { validateOrder, signOrder } from "../../../../lib/booking-order";
-import { quoteCart } from "../../../../data/catalog";
+import { validateOrder, signOrder, quoteBookingOrder } from "../../../../lib/booking-order";
+import { checkoutCoupons } from "../../../../lib/booking-coupons";
 import { createRazorpayOrder } from "../../../../lib/razorpay";
 import { query } from "../../../../lib/db";
 import { savePaymentSession } from "../../../../lib/booking-payment";
@@ -8,6 +8,10 @@ export async function POST(request: Request) {
   let order;
   try {
     order = validateOrder(await request.json());
+    if (order.couponCode) {
+      const { applied } = await checkoutCoupons(order.items, order.couponCode);
+      order.coupon = applied && { code: applied.code, discount: applied.discount, benefit: applied.benefit };
+    }
   } catch (error) {
     return NextResponse.json(
       {
@@ -24,9 +28,9 @@ export async function POST(request: Request) {
       );
     // Do not collect payment while the booking database is unreachable.
     await query("SELECT 1");
-    const quote = quoteCart(order.items);
+    const quote = quoteBookingOrder(order);
     const payment = await createRazorpayOrder({
-      amountPaise: quote.total * 100,
+      amountPaise: Math.round(quote.total * 100),
       currency: "INR",
       receipt: `sns_${crypto.randomUUID().slice(0, 24)}`,
       notes: { source: "booking_v2", service_count: String(quote.count) },

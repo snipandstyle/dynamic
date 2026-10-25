@@ -9,6 +9,8 @@ import {
 } from "../data/catalog";
 
 export interface BookingOrder {
+  couponCode?: string;
+  coupon?: { code: string; discount: number; benefit?: string };
   items: BookingItem[];
   customer: { name: string; phone: string; notes: string };
   schedules: Record<string, { date: string; slot: string }>;
@@ -60,7 +62,13 @@ export function validateOrder(raw: BookingOrder): BookingOrder {
     schedules[item.id] = { date: schedule.date, slot: schedule.slot };
   }
   quoteCart(items);
-  return { items, customer, schedules };
+  const couponCode = String(raw.couponCode || '').trim().toUpperCase().slice(0, 50);
+  return { items, customer, schedules, ...(couponCode ? { couponCode } : {}) };
+}
+export function quoteBookingOrder(order: BookingOrder) {
+  const quote = quoteCart(order.items);
+  const discount = order.coupon?.discount || 0;
+  return { ...quote, discount: quote.discount + discount, total: Math.round((quote.total - discount) * 100) / 100 };
 }
 function secret() {
   const key = process.env.RAZORPAY_KEY_SECRET;
