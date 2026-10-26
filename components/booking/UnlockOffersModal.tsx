@@ -9,7 +9,6 @@ const DISMISSED = 'snip_offer_dismissed_v2';
 export default function UnlockOffersModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [phone, setPhone] = useState('');
-  const [petName, setPetName] = useState('');
   const [offers, setOffers] = useState<Offer[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
@@ -62,7 +61,7 @@ export default function UnlockOffersModal() {
     try {
       const response = await fetch('/api/checkout/draft', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(15000),
-        body: JSON.stringify({ phone: cleanPhone, petName: petName.trim(), status: 'draft', lastStep: 'landing_offer_unlock', notes: 'Offer enquiry submitted on ' + window.location.pathname }),
+        body: JSON.stringify({ phone: cleanPhone, status: 'draft', lastStep: 'landing_offer_unlock', notes: 'Offer enquiry submitted on ' + window.location.pathname }),
       });
       const result = await response.json();
       if (!response.ok || !result.success || !result.id) throw new Error('We couldn’t save your number. Please retry, or continue browsing.');
@@ -73,18 +72,20 @@ export default function UnlockOffersModal() {
   }
   if (!isOpen) return null;
   return <div className="ref-lead-overlay" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title" onClick={close}>
-    <div className="ref-lead-card" ref={card} onClick={event => event.stopPropagation()}>
+    <div className="ref-lead-card ref-lead-compact" ref={card} onClick={event => event.stopPropagation()}>
       <button type="button" className="ref-lead-close" aria-label="Close offer modal" onClick={close}>×</button>
-      <div className="ref-lead-header"><span className="ref-lead-badge"><Icon name="sparkle" size={14}/> A LITTLE EXTRA PAMPERING</span><h3 id="lead-modal-title">{unlocked ? 'Your offers are unlocked!' : 'Unlock their next happy visit'}</h3><p>{unlocked ? 'Your enquiry is saved. Choose a service and apply eligible codes at checkout.' : 'Leave your mobile number to unlock the offers below. Our studio can help you plan your pet’s visit.'}</p></div>
-      <ul className="ref-lead-perks">{offers.map(offer => <li key={offer.code}><Icon name="check" size={16}/><span><strong>{offer.title}</strong><br/>{unlocked ? <code>{offer.code}</code> : offer.description}</span></li>)}</ul>
+      <div className="ref-lead-picture"><img src="/images/generated/pet-happy-place.webp" alt="Happy dogs and a cat relaxing together" width={680} height={240}/><span><Icon name="sparkle" size={12}/> A little treat, on us</span></div>
+      <div className="ref-lead-compact-body">
+      <div className="ref-lead-header"><h3 id="lead-modal-title">{unlocked ? 'Your offers are unlocked!' : 'Happy pets. Lovely offers.'}</h3><p>{unlocked ? 'Your number is saved. Use eligible codes at checkout.' : 'Unlock grooming & stay offers with your number.'}</p></div>
+      {unlocked && <div className="ref-lead-code-chips">{offers.map(offer => <code key={offer.code} title={offer.title}>{offer.code}</code>)}</div>}
       {error && <p className="ref-lead-error" role="alert">{error}</p>}
       {!unlocked ? <form onSubmit={submit} className="ref-lead-form">
         <label htmlFor="offer-phone">Mobile / WhatsApp number</label><div className="ref-lead-input-wrap"><span className="ref-lead-prefix">+91</span><input id="offer-phone" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="10-digit mobile number" value={phone} onChange={event => setPhone(event.target.value.replace(/\D/g, '').slice(0, 10))} required /></div>
-        <input aria-label="Pet’s name (optional)" className="ref-lead-pet-input" maxLength={100} placeholder="Pet’s name (optional)" value={petName} onChange={event => setPetName(event.target.value)}/>
         <button type="submit" className="ref-lead-submit-btn" disabled={submitting}>{submitting ? 'Saving your enquiry…' : 'Unlock offers →'}</button>
-        <p className="ref-lead-guarantee">By submitting, you agree that Snip &amp; Style may contact you about this enquiry and these offers. <a href="/privacy">Privacy policy</a></p>
+        <p className="ref-lead-guarantee">By submitting, you agree to studio contact about your enquiry &amp; offers. <a href="/privacy">Privacy</a></p>
         <button type="button" className="pet-edit-link" onClick={close}>Continue browsing</button>
-      </form> : <><p className="pet-small" role="status">Your mobile number has been saved with your enquiry.</p><button type="button" className="ref-lead-submit-btn" onClick={() => { close(); document.getElementById('grooming-packages')?.scrollIntoView({ behavior: 'smooth' }); }}>Explore grooming packages →</button><button type="button" className="pet-edit-link" onClick={() => { close(); document.getElementById('boarding-packages')?.scrollIntoView({ behavior: 'smooth' }); }}>Explore boarding stays →</button></>}
+      </form> : <><span className="pet-small" role="status">Enquiry saved ✓</span><button type="button" className="ref-lead-submit-btn" onClick={() => { close(); document.getElementById('grooming-packages')?.scrollIntoView({ behavior: 'smooth' }); }}>Explore grooming →</button><button type="button" className="pet-edit-link" onClick={() => { close(); document.getElementById('boarding-packages')?.scrollIntoView({ behavior: 'smooth' }); }}>Explore boarding →</button></>}
+      </div>
     </div>
   </div>;
 }
