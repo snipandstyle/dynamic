@@ -1051,10 +1051,10 @@ export async function handleSaveCheckoutDraft(data: {
   notes?: string;
 }) {
   try {
-    const rawPhone = data.phone || '';
+    const rawPhone = typeof data.phone === 'string' ? data.phone : '';
     const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
 
-    if (!cleanPhone || cleanPhone.length < 10) {
+    if (!/^[6-9]\d{9}$/.test(cleanPhone) || !/^(?:91)?[6-9]\d{9}$/.test(rawPhone.replace(/\D/g, ''))) {
       return { status: 400, body: { error: 'Valid 10-digit phone number is required.' } };
     }
 
@@ -1070,20 +1070,10 @@ export async function handleSaveCheckoutDraft(data: {
     const dropOffTime = data.dropOffTime || '';
     const totalAmount = Math.max(0, Math.round(Number(data.totalAmount || 0)));
     const status = data.status || 'abandoned';
+    if (!['draft', 'payment_opened', 'payment_abandoned', 'abandoned'].includes(status)) return { status: 400, body: { error: 'Invalid enquiry status.' } };
     const lastStep = data.lastStep || 'entered_details';
     const razorpayOrderId = data.razorpayOrderId || null;
     const notes = data.notes || '';
-
-    // If marked as converted, update any unconverted records for this phone to 'converted'
-    if (status === 'converted') {
-      await query(
-        `UPDATE abandoned_checkouts 
-         SET status = 'converted', updated_at = NOW() 
-         WHERE phone = $1 OR phone = $2`,
-        [cleanPhone, `+91${cleanPhone}`]
-      );
-      return { status: 200, body: { success: true, message: 'Checkout marked as converted.' } };
-    }
 
     // Check if an existing unconverted record exists in the last 48 hours for this phone
     const existing = await query(
@@ -1096,6 +1086,8 @@ export async function handleSaveCheckoutDraft(data: {
     let recordId: string;
     if (existing.rows.length > 0) {
       recordId = existing.rows[0].id;
+      // Reopening the offer popup must not erase a detailed checkout lead.
+      if (lastStep === 'landing_offer_unlock') return { status: 200, body: { success: true, id: recordId } };
       await query(
         `UPDATE abandoned_checkouts 
          SET customer_name = COALESCE(NULLIF($1, ''), customer_name),
@@ -1163,28 +1155,6 @@ export async function handleSaveCheckoutDraft(data: {
         ]
       );
       recordId = insertRes.rows[0].id;
-    }
-
-    // Automatically create a provisional customer account if none exists for this phone
-    try {
-      const uRes = await query(
-        'SELECT id FROM users WHERE phone_number = $1 OR phone_number = $2 LIMIT 1',
-        [cleanPhone, `+91${cleanPhone}`]
-      );
-      if (uRes.rows.length === 0) {
-        const orgRes = await query('SELECT id FROM organizations LIMIT 1');
-        const orgId = orgRes.rows[0]?.id || null;
-        const tempId = crypto.randomUUID();
-        const tempHash = await hashPassword(crypto.randomBytes(16).toString('hex'));
-        const safeName = (customerName && customerName !== 'Pet Parent') ? customerName : 'Pet Parent';
-        await query(
-          `INSERT INTO users (id, organization_id, full_name, email, phone_number, password_hash, role, is_phone_verified)
-           VALUES ($1, $2, $3, $4, $5, $6, 'customer', false)`,
-          [tempId, orgId, safeName, email || `${cleanPhone}@snipandstyle.pet`, cleanPhone, tempHash]
-        );
-      }
-    } catch (uErr) {
-      console.warn('[handleSaveCheckoutDraft User Creation Notice]', uErr);
     }
 
     return { status: 200, body: { success: true, id: recordId } };

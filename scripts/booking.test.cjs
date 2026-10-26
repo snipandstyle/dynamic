@@ -44,6 +44,36 @@ function load(relative, mocks = {}, cache = new Map()) {
 const catalog = load("data/catalog.ts");
 const { evaluateCoupon } = load('data/coupons.ts');
 
+test('offer submissions persist as leads without silently creating customer accounts', async () => {
+  const statements = [];
+  const api = load('lib/api-handlers.ts', {
+    './db': { query: async (sql) => { statements.push(sql); return { rows: sql.includes('INSERT INTO abandoned_checkouts') ? [{ id: 'lead-test' }] : [] }; } },
+    './razorpay': {},
+  });
+  const result = await api.handleSaveCheckoutDraft({ phone: '9000090001', petName: 'QA Pet', status: 'draft', lastStep: 'landing_offer_unlock' });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.id, 'lead-test');
+  assert.ok(statements.some(sql => sql.includes('INSERT INTO abandoned_checkouts')));
+  assert.equal(statements.some(sql => sql.includes('INSERT INTO users')), false);
+});
+
+test('offer capture rejects bad numbers, database failures and forged conversion status', async () => {
+  const api = load('lib/api-handlers.ts', { './db': { query: async () => { throw new Error('Database unavailable'); } }, './razorpay': {} });
+  assert.equal((await api.handleSaveCheckoutDraft({ phone: '1234567890' })).status, 400);
+  assert.equal((await api.handleSaveCheckoutDraft({ phone: '9000090001', status: 'converted' })).status, 400);
+  const result = await api.handleSaveCheckoutDraft({ phone: '9000090001', status: 'draft' });
+  assert.equal(result.status, 500);
+  assert.notEqual(result.body.success, true);
+});
+
+test('reopening offers keeps existing checkout details intact', async () => {
+  const statements = [];
+  const api = load('lib/api-handlers.ts', { './db': { query: async sql => { statements.push(sql); return { rows: [{ id: 'existing-lead' }] }; } }, './razorpay': {} });
+  const result = await api.handleSaveCheckoutDraft({ phone: '9000090001', status: 'draft', lastStep: 'landing_offer_unlock' });
+  assert.equal(result.body.id, 'existing-lead');
+  assert.equal(statements.some(sql => sql.includes('UPDATE abandoned_checkouts')), false);
+});
+
 test('coupon eligibility respects category, minimum spend, expiry and caps', () => {
   const grooming = item({ serviceId: 'full-grooming' });
   const offer = { code: 'GROOM10', title: 'Grooming offer', is_active: true, discount_type: 'percentage', discount_percent: 10, min_order_amount: 1000, applicable_category: 'grooming' };

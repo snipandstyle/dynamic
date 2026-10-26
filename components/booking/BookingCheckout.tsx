@@ -14,6 +14,7 @@ import { writeBookingCart } from "../../utils/booking-cart";
 import { BookingShell, Icon, OrderSummary, useBookingCart } from "./BookingUI";
 import CheckoutCoupons from './CheckoutCoupons';
 import { CouponResult } from '../../data/coupons';
+import { trackBookingEvent } from '../../utils/booking-analytics';
 
 type Schedule = { date: string; slot: string };
 type Details = {
@@ -63,6 +64,14 @@ export default function BookingCheckout() {
   const [pending, setPending] = useState<PendingPayment | null>(null);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const checkoutTracked = useRef(false);
+  const offerPhonePrefilled = useRef(false);
+  useEffect(() => {
+    if (ready && items.length && !checkoutTracked.current) {
+      checkoutTracked.current = true;
+      trackBookingEvent('checkout_started', { services: items.length });
+    }
+  }, [ready, items]);
   useEffect(() => {
     // Preload Razorpay checkout script so modal opens instantly
     if (typeof window !== "undefined" && !(window as any).Razorpay) {
@@ -95,6 +104,15 @@ export default function BookingCheckout() {
       }
     }
   }, [details, loaded]);
+  useEffect(() => {
+    if (!loaded || offerPhonePrefilled.current) return;
+    offerPhonePrefilled.current = true;
+    if (details.phone) return;
+    try {
+      const savedPhone = localStorage.getItem('snip_user_phone');
+      if (savedPhone && /^[6-9]\d{9}$/.test(savedPhone)) setDetails(current => ({ ...current, phone: savedPhone }));
+    } catch { /* The customer can enter their number manually. */ }
+  }, [loaded, details.phone]);
   const pet = (item: BookingItem) =>
     details.pets[item.id] || {
       name: item.petName || "",
@@ -136,8 +154,26 @@ export default function BookingCheckout() {
   const next = () => {
     const message = validate(step);
     if (message) setError(message);
-    else go(step + 1);
+    else {
+      void saveCheckoutLead('draft', step === 0 ? 'checkout_details' : 'checkout_review');
+      trackBookingEvent(step === 0 ? 'checkout_details_completed' : 'checkout_reviewed');
+      go(step + 1);
+    }
   };
+  async function saveCheckoutLead(status: string, lastStep: string, orderId?: string) {
+    try {
+      await fetch('/api/checkout/draft', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+        body: JSON.stringify({ phone: details.phone, customerName: details.name,
+          petName: items.map(item => pet(item).name).join(', '), petType: items[0]?.petType,
+          petSize: items[0]?.petSize, petBreed: items[0] ? pet(items[0]).breed : '',
+          serviceSummary: items.map(item => quoteItem(item).name).join(' + '), services_json: items,
+          totalAmount: total, checkInDate: items[0] ? schedule(items[0]).date : '',
+          dropOffTime: items[0] ? schedule(items[0]).slot : '', status, lastStep, razorpayOrderId: orderId,
+        }),
+      });
+    } catch { /* Lead recovery must never block a customer from booking. */ }
+  }
   async function confirmPayment(payment: PendingPayment) {
     setBusy(true);
     setError("");
@@ -154,6 +190,7 @@ export default function BookingCheckout() {
             "We could not verify your booking. Please contact the studio with your payment ID.",
         );
       setConfirmation(result);
+      trackBookingEvent('booking_confirmed', { total: result.total });
       try {
         writeBookingCart([]);
         sessionStorage.removeItem(DRAFT_KEY);
@@ -231,6 +268,8 @@ export default function BookingCheckout() {
         modal: {
           ondismiss: () => {
             setBusy(false);
+            trackBookingEvent('payment_dismissed');
+            void saveCheckoutLead('payment_abandoned', 'payment_dismissed', order.order_id);
             setError(
               "Payment window closed. Your cart is saved and no booking has been confirmed.",
             );
@@ -257,12 +296,16 @@ export default function BookingCheckout() {
         },
       });
       paymentWindow.on("payment.failed", () => {
+        trackBookingEvent('payment_failed');
+        void saveCheckoutLead('payment_abandoned', 'payment_failed', order.order_id);
         setBusy(false);
         setError(
           "Your payment was not completed. Your cart is saved; please try again or contact the studio.",
         );
       });
       paymentWindow.open();
+      trackBookingEvent('payment_opened', { total: order.amount / 100 });
+      void saveCheckoutLead('payment_opened', 'razorpay_checkout_opened', order.order_id);
     } catch (err) {
       setBusy(false);
       setError(

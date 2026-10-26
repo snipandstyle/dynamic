@@ -144,6 +144,10 @@ export async function finalizeBookingPayment(
       await client.query(`INSERT INTO booking_bundle_passes (id,order_id,service_line_id,booking_ref,bundle_id,bundle_name,pet_name,pet_type,coat_type,sessions_total,valid_from,valid_until) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (order_id,service_line_id) DO NOTHING`,[crypto.randomUUID(),orderId,service.id,bookingRef,service.bundle.id,service.bundle.name,service.petName||"Pet",service.petType,service.coatType||service.bundle.coatType||null,service.bundle.sessions*service.quantity,service.date,bundleExpiry(service.date,months)]);
     }
     await client.query("COMMIT");
+    // A paid booking is the authority for converting an enquiry, including webhook recovery.
+    await query("UPDATE abandoned_checkouts SET status = 'converted', updated_at = NOW() WHERE (phone = $1 OR phone = $2) AND status != 'converted'", [order.customer.phone, '+91' + order.customer.phone]).catch(() => {
+      console.warn('[booking] Lead status update pending; paid booking remains saved.');
+    });
     return {
       success: true,
       bookingRef,

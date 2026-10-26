@@ -19,6 +19,8 @@ import CompletePriceMenu from "./CompletePriceMenu";
 import { priceSize } from "../../data/pet-selection";
 import { PRIMARY_GROOMING, packageDetails } from "../../data/package-details";
 import { groomingImage } from "../../data/grooming-images";
+import UnlockOffersModal from './UnlockOffersModal';
+import { trackBookingEvent } from '../../utils/booking-analytics';
 
 export default function ReferenceStorefront({
   page = "home",
@@ -80,6 +82,7 @@ export default function ReferenceStorefront({
   function confirm(newItems: BookingItem[]) {
     try {
       writeBookingCart([...readBookingCart(), ...newItems]);
+      trackBookingEvent('add_to_cart', { services: newItems.length });
       setDraft(null);
       setNotice(
         `${newItems.length > 1 ? "Your services" : quoteItem(newItems[0]).name} added to cart`,
@@ -129,6 +132,7 @@ export default function ReferenceStorefront({
   }
   return (
     <div className="ref-storefront">
+      <UnlockOffersModal />
       <LandingHero mode={mode} onMode={switchMode} page={page} />
       <section
         className="ref-container restore-offers"
@@ -139,6 +143,7 @@ export default function ReferenceStorefront({
           <Icon name="sparkle" size={20} />
           <strong>A little more love, for less.</strong>
           <span>Online savings + studio rewards</span>
+          <button type="button" className="pet-button pet-button-light" onClick={() => window.dispatchEvent(new Event('snip_open_offers'))}>Unlock offers</button>
         </div>
         <div className="restore-offer-rail">
           {[

@@ -16,3 +16,6 @@
 .pet-coupon-card button:disabled { opacity: .55; cursor: default; }
 .pet-coupon-applied { border-radius: 10px; background: #edf4e5; padding: 12px; font-size: 12px; line-height: 1.6; }
 .pet-coupon-applied button { display: block; margin-top: 8px; }
+.ref-lead-card { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.ref-lead-form label { font-size: 13px; font-weight: 700; }
+.ref-lead-guarantee a { text-decoration: underline; }
