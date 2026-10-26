@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth" className={jakarta.variable}>
       <head>
-        <script defer src="https://cloud.umami.is/script.js" data-website-id="f3ab6622-e4f8-42d4-ba39-a1bff5dc63ef" />
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="f3ab6622-e4f8-42d4-ba39-a1bff5dc63ef" data-domains="snipandstyle.pet,www.snipandstyle.pet" />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
